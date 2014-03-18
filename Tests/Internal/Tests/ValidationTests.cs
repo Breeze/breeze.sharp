@@ -21,6 +21,7 @@ namespace Test_NetClient {
 
     [TestInitialize]
     public void TestInitializeMethod() {
+      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
