@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{2E44777C-485D-48B5-958D-D45B45A4709A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Breeze.Sharp", "Breeze.Sharp\Breeze.Sharp.csproj", "{54B1CE10-2847-4565-839A-26DA3A51AF38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model_Inheritance.Sharp", "Tests\Internal\Model_Inheritance.Sharp\Model_Inheritance.Sharp.csproj", "{58B41CC6-8D34-40C4-9342-DB55AE6CCA02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model_Northwind.Sharp", "Tests\Internal\Model_Northwind.Sharp\Model_Northwind.Sharp.csproj", "{E357F17B-6A21-4682-B7C8-3EBFEBF862F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Breeze.Sharp.Internal.Tests", "Tests\Internal\Tests\Breeze.Sharp.Internal.Tests.csproj", "{C291ECD4-FD4E-43C2-A6BE-BAB5B7BA8E6E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54B1CE10-2847-4565-839A-26DA3A51AF38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54B1CE10-2847-4565-839A-26DA3A51AF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54B1CE10-2847-4565-839A-26DA3A51AF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54B1CE10-2847-4565-839A-26DA3A51AF38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58B41CC6-8D34-40C4-9342-DB55AE6CCA02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58B41CC6-8D34-40C4-9342-DB55AE6CCA02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58B41CC6-8D34-40C4-9342-DB55AE6CCA02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58B41CC6-8D34-40C4-9342-DB55AE6CCA02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E357F17B-6A21-4682-B7C8-3EBFEBF862F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E357F17B-6A21-4682-B7C8-3EBFEBF862F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E357F17B-6A21-4682-B7C8-3EBFEBF862F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E357F17B-6A21-4682-B7C8-3EBFEBF862F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C291ECD4-FD4E-43C2-A6BE-BAB5B7BA8E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C291ECD4-FD4E-43C2-A6BE-BAB5B7BA8E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C291ECD4-FD4E-43C2-A6BE-BAB5B7BA8E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C291ECD4-FD4E-43C2-A6BE-BAB5B7BA8E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
