@@ -39,7 +39,7 @@ CustomMetadata
 More tests - 
    Concurrency tests
 
-Extensions for later ( that we can charge for)
+Extensions for later 
 --------------------------------------------
 Property interception
 PostSharp (or other static IL weaver support) 
