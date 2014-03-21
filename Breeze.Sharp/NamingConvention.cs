@@ -18,13 +18,42 @@ namespace Breeze.Sharp {
 
     public String Name { get; protected set; }
 
+    public virtual TypeNameInfo ServerTypeNameToClient(TypeNameInfo serverNameInfo) {
+      
+      String clientNs;
+      if (_serverTypeNamespaceMap.TryGetValue(serverNameInfo.Namespace, out clientNs)) {
+        return new TypeNameInfo(serverNameInfo.ShortName, clientNs);
+      } else {
+        return serverNameInfo;
+      }
+    }
+
     public virtual String ServerPropertyNameToClient(String clientName) {
       return clientName;
+    }
+
+    public virtual TypeNameInfo ClientTypeNameToServer(TypeNameInfo clientNameInfo) {
+      
+      String serverNs;
+      if (_clientTypeNamespaceMap.TryGetValue(clientNameInfo.Namespace, out serverNs)) {
+        return new TypeNameInfo(clientNameInfo.ShortName, serverNs);
+      } else {
+        return clientNameInfo;
+      }
     }
 
     public virtual String ClientPropertyNameToServer(String serverName) {
       return serverName;
     }
+
+    public void AddClientServerNamespaceMapping(String clientNamespace, String serverNamespace) {
+      _clientTypeNamespaceMap[clientNamespace] = serverNamespace;
+      _serverTypeNamespaceMap[serverNamespace] = clientNamespace;
+    }
+
+    public Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
+    public Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
+
 
     public static NamingConvention Default = new NamingConvention("Default");
     public static NamingConvention CamelCase = new CamelCaseNamingConvention();
@@ -35,7 +64,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    public String Test(String testVal, bool toServer) {
+    public String TestPropertyName(String testVal, bool toServer) {
       Func<String, String> fn1;
       Func<String, String> fn2;
       if (toServer) {

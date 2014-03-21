@@ -82,6 +82,7 @@
     <Compile Include="MergeStrategy.cs" />
     <Compile Include="BackupValuesMap.cs" />
     <Compile Include="StructuralAspect.cs" />
+    <Compile Include="TypeNameInfo.cs" />
     <Compile Include="StructuralType.cs" />
     <Compile Include="CsdlMetadataProcessor.cs" />
     <Compile Include="ComplexType.cs" />

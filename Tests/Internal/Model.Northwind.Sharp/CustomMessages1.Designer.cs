@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Model_Northwind_NetClient {
+namespace Model.NorthwindIB {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Model_Northwind_NetClient {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Model_Northwind_NetClient.CustomMessages1", typeof(CustomMessages1).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Model.NorthwindIB.CustomMessages1", typeof(CustomMessages1).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -214,7 +214,7 @@ namespace Test_NetClient {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var emp = new Employee();
-      var vr = new RequiredValidator().WithMessage(typeof(Model_Northwind_NetClient.CustomMessages1));
+      var vr = new RequiredValidator().WithMessage(typeof(Model.NorthwindIB.CustomMessages1));
       var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
       var vc = new ValidationContext(emp, dp, null);
       var ve = vr.Validate(vc);
@@ -230,7 +230,7 @@ namespace Test_NetClient {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var emp = new Employee();
-      var vr = new RequiredValidator().WithMessage("Model_Northwind_NetClient.CustomMessages2", typeof(Employee).Assembly);
+      var vr = new RequiredValidator().WithMessage("Model.NorthwindIB.CustomMessages2", typeof(Employee).Assembly);
       var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
       var vc = new ValidationContext(emp, dp, null);
       var ve = vr.Validate(vc);

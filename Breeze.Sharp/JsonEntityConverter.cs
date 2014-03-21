@@ -15,12 +15,12 @@ namespace Breeze.Sharp {
   public class JsonEntityConverter : JsonConverter {
   
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
-    public JsonEntityConverter(EntityManager entityManager, MergeStrategy mergeStrategy, LoadingOperation loadingOperation, Func<String, String> normalizeTypeNameFn = null) {
+    public JsonEntityConverter(EntityManager entityManager, MergeStrategy mergeStrategy, LoadingOperation loadingOperation) {
       _entityManager = entityManager;
       _metadataStore = entityManager.MetadataStore;
       _mergeStrategy = mergeStrategy;
       _loadingOperation = loadingOperation;
-      _normalizeTypeNameFn = normalizeTypeNameFn;
+      
       _allEntities = new List<IEntity>();
     }
 
@@ -76,8 +76,9 @@ namespace Breeze.Sharp {
       JToken typeToken = null;
       if (jObject.TryGetValue("$type", out typeToken)) {
         var clrTypeName = typeToken.Value<String>();
-        var entityTypeName = StructuralType.ClrTypeNameToStructuralTypeName(clrTypeName);
-        entityType = _metadataStore.GetEntityType(entityTypeName);
+        var serverTypeInfo = TypeNameInfo.FromClrTypeName(clrTypeName);
+        var clientEntityTypeName = serverTypeInfo.ToClient().Name; 
+        entityType = _metadataStore.GetEntityType(clientEntityTypeName);
         objectType = entityType.ClrType;
         if (!jsonContext.ObjectType.IsAssignableFrom(objectType)) {
           throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " + jsonContext.ObjectType.Name);
@@ -219,7 +220,6 @@ namespace Breeze.Sharp {
     private MetadataStore _metadataStore;
     private MergeStrategy _mergeStrategy;
     private LoadingOperation _loadingOperation;
-    private Func<String, String> _normalizeTypeNameFn;
     private List<IEntity> _allEntities;
     private Dictionary<String, Object> _refMap = new Dictionary<string, object>();
   }

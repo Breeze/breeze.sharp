@@ -233,7 +233,7 @@ namespace Test_NetClient {
     public async Task SelectAnonWithScalarSelf() {
       Assert.Inconclusive("OData doesn't support this kind of query (I think)");
       return;
-
+      /*
       // Pretty sure this is an issue with OData not supporting this syntax.
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Foo.Customer>("Customers");
@@ -246,6 +246,7 @@ namespace Test_NetClient {
       Assert.IsTrue(ok, "anon type should have a populated company name");
       ok = results.All(r1 => r1.c.GetType() == typeof(Foo.Customer));
       Assert.IsTrue(ok, "anon type should have a populated 'Customer'");
+      */
     }
 
     [TestMethod]

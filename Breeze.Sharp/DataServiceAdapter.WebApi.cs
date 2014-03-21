@@ -71,7 +71,7 @@ namespace Breeze.Sharp {
       var jn = new JNode();
       var entityType = entityAspect.EntityType;
         
-      jn.AddPrimitive("entityTypeName", entityType.Name);
+      jn.AddPrimitive("entityTypeName", entityType.NameOnServer);
       jn.AddEnum("entityState", entityAspect.EntityState);
       jn.AddPrimitive("defaultResourceName", entityType.DefaultResourceName);
       jn.AddJNode("originalValuesMap", BuildOriginalValuesMapNode(entityAspect, nc));
@@ -127,7 +127,7 @@ namespace Breeze.Sharp {
         if (prop == null) return null;
         var entityNodes = (JArray)prop.Value;
         var serializer = new JsonSerializer();
-        var jsonConverter = new JsonEntityConverter(entityManager, MergeStrategy.OverwriteChanges, LoadingOperation.Save, StructuralType.ClrTypeNameToStructuralTypeName);
+        var jsonConverter = new JsonEntityConverter(entityManager, MergeStrategy.OverwriteChanges, LoadingOperation.Save);
         serializer.Converters.Add(jsonConverter);
         // Don't use the result of the Deserialize call to get the list of entities 
         // because it won't include entities added on the server.
@@ -140,8 +140,9 @@ namespace Breeze.Sharp {
     }
 
     private Tuple<EntityKey, EntityKey> ToEntityKeys(KeyMapping keyMapping) {
-      var entityTypeName = StructuralType.ClrTypeNameToStructuralTypeName(keyMapping.EntityTypeName);
-      var et = MetadataStore.Instance.GetEntityType(entityTypeName);
+      var serverTypeInfo = TypeNameInfo.FromClrTypeName(keyMapping.EntityTypeName);
+      var clientEntityTypeName = serverTypeInfo.ToClient().Name;
+      var et = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
       var oldKey = new EntityKey(et, keyMapping.TempValue);
       var newKey = new EntityKey(et, keyMapping.RealValue);
       return Tuple.Create(oldKey, newKey);

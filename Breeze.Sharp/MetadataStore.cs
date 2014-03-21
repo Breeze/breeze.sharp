@@ -583,7 +583,7 @@ namespace Breeze.Sharp {
       }
 
       public StructuralType GetStructuralType(Type clrType) {
-        var stName = StructuralType.ClrTypeToStructuralTypeName(clrType);
+        var stName = TypeNameInfo.FromClrTypeName(clrType.FullName).Name;
         TypePair tp;
         if (_map.TryGetValue(stName, out tp)) {
           var stType = tp.StructuralType;

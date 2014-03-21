@@ -61,7 +61,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="InheritanceTests.cs" />
+    <Compile Include="InheritanceBillingTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InheritanceProduceTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ValidationTests.cs" />
     <Compile Include="EntityManagerTests.cs" />
     <Compile Include="LocalQueryTests.cs" />
@@ -84,11 +89,15 @@
       <Project>{54b1ce10-2847-4565-839a-26da3a51af38}</Project>
       <Name>Breeze.Sharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model_Inheritance.Sharp\Model_Inheritance.Sharp.csproj">
+    <ProjectReference Include="..\Model.Inheritance.Billing.Sharp\Model.Inheritance.Billing.Sharp.csproj">
       <Project>{58b41cc6-8d34-40c4-9342-db55ae6cca02}</Project>
-      <Name>Model_Inheritance.Sharp</Name>
+      <Name>Model.Inheritance.Billing.Sharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model_Northwind.Sharp\Model_Northwind.Sharp.csproj">
+    <ProjectReference Include="..\Model.Inheritance.Produce.Sharp\Model.Inheritance.Produce.Sharp.csproj">
+      <Project>{73c7f5c5-53ee-4f8c-af80-2fd74a9cf553}</Project>
+      <Name>Model.Inheritance.Produce.Sharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Model.Northwind.Sharp\Model_Northwind.Sharp.csproj">
       <Project>{e357f17b-6a21-4682-b7c8-3ebfebf862f3}</Project>
       <Name>Model_Northwind.Sharp</Name>
     </ProjectReference>

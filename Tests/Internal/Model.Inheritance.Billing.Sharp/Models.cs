@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Inheritance.Models {
+namespace Model.Inheritance.Billing {
   #region interfaces
 
   public interface IBillingDetail {

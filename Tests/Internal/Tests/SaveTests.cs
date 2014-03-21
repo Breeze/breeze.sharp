@@ -409,7 +409,7 @@ namespace Test_NetClient {
         Assert.IsTrue(order2.EntityAspect.ValidationErrors.Count == 1);
         Assert.IsTrue(order2.EntityAspect.ValidationErrors.First().Context.PropertyPath == "OrderID");
       } catch (Exception e) {
-        Assert.Fail("should not get here - wrong exception");
+        Assert.Fail("should not get here - wrong exception" + e.Message);
       }
       // now save it properly
       var sr1 = await em1.SaveChanges();

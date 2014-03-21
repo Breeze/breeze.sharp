@@ -5,20 +5,21 @@ using System.Linq;
 using Breeze.Core;
 using Breeze.Sharp;
 using System.Collections.Generic;
-using Foo;
-using Inheritance.Models;
+
+using Model.Inheritance.Billing;
 using System.Collections;
 
 namespace Test_NetClient {
 
   [TestClass]
-  public class InheritanceTests {
+  public class InheritanceBillingTests {
 
     private String _serviceName;
 
     [TestInitialize]
     public void TestInitializeMethod() {
       MetadataStore.Instance.ProbeAssemblies(typeof(BillingDetailTPC).Assembly);
+      MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping("Model.Inheritance.Billing", "Inheritance.Models");
       _serviceName = "http://localhost:7150/breeze/Inheritance/";
     }
 

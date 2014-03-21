@@ -32,8 +32,8 @@ namespace Breeze.Sharp {
       if (entityContainer != null) {
         var entitySets = ToEnumerable(entityContainer["entitySet"]).Cast<JObject>().ToList();
         entitySets.ForEach(es => {
-          var entityTypeInfo = ParseTypeName((String) es["entityType"]);
-          var entityType = _metadataStore.GetEntityType(entityTypeInfo.TypeName);
+          var clientEtName = GetClientTypeNameFromClrTypeName((String) es["entityType"]);
+          var entityType = _metadataStore.GetEntityType(clientEtName);
           var resourceName = (String) es["name"];
           _metadataStore.AddResourceName(resourceName, entityType, true);
         });
@@ -48,27 +48,25 @@ namespace Breeze.Sharp {
     private EntityType ParseCsdlEntityType(JObject csdlEntityType) {
       var abstractVal = (String)csdlEntityType["abstract"];
       var baseTypeVal = (String)csdlEntityType["baseType"];
-      var nameVal = (String)csdlEntityType["name"];
-
+      var shortNameVal = (String)csdlEntityType["name"];
       var isAbstract = abstractVal == "true";
+      var etName = GetClientTypeNameFromShortName(shortNameVal);
       var entityType = new EntityType {
-        ShortName = nameVal,
-        Namespace = GetNamespaceFor(nameVal),
+        Name = etName
       };
       if (baseTypeVal != null) {
-        var baseTypeInfo = ParseTypeName(baseTypeVal);
-        var baseTypeName = baseTypeInfo.TypeName;
-        entityType.BaseTypeName = baseTypeName;
-        var baseEntityType = _metadataStore.GetEntityType(baseTypeName, true);
+        var baseEtName = GetClientTypeNameFromClrTypeName(baseTypeVal);
+        entityType.BaseTypeName = baseEtName;
+        var baseEntityType = _metadataStore.GetEntityType(baseEtName, true);
         if (baseEntityType != null) {
           CompleteParseCsdlEntityType(entityType, csdlEntityType, baseEntityType);
         } else {
           List<DeferredTypeInfo> deferrals;
-          if (_deferredTypeMap.ContainsKey(baseTypeName)) {
-            deferrals = _deferredTypeMap[baseTypeName];
+          if (_deferredTypeMap.ContainsKey(baseEtName)) {
+            deferrals = _deferredTypeMap[baseEtName];
           } else {
             deferrals = new List<DeferredTypeInfo>();
-            _deferredTypeMap[baseTypeName] = deferrals;
+            _deferredTypeMap[baseEtName] = deferrals;
           }
           deferrals.Add(new DeferredTypeInfo { EntityType = entityType, CsdlEntityType = csdlEntityType });
         }
@@ -202,7 +200,7 @@ namespace Breeze.Sharp {
       // Complex properties are never nullable ( per EF specs)
       // var isNullable = csdlProperty.nullable === 'true' || csdlProperty.nullable == null;
 
-      var complexTypeName = ParseTypeName((String)csdlProperty["type"]).TypeName;
+      var complexTypeName = GetClientTypeNameFromClrTypeName((String)csdlProperty["type"]);
       // can't set the name until we go thru namingConventions and these need the dp.
       var dp = new DataProperty() {
         ParentType = parentType,
@@ -224,7 +222,7 @@ namespace Breeze.Sharp {
       var nameVal = (String)csdlProperty["name"];
       var toEnd = ToEnumerable(association["end"]).FirstOrDefault(end => (String)end["role"] == toRoleVal);
       var isScalar = (String)toEnd["multiplicity"] != "*";
-      var dataType = ParseTypeName((String)toEnd["type"]).TypeName;
+      var dataEtName = GetClientTypeNameFromClrTypeName((String)toEnd["type"]);
       var constraintVal = association["referentialConstraint"];
       if (constraintVal == null) {
         return null;
@@ -240,7 +238,7 @@ namespace Breeze.Sharp {
       var np = new NavigationProperty() {
         ParentType = parentType,
         NameOnServer = nameVal,
-        EntityTypeName = dataType,
+        EntityTypeName = dataEtName,
         IsScalar = isScalar,
         AssociationName = (String)association["name"]
         
@@ -268,7 +266,7 @@ namespace Breeze.Sharp {
       if (assocsVal == null) return null;
 
       var relationshipVal = (String)csdlNavProperty["relationship"];
-      var assocName = ParseTypeName(relationshipVal).ShortTypeName;
+      var assocName = ParseClrTypeName(relationshipVal).ShortName;
 
       var association = ToEnumerable(assocsVal).FirstOrDefault(assoc => (String)assoc["name"] == assocName);
 
@@ -277,10 +275,10 @@ namespace Breeze.Sharp {
 
     private ComplexType ParseCsdlComplexType(JObject csdlComplexType) {
       var nameVal = (String)csdlComplexType["name"];
-      var ns = GetNamespaceFor(nameVal);
+      var clientTypeName = GetClientTypeNameFromShortName(nameVal);
+      
       var complexType = new ComplexType {
-        ShortName = nameVal,
-        Namespace = ns,
+        Name = clientTypeName
       };
 
       ToEnumerable(csdlComplexType["property"])
@@ -290,35 +288,32 @@ namespace Breeze.Sharp {
       return complexType;
     }
 
-    private TypeNameInfo ParseTypeName(String clrTypeName) {
+    private string GetClientTypeNameFromShortName(string serverShortName) {
+      var ns = GetNamespaceFor(serverShortName);
+      var clientTypeName = new TypeNameInfo(serverShortName, ns).ToClient().Name;
+      return clientTypeName;
+    }
+
+    private string GetClientTypeNameFromClrTypeName(string serverClrTypeName) {
+      var clientTypeName = ParseClrTypeName(serverClrTypeName).ToClient().Name;
+      return clientTypeName;
+    }
+
+    private TypeNameInfo ParseClrTypeName(String clrTypeName) {
       if (String.IsNullOrEmpty(clrTypeName)) return null;
       if (clrTypeName.StartsWith(MetadataStore.ANONTYPE_PREFIX)) {
-        return new TypeNameInfo() {
-          ShortTypeName = clrTypeName,
-          Namespace = "",
-          TypeName = clrTypeName,
-          IsAnonymous = true,
-        };
+        return new TypeNameInfo(clrTypeName, String.Empty, true);
       }
 
       var entityTypeNameNoAssembly = clrTypeName.Split(',')[0];
       var nameParts = entityTypeNameNoAssembly.Split('.');
       if (nameParts.Length > 1) {
         var shortName = nameParts[nameParts.Length - 1];
-        // var nsParts = nameParts.Take(nameParts.Length - 1).ToArray();
+        // HACK: this call is why we can't use TypeNameInfo.FromClrTypeName.
         var ns = GetNamespaceFor(shortName);
-
-        return new TypeNameInfo() {
-          ShortTypeName = shortName,
-          Namespace = ns,
-          TypeName = StructuralType.QualifyTypeName(shortName, ns)
-        };
+        return new TypeNameInfo(shortName, ns);
       } else {
-        return new TypeNameInfo() {
-          ShortTypeName = clrTypeName,
-          Namespace = "",
-          TypeName = clrTypeName
-        };
+        return new TypeNameInfo(clrTypeName, String.Empty);
       }
     }
 
@@ -384,13 +379,6 @@ namespace Breeze.Sharp {
       } else {
         return new T[] { d };
       }
-    }
-
-    internal class TypeNameInfo {
-      public String ShortTypeName { get; set; }
-      public String Namespace { get; set; }
-      public String TypeName { get; set; }
-      public Boolean IsAnonymous { get; set; }
     }
 
     private class DeferredTypeInfo {

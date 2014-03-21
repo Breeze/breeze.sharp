@@ -25,40 +25,28 @@ namespace Breeze.Sharp {
     // TODO: will be needed later when we have complexType inheritance 
     // public abstract StructuralType BaseStructuralType { get; }
 
-    public Action<Object> InitializerAction { get; internal set; }
 
-    public static String ClrTypeNameToStructuralTypeName(String clrTypeName) {
-      if (String.IsNullOrEmpty(clrTypeName)) return null;
-
-      var entityTypeNameNoAssembly = clrTypeName.Split(',')[0];
-      var nameParts = entityTypeNameNoAssembly.Split('.');
-      String ns;
-      var shortName = nameParts[nameParts.Length - 1];
-      if (nameParts.Length > 1) {
-        ns = String.Join(".", nameParts.Take(nameParts.Length - 1));
-      } else {
-        ns = "";
-      }
-      var typeName = StructuralType.QualifyTypeName(shortName, ns);
-      return typeName;
-    }
-
-    public static string ClrTypeToStructuralTypeName(Type clrType) {
-      return QualifyTypeName(clrType.Name, clrType.Namespace);
-    }
-
-    public static String QualifyTypeName(String shortName, String ns) {
-      return shortName + ":#" + ns;
-    }
-
-    public static bool IsQualifiedTypeName(String entityTypeName) {
-      return entityTypeName.IndexOf(":#") >= 0;
-    }
 
     public MetadataStore MetadataStore { get; internal set; }
 
     public String Name { 
-      get { return QualifyTypeName(ShortName, Namespace); }
+      get { return TypeNameInfo.QualifyTypeName(ShortName, Namespace); }
+      internal set {
+        var parts = TypeNameInfo.FromEntityTypeName(value);
+        ShortName = parts.ShortName;
+        Namespace = parts.Namespace;
+        _nameOnServer = parts.ToServer().Name;
+      }
+    }
+
+    public String NameOnServer {
+      get {
+        return _nameOnServer;
+      }
+      internal set {
+        _nameOnServer = value;
+        Name = TypeNameInfo.FromEntityTypeName(value).ToClient().Name;
+      }
     }
 
     public Type ClrType {
@@ -76,8 +64,8 @@ namespace Breeze.Sharp {
       }  
     }
     private Type _clrType;
-    public String ShortName { get; internal set; }
-    public String Namespace { get; internal set;}
+    public String ShortName { get; private set; }
+    public String Namespace { get; private set;}
     public dynamic Custom { get; set; }
     public bool IsAbstract { get; internal set; }
     // TODO: determine if this is  still needed;
@@ -133,9 +121,9 @@ namespace Breeze.Sharp {
     internal void UpdateClientServerName(StructuralProperty property) {
       var nc = MetadataStore.NamingConvention;
       if (!String.IsNullOrEmpty(property.Name)) {
-        property.NameOnServer = nc.Test(property.Name, true);
+        property.NameOnServer = nc.TestPropertyName(property.Name, true);
       } else {
-        property.Name = nc.Test(property.NameOnServer, false);
+        property.Name = nc.TestPropertyName(property.NameOnServer, false);
       }
     }
       
@@ -145,19 +133,20 @@ namespace Breeze.Sharp {
       var navProp = property as NavigationProperty;
       if (navProp != null) {
         if (navProp._foreignKeyNames.Count > 0) {
-          navProp._foreignKeyNamesOnServer = navProp._foreignKeyNames.Select(fkn => nc.Test(fkn, true)).ToSafeList();
+          navProp._foreignKeyNamesOnServer = navProp._foreignKeyNames.Select(fkn => nc.TestPropertyName(fkn, true)).ToSafeList();
         } else {
-          navProp._foreignKeyNames = navProp._foreignKeyNamesOnServer.Select(fkn => nc.Test(fkn, false)).ToSafeList();
+          navProp._foreignKeyNames = navProp._foreignKeyNamesOnServer.Select(fkn => nc.TestPropertyName(fkn, false)).ToSafeList();
         }
 
         if (navProp._invForeignKeyNames.Count > 0) {
-          navProp._invForeignKeyNamesOnServer = navProp._invForeignKeyNames.Select(fkn => nc.Test(fkn, true)).ToSafeList();
+          navProp._invForeignKeyNamesOnServer = navProp._invForeignKeyNames.Select(fkn => nc.TestPropertyName(fkn, true)).ToSafeList();
         } else {
-          navProp._invForeignKeyNames = navProp._invForeignKeyNamesOnServer.Select(fkn => nc.Test(fkn, false)).ToSafeList();
+          navProp._invForeignKeyNames = navProp._invForeignKeyNamesOnServer.Select(fkn => nc.TestPropertyName(fkn, false)).ToSafeList();
         }
       }
     }
 
+    protected String _nameOnServer;
     protected DataPropertyCollection _dataProperties = new DataPropertyCollection();
     protected SafeList<DataProperty> _complexProperties = new SafeList<DataProperty>();
     protected SafeList<DataProperty> _unmappedProperties = new SafeList<DataProperty>();
@@ -165,12 +154,7 @@ namespace Breeze.Sharp {
 
   }
 
-  internal class TypeNameInfo {
-    public String ShortTypeName { get; set; }
-    public String Namespace { get; set; }
-    public String TypeName { get; set; }
-    public Boolean IsAnonymous { get; set; }
-  }
+  
 
 
 }
