@@ -88,12 +88,12 @@ namespace Breeze.Sharp {
         baseEntityType.DataProperties.ForEach(dp => {
           var newDp = new DataProperty(dp);
           newDp.IsInherited = true;
-          entityType.AddDataProperty(dp);
+          entityType.AddDataProperty(newDp);
         });
         baseEntityType.NavigationProperties.ForEach(np => {
           var newNp = new NavigationProperty(np);
           newNp.IsInherited = true;
-          entityType.AddNavigationProperty(np);
+          entityType.AddNavigationProperty(newNp);
         });
       }
       var keyVal = csdlEntityType["key"];

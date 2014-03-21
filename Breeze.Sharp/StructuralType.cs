@@ -5,6 +5,7 @@ using System.Linq;
 
 using System.Reflection;
 using Breeze.Core;
+using System.Diagnostics;
 
 namespace Breeze.Sharp {
 
@@ -14,6 +15,7 @@ namespace Breeze.Sharp {
     }
   }
 
+  [DebuggerDisplay("{Name}")]
   public abstract class StructuralType {
     public StructuralType() {
       Warnings = new List<string>();

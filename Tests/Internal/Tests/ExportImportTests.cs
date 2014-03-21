@@ -50,7 +50,7 @@ namespace Test_NetClient {
       var metadata2 = MetadataStore.Instance.ExportMetadata();
 
       File.WriteAllText("c:/temp/metadata2.txt", metadata2);
-      Assert.IsTrue(metadata == metadata2);
+      Assert.IsTrue(metadata == metadata2, "metadata should match between export and import");
     }
 
     [TestMethod]

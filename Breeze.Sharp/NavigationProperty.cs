@@ -1,6 +1,7 @@
 ﻿using Breeze.Core;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Breeze.Sharp {
@@ -11,6 +12,7 @@ namespace Breeze.Sharp {
     }
   }
 
+  [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class NavigationProperty : StructuralProperty, IJsonSerializable {
     public NavigationProperty() {
 

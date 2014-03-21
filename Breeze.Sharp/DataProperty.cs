@@ -1,5 +1,6 @@
 ﻿using Breeze.Core;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Breeze.Sharp {
@@ -10,6 +11,7 @@ namespace Breeze.Sharp {
     }
   }
 
+  [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class DataProperty : StructuralProperty, IJsonSerializable {
     public DataProperty() {
 
