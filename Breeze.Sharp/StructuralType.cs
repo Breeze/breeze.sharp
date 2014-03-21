@@ -20,6 +20,11 @@ namespace Breeze.Sharp {
       MetadataStore = MetadataStore.Instance;
     }
 
+    // TODO: will be needed later when we have complexType inheritance 
+    // public abstract StructuralType BaseStructuralType { get; }
+
+    public Action<Object> InitializerAction { get; internal set; }
+
     public static String ClrTypeNameToStructuralTypeName(String clrTypeName) {
       if (String.IsNullOrEmpty(clrTypeName)) return null;
 

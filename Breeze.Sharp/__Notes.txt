@@ -23,6 +23,8 @@
 	a different thread then they started on.  Howver, most unit tests run safely despite this because they don't tend to run multiple threads simulataneously.
 	An exception to this is any call to Task.WhenAll or Task.WaitAll, use of these methods will require the test code to be wrapped in a UI synch context.
 
+	- ComplexType inheritance.
+
 Think about
 -------------
 Abiltity to configure clr namespace mapping - server name: Foo.Customer - client name: Bar.Cust

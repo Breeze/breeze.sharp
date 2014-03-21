@@ -702,8 +702,12 @@ namespace Breeze.Sharp {
 
     #region Create/Attach/Detach entity methods
 
+    public T CreateEntity<T>(EntityState entityState = EntityState.Added) {
+      return (T)CreateEntity(typeof(T), entityState);
+    }
+
     public IEntity CreateEntity(EntityType entityType, EntityState entityState = EntityState.Added) {
-      return (IEntity)Activator.CreateInstance(entityType.ClrType, entityState);
+      return CreateEntity(entityType.ClrType, entityState);
     }
 
     public IEntity CreateEntity(Type clrType, EntityState entityState = EntityState.Added) {
@@ -714,10 +718,6 @@ namespace Breeze.Sharp {
         AttachEntity(entity, entityState);
       }
       return entity;
-    }
-
-    public T CreateEntity<T>(EntityState entityState = EntityState.Added) {
-      return (T)CreateEntity(typeof(T), entityState);
     }
 
     public IEntity AddEntity(IEntity entity) {
@@ -796,6 +796,8 @@ namespace Breeze.Sharp {
           throw new Exception("This entity already belongs to another EntityManager");
         }
       }
+      aspect.Initialize();
+
       return aspect;
     }
 

@@ -14,7 +14,7 @@ namespace Breeze.Sharp {
     }
 
     public virtual void Initialize() {
-      // noop;
+      // noop
     }
 
     

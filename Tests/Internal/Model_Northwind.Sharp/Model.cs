@@ -99,6 +99,14 @@ namespace Foo {
       get { return GetValue<NavigationSet<Order>>(); }
     }
 
+    public String ExtraData {
+      get;
+      set;
+    }
+
+    public override void Initialize() {
+      ExtraData = "JJT";
+    }
   }
 
 

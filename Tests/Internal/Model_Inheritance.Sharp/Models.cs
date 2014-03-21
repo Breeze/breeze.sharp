@@ -13,7 +13,7 @@ namespace Inheritance.Models {
     DateTime CreatedAt { get; set; }
     string Owner { get; set; }
     string Number { get; set; }
-
+    string MiscData { get; set; }
     // "InheritanceModel" makes it easier to test for the received type
     string InheritanceModel { get; set; } // "TPH", "TPT", "TPC"
   }
@@ -97,6 +97,17 @@ namespace Inheritance.Models {
     public string InheritanceModel {
       get { return GetValue<string>(); }
       set { SetValue(value); }
+    }
+
+    public string MiscData {
+      get;
+      set;
+    }
+
+    public override void Initialize() {
+      base.Initialize();
+      MiscData = "asdf";
+      Owner = (Owner ?? "").ToUpper();
     }
   }
 
@@ -182,6 +193,17 @@ namespace Inheritance.Models {
       get { return GetValue<string>(); }
       set { SetValue(value); }
     }
+
+    public string MiscData {
+      get;
+      set;
+    }
+
+    public override void Initialize() {
+      base.Initialize();
+      MiscData = "asdf";
+      Owner = (Owner ?? "").ToUpper();
+    }
   }
 
   public class BankAccountTPT : BillingDetailTPT, IBankAccount {
@@ -256,6 +278,17 @@ namespace Inheritance.Models {
     public string InheritanceModel {
       get { return GetValue<string>(); }
       set { SetValue(value); }
+    }
+
+    public string MiscData {
+      get;
+      set;
+    }
+
+    public override void Initialize() {
+      base.Initialize();
+      MiscData = "asdf";
+      Owner = (Owner ?? "").ToUpper();
     }
   }
 

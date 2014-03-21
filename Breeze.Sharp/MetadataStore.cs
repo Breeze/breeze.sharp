@@ -118,17 +118,7 @@ namespace Breeze.Sharp {
       _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
     }
 
-    public void RegisterTypeInitializer(Type type, Action<Object> action) {
-      lock (_typeInitializerMap) {
-        if (action!=null) {
-          _typeInitializerMap[type] = action;
-        } else {
-          if (_typeInitializerMap.ContainsKey(type)) {
-            _typeInitializerMap.Remove(type);
-          }
-        }
-      }
-    }
+
 
     public async Task<DataService> FetchMetadata(DataService dataService) {
       String serviceName;
@@ -654,7 +644,7 @@ namespace Breeze.Sharp {
     private ClrTypeMap _clrTypeMap;
     private HashSet<Assembly> _probedAssemblies = new HashSet<Assembly>();
     private List<Tuple<Type, Action<Type>, Func<Assembly, bool>>> _typeDiscoveryActions = new List<Tuple<Type, Action<Type>, Func<Assembly, bool>>>();
-    private Dictionary<Type, Action<Object>> _typeInitializerMap = new Dictionary<Type, Action<object>>();
+
     private StructuralTypeCollection _structuralTypes = new StructuralTypeCollection();
     private Dictionary<String, String> _shortNameMap = new Dictionary<string, string>();
     private Dictionary<String, List<NavigationProperty>> _incompleteTypeMap = new Dictionary<String, List<NavigationProperty>>(); // key is typeName
@@ -674,6 +664,28 @@ namespace Breeze.Sharp {
 
     #endregion
 
+    #region Unfinished or removed ideas
+
+    //// Not needed because of Initialize() method on each Entity/ComplexObject
+    //public void RegisterTypeInitializer(Type type, Action<Object> action) {
+    //  lock (_typeInitializerMap) {
+    //    if (action!=null) {
+    //      _typeInitializerMap[type] = action;
+    //    } else {
+    //      if (_typeInitializerMap.ContainsKey(type)) {
+    //        _typeInitializerMap.Remove(type);
+    //      }
+    //    }
+    //    var st = GetStructuralType(type, true);
+    //    if (st != null) {
+    //      st.InitializerAction = action;
+    //    }
+    //  }
+    //}
+
+    // private Dictionary<Type, Action<Object>> _typeInitializerMap = new Dictionary<Type, Action<object>>();
+
+    #endregion
   }
 
 

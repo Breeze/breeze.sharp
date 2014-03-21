@@ -118,13 +118,14 @@ namespace Breeze.Sharp {
       if (aspect.EntityManager == null) {
         // new to this entityManager
         ParseObject(jsonContext, aspect);
-        aspect.Entity.Initialize();
+        aspect.Initialize();
         // TODO: This is a nit.  Wierd case where a save adds a new entity will show up with
         // a AttachOnQuery operation instead of AttachOnSave
         _entityManager.AttachQueriedEntity(entity, (EntityType) jsonContext.StructuralType);
       } else if (_mergeStrategy == MergeStrategy.OverwriteChanges || aspect.EntityState == EntityState.Unchanged) {
         // overwrite existing entityManager
         ParseObject(jsonContext, aspect);
+        aspect.Initialize();
         aspect.OnEntityChanged(_loadingOperation == LoadingOperation.Query ? EntityAction.MergeOnQuery : EntityAction.MergeOnSave);
       } else {
         // preserveChanges handling - we still want to handle expands.
@@ -133,6 +134,9 @@ namespace Breeze.Sharp {
 
       return entity;
     }
+
+    
+
 
     private void ParseObject(JsonContext jsonContext, EntityAspect targetAspect) {
       // backingStore will be null if not allowed to overwrite the entity.

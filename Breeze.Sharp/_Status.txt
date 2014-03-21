@@ -23,7 +23,7 @@ MergeStrategy / FetchStrategy
 LoadNavigationProperty
 ChangeNotificationEnabled flag at both EntityManager & EntityType levels
 Validation and INotifyDataErrorInfo - EntityAspect.ValidationErrors is a live list that can be mutated by the dev.
-EntityInitializers ( partly done)
+EntityInitializers ( every entity/complex object has a virtual Initialize() method that is called on query result materialization).
 
 ToDo
 ---------------------------

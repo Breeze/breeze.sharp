@@ -30,6 +30,8 @@ namespace Breeze.Sharp {
      
     public abstract StructuralType StructuralType { get; }
 
+    public bool Initialized { get; private set; }
+
     protected abstract IStructuralObject StructuralObject { get; }
 
     protected internal IDictionary<String, Object> BackingStore {
@@ -195,6 +197,28 @@ namespace Breeze.Sharp {
 
     #region other misc
 
+    internal void Initialize() {
+      if (this.Initialized) return;
+      // will initialize base types as long as Initialize impls call base.Initialize();
+      this.StructuralObject.Initialize();
+
+      //// TODO: Only needed if we want to support Initializer fns in addition to 
+      //var et = st as EntityType;
+      //if (et != null && et.BaseEntityType != null) {
+      //  InitializeSo(so, et.BaseEntityType);
+      //}
+      //var initAction = st.InitializerAction;
+      //if (initAction != null) {
+      //  initAction(so);
+      //}
+      
+      this.StructuralType.ComplexProperties.ForEach(cp => {
+        var co = (IComplexObject) this.GetValue(cp);
+        co.ComplexAspect.Initialize();
+      });
+      this.Initialized = true;
+    }
+
     protected void RejectChangesCore() {
       if (_originalValuesMap != null) {
         _originalValuesMap.ForEach(kvp => {
@@ -344,5 +368,7 @@ namespace Breeze.Sharp {
     private IDictionary<String, Object> _backingStore;
 
     #endregion
+
+
   }
 }
