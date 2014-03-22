@@ -125,9 +125,6 @@ namespace Breeze.Sharp {
       var prop = _jo.Property(propName);
       if (prop == null) return null;
       var val = prop.Value.ToObject(objectType);
-      if (val is DateTimeOffset) {
-        var test = val;
-      }
       return val;
     }
 
@@ -135,9 +132,6 @@ namespace Breeze.Sharp {
       var prop = _jo.Property(propName);
       if (prop == null) return defaultValue;
       var val = prop.Value.ToObject<T>();
-      if (val is DateTimeOffset) {
-        var test = val;
-      }
       return val;
     }
 

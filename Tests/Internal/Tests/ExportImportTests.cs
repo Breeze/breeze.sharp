@@ -33,25 +33,25 @@ namespace Test_NetClient {
 
     }
 
-    // create entity with complexType property
-    //[TestMethod]
-    //public async Task ExpMetadata() {
-    //  var em1 = await TestFns.NewEm(_serviceName);
 
-    //  var metadata = MetadataStore.Instance.ExportMetadata();
-    //  File.WriteAllText("c:/temp/metadata.txt", metadata);
+    [TestMethod]
+    public async Task ExpMetadata() {
+      var em1 = await TestFns.NewEm(_serviceName);
 
-    //  var ms = MetadataStore.Instance;
+      var metadata = MetadataStore.Instance.ExportMetadata();
+      File.WriteAllText("c:/temp/metadata.txt", metadata);
 
-    //  MetadataStore.__Reset();
-    //  Assert.IsTrue(ms != MetadataStore.Instance);
+      var ms = MetadataStore.Instance;
 
-    //  MetadataStore.Instance.ImportMetadata(metadata);
-    //  var metadata2 = MetadataStore.Instance.ExportMetadata();
+      MetadataStore.__Reset();
+      Assert.IsTrue(ms != MetadataStore.Instance);
 
-    //  File.WriteAllText("c:/temp/metadata2.txt", metadata2);
-    //  Assert.IsTrue(metadata == metadata2, "metadata should match between export and import");
-    //}
+      MetadataStore.Instance.ImportMetadata(metadata);
+      var metadata2 = MetadataStore.Instance.ExportMetadata();
+
+      File.WriteAllText("c:/temp/metadata2.txt", metadata2);
+      Assert.IsTrue(metadata == metadata2, "metadata should match between export and import");
+    }
 
     [TestMethod]
     public async Task ExpEntities() {

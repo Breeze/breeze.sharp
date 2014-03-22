@@ -22,9 +22,6 @@ namespace Breeze.Sharp {
       RegisterTypeDiscoveryActionCore(typeof(Validator), (t) => RegisterValidator(t), true);
     }
 
-    private bool NotThisAssembly(Assembly assembly) {
-      return (assembly != this.GetType().GetTypeInfo().Assembly);
-    }
 
      // Explicit static constructor to tell C# compiler
     // not to mark type as beforefieldinit
@@ -281,15 +278,17 @@ namespace Breeze.Sharp {
     }
 
     JNode IJsonSerializable.ToJNode(Object config) {
-      var jo =  new JNode(); 
-      jo.AddPrimitive("metadataVersion", MetadataVersion);
-      // jo.Add("name", this.Name);
-      jo.AddPrimitive("namingConvention", this.NamingConvention.Name);
-      // jo.AddProperty("localQueryComparisonOptions", this.LocalQueryComparisonOptions);
-      jo.AddArray("dataServices", this._dataServiceMap.Values);
-      jo.AddArray("structuralTypes", this._structuralTypes);
-      jo.AddMap("resourceEntityTypeMap", this._resourceNameEntityTypeMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name));
-      return jo;
+      lock (_structuralTypes) {
+        var jo = new JNode();
+        jo.AddPrimitive("metadataVersion", MetadataVersion);
+        // jo.Add("name", this.Name);
+        jo.AddPrimitive("namingConvention", this.NamingConvention.Name);
+        // jo.AddProperty("localQueryComparisonOptions", this.LocalQueryComparisonOptions);
+        jo.AddArray("dataServices", this._dataServiceMap.Values);
+        jo.AddArray("structuralTypes", this._structuralTypes);
+        jo.AddMap("resourceEntityTypeMap", this._resourceNameEntityTypeMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name));
+        return jo;
+      }
     }
 
     private void DeserializeFrom(JNode jNode) {

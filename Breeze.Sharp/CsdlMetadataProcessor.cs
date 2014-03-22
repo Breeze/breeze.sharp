@@ -170,8 +170,13 @@ namespace Breeze.Sharp {
         }
       }
 
-      var defaultValue = csdlProperty["defaultValue"] ?? (isNullable ? null : dataType.DefaultValue);
- 
+      Object defaultValue;
+      var rawDefaultValue = csdlProperty["defaultValue"];
+      if (rawDefaultValue == null) {
+        defaultValue = isNullable ? null : dataType.DefaultValue;
+      } else {
+        defaultValue = rawDefaultValue.ToObject(dataType.ClrType);
+      }
 
       // TODO: nit - don't set maxLength if null;
       var maxLength = (maxLengthVal == null || maxLengthVal == "Max") ? (Int64?)null : Int64.Parse(maxLengthVal);
