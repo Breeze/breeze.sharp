@@ -186,8 +186,6 @@ namespace Breeze.Sharp {
       }
     }
 
- 
-
     public async Task<SaveResult> SaveChanges(SaveOptions saveOptions) {
       return await SaveChanges(null, saveOptions);
     }
@@ -231,6 +229,27 @@ namespace Breeze.Sharp {
         SetHasChanges(null);
       }
       return saveResult;
+    }
+
+    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false) {
+      IEntity entity;
+      if (checkLocalCacheFirst) {
+        entity = GetEntityByKey(entityKey);
+        if (entity != null) return new EntityKeyFetchResult(entity, true);
+      }
+      var results = await ExecuteQuery(entityKey.ToQuery());
+      entity = results.Cast<IEntity>().FirstOrDefault();
+      return new EntityKeyFetchResult(entity, false);
+    }
+
+    public class EntityKeyFetchResult {
+      public EntityKeyFetchResult(IEntity entity, bool fromCache) {
+        Entity = entity;
+        FromCache = fromCache;
+      }
+
+      public IEntity Entity { get; private set; }
+      public bool FromCache { get; private set; }
     }
 
     #endregion
@@ -343,7 +362,7 @@ namespace Breeze.Sharp {
       // tempKeyMap will have a new values where collisions will occur
       var tempKeyMap = jn.GetJNodeArray("tempKeys").Select(jnEk => new EntityKey(jnEk)).ToDictionary(
         ek => ek, 
-        ek => this.FindEntityByKey(ek) == null ? ek : EntityKey.Create(ek.EntityType, KeyGenerator.GetNextTempId(ek.EntityType.KeyProperties.First())) 
+        ek => this.GetEntityByKey(ek) == null ? ek : EntityKey.Create(ek.EntityType, KeyGenerator.GetNextTempId(ek.EntityType.KeyProperties.First())) 
       );
       
       var mergeStrategy = (importOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy).Value;
@@ -373,7 +392,7 @@ namespace Breeze.Sharp {
         if (entityState.IsAdded() && tempKeyMap.ContainsKey(ek)) {
           hasCollision = tempKeyMap[ek] != ek;
         } else {
-          targetEntity = FindEntityByKey(ek);
+          targetEntity = GetEntityByKey(ek);
         }
         if (targetEntity != null) {
           var targetAspect = targetEntity.EntityAspect;
@@ -672,16 +691,16 @@ namespace Breeze.Sharp {
         .Select(ea => ea.Entity);
     }
 
-    public T FindEntityByKey<T>(EntityKey entityKey) {
-      return (T)FindEntityByKey(entityKey);
+    public T GetEntityByKey<T>(EntityKey entityKey) {
+      return (T)GetEntityByKey(entityKey);
     }
 
-    public T FindEntityByKey<T>(params Object[] values) where T : IEntity {
+    public T GetEntityByKey<T>(params Object[] values) where T : IEntity {
       var ek = new EntityKey(typeof(T), values);
-      return (T)FindEntityByKey(ek);
+      return (T)GetEntityByKey(ek);
     }
 
-    public IEntity FindEntityByKey(EntityKey entityKey) {
+    public IEntity GetEntityByKey(EntityKey entityKey) {
 
       var subtypes = entityKey.EntityType.Subtypes;
       EntityAspect ea;
@@ -697,6 +716,12 @@ namespace Breeze.Sharp {
       return ea == null ? null : ea.Entity;
     }
 
+
+    #endregion
+
+    #region FetchEntityByKey
+
+  
 
     #endregion
 

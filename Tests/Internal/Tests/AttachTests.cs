@@ -321,14 +321,14 @@ namespace Test_NetClient {
       em1.AttachEntity(prod);
       var origProdId = prod.ProductID;
       var ek = prod.EntityAspect.EntityKey;
-      var sameProd = em1.FindEntityByKey(ek);
+      var sameProd = em1.GetEntityByKey(ek);
       Assert.IsTrue(prod == sameProd, "should be the same product");
-      var sameProd2 = em1.FindEntityByKey<Product>(origProdId);
+      var sameProd2 = em1.GetEntityByKey<Product>(origProdId);
       Assert.IsTrue(prod == sameProd2, "should be the same product-again");
       prod.ProductID = 7;
-      var notSameProd = em1.FindEntityByKey(ek);
+      var notSameProd = em1.GetEntityByKey(ek);
       Assert.IsTrue(notSameProd == null);
-      var sameProd3 = em1.FindEntityByKey(prod.EntityAspect.EntityKey);
+      var sameProd3 = em1.GetEntityByKey(prod.EntityAspect.EntityKey);
       Assert.IsTrue(prod == sameProd2, "should be the same product-again 2");
     }
     

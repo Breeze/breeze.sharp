@@ -95,7 +95,7 @@ namespace Breeze.Sharp {
         .Select(p => jObject[p.Name].ToObject(p.ClrType))
         .ToArray();
       var entityKey = EntityKey.Create(entityType, keyValues);
-      var entity = _entityManager.FindEntityByKey(entityKey);
+      var entity = _entityManager.GetEntityByKey(entityKey);
       if (entity == null) {
         entity = (IEntity)Activator.CreateInstance(objectType);
       }

@@ -34,7 +34,8 @@ namespace Test_NetClient {
     }
 
 
-    [TestMethod]
+    // [TestMethod]
+    // This test can only be run standalone because of the __Reset call
     public async Task ExpMetadata() {
       var em1 = await TestFns.NewEm(_serviceName);
 
@@ -323,10 +324,10 @@ namespace Test_NetClient {
       em2.ImportEntities(exportedEntities);
       var ek0 = r0[0].EntityAspect.EntityKey;
       var ek1 = r0[1].EntityAspect.EntityKey;
-      var e0 = em2.FindEntityByKey<Customer>(ek0);
+      var e0 = em2.GetEntityByKey<Customer>(ek0);
       Assert.IsTrue(e0.CompanyName == null, "company name should be null");
       Assert.IsTrue(e0.EntityAspect.EntityState.IsModified());
-      var e1 = em2.FindEntityByKey<Customer>(ek1);
+      var e1 = em2.GetEntityByKey<Customer>(ek1);
       Assert.IsTrue(e1.City == null, "city should be null");
       Assert.IsTrue(e1.EntityAspect.EntityState.IsModified());
       em2.AcceptChanges();
@@ -351,9 +352,9 @@ namespace Test_NetClient {
       var exportedEntities = em1.ExportEntities(null, false);
       var em2 = new EntityManager(em1);
       em2.ImportEntities(exportedEntities);
-      var c1x = em2.FindEntityByKey<Customer>(c1.EntityAspect.EntityKey);
+      var c1x = em2.GetEntityByKey<Customer>(c1.EntityAspect.EntityKey);
       Assert.IsTrue(c1x.EntityAspect.EntityState.IsDeleted(), "should be deleted");
-      var c2x = em2.FindEntityByKey<Customer>(c2.EntityAspect.EntityKey);
+      var c2x = em2.GetEntityByKey<Customer>(c2.EntityAspect.EntityKey);
       Assert.IsTrue(c2x.CompanyName == c2.CompanyName, "company names should match");
     }
 

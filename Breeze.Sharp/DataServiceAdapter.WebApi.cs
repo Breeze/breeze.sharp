@@ -119,7 +119,7 @@ namespace Breeze.Sharp {
       var keyMappings = kms.Select(km => ToEntityKeys(km)).ToDictionary(tpl => tpl.Item1, tpl => tpl.Item2);
       using (entityManager.NewIsLoadingBlock(false)) {
         keyMappings.ForEach(km => {
-          var targetEntity = entityManager.FindEntityByKey(km.Key);
+          var targetEntity = entityManager.GetEntityByKey(km.Key);
           targetEntity.EntityAspect.SetDpValue(km.Key.EntityType.KeyProperties[0], km.Value.Values[0]);
         });
 

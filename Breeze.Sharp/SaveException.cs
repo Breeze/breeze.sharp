@@ -60,7 +60,7 @@ namespace Breeze.Sharp {
           var stName = TypeNameInfo.FromClrTypeName(EntityTypeName).ToClient().Name;
           entityType = MetadataStore.Instance.GetEntityType(stName);
           var ek = new EntityKey(entityType, KeyValues);
-          Entity = em.FindEntityByKey(ek);
+          Entity = em.GetEntityByKey(ek);
         }
 
         if (PropertyName != null) {

@@ -209,7 +209,7 @@ namespace Breeze.Sharp {
     // TODO: think about name
     public void AddResourceName(String resourceName, Type clrType, bool isDefault = false) {
       var entityType = GetEntityType(clrType);
-      AddResourceName(resourceName, entityType, isDefault);
+      AddResourceName(resourceName, entityType);
     }
 
     internal void AddResourceName(String resourceName, EntityType entityType, bool isDefault = false) {

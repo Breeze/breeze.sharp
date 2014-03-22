@@ -566,7 +566,7 @@ namespace Breeze.Sharp {
           .Select(p => (p == property) ? newValue : GetValue(p))
           .ToArray();
         var newKey = new EntityKey(EntityType, values);
-        if (EntityManager.FindEntityByKey(newKey) != null) {
+        if (EntityManager.GetEntityByKey(newKey) != null) {
           throw new Exception("An entity with this key is already in the cache: " + newKey);
         }
         var oldKey = EntityKey;
@@ -883,7 +883,7 @@ namespace Breeze.Sharp {
 
           if (parentKey.IsEmpty()) return;
           // if a child - look for parent in the em cache
-          var parent = EntityManager.FindEntityByKey(parentKey);
+          var parent = EntityManager.GetEntityByKey(parentKey);
           if (parent != null) {
             // if found hook it up
             SetNpValue(np, parent);
@@ -940,7 +940,7 @@ namespace Breeze.Sharp {
         // unidirectional fk props only
         var fkValue = GetValue(fkProp);
         var parentKey = new EntityKey((EntityType)invNp.ParentType, fkValue);
-        var parent = EntityManager.FindEntityByKey(parentKey);
+        var parent = EntityManager.GetEntityByKey(parentKey);
         if (parent != null) {
           if (invNp.IsScalar) {
             parent.EntityAspect.SetNpValue(invNp, Entity);
@@ -972,7 +972,7 @@ namespace Breeze.Sharp {
 
         if (newValue != null) {
           var key = new EntityKey(relatedNavProp.EntityType, newValue);
-          var relatedEntity = EntityManager.FindEntityByKey(key);
+          var relatedEntity = EntityManager.GetEntityByKey(key);
 
           if (relatedEntity != null) {
             this.SetNpValue(relatedNavProp, relatedEntity);
@@ -1004,7 +1004,7 @@ namespace Breeze.Sharp {
 
         if (oldValue != null) {
           var key = new EntityKey((EntityType)invNavProp.ParentType, oldValue);
-          var relatedEntity = EntityManager.FindEntityByKey(key);
+          var relatedEntity = EntityManager.GetEntityByKey(key);
           if (relatedEntity != null) {
             if (invNavProp.IsScalar) {
               relatedEntity.EntityAspect.SetNpValue(invNavProp, null);
@@ -1018,7 +1018,7 @@ namespace Breeze.Sharp {
 
         if (newValue != null) {
           var key = new EntityKey((EntityType)invNavProp.ParentType, newValue);
-          var relatedEntity = EntityManager.FindEntityByKey(key);
+          var relatedEntity = EntityManager.GetEntityByKey(key);
 
           if (relatedEntity != null) {
             if (invNavProp.IsScalar) {

@@ -130,6 +130,10 @@ namespace Breeze.Sharp {
 
     internal void AddSubEntityType(EntityType entityType) {
       _subtypes.Add(entityType);
+      if (this.BaseEntityType != null) {
+        this.BaseEntityType.AddSubEntityType(entityType);
+      }
+      
     }
 
     internal override DataProperty AddDataProperty(DataProperty dp) {

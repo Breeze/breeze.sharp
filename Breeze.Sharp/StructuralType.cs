@@ -54,7 +54,11 @@ namespace Breeze.Sharp {
         if (_clrType == null) {
           _clrType = MetadataStore.GetClrTypeFor(this);
           if (_clrType == null) {
-            throw new Exception("Unable to locate a CLR type corresponding to: " + this.Name);
+            throw new Exception("Unable to locate a CLR type corresponding to: " + this.Name
+              + ".  Consider calling MetadataStore.Instance.ProbeAssemblies with the assembly containing this " +
+              "type when your application starts up.  In addition, if your namespaces are different between server and client " +
+              "then you may need to call MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping to " +
+              "tell Breeze how to map between the two.");
           }
         }
         return _clrType;
