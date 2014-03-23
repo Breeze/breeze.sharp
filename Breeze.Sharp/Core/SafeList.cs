@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
 
   // List<T> with a ReadOnlyValues property
   // should be used for internal list variable whose contents will need to be exposed 

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Breeze.Core;
+using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
 
@@ -29,7 +29,7 @@ namespace Breeze.Sharp {
   /// </para>
   /// <para>
   /// You can obtain an EntityGroup instance from an <see cref="EntityManager"/>
-  /// using <see cref="M:IdeaBlade.EntityModel.EntityManager.GetEntityGroup(Type)"/>.
+  /// using <see cref="M:Breeze.Sharp.EntityManager.GetEntityGroup(Type)"/>.
   /// </para>
   /// </remarks>
   internal abstract class EntityGroup : IGrouping<Type, EntityAspect>  {
@@ -81,7 +81,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// The <see cref="T:IdeaBlade.EntityModel.EntityManager"/> which manages this EntityGroup.
+    /// The <see cref="T:Breeze.Sharp.EntityManager"/> which manages this EntityGroup.
     /// </summary>
     public EntityManager EntityManager {
       get;
@@ -305,7 +305,7 @@ namespace Breeze.Sharp {
   /// <typeparam name="TEntity"></typeparam>
   /// <remarks>
   /// Classes derived from <b>EntityGroup{T}</b> are automatically created by the framework 
-  /// to hold entities of each type.  The <see cref="T:IdeaBlade.EntityModel.EntityManager"/> 
+  /// to hold entities of each type.  The <see cref="T:Breeze.Sharp.EntityManager"/> 
   /// manages all EntityGroups in its cache. 
   /// </remarks>
   internal class EntityGroup<TEntity> : EntityGroup where TEntity : IEntity {

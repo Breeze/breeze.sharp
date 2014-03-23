@@ -10,6 +10,17 @@ namespace Model.Inheritance.Produce {
       this.RowVersion = 0;
     }
 
+    public override void Initialize() {
+      base.Initialize();
+      InitializedTypes = new List<string>();
+      InitializedTypes.Add("ItemOfProduce");
+    }
+
+    public List<String> InitializedTypes {
+      get;
+      set;
+    }
+
     public System.Guid Id {
       get { return GetValue<Guid>(); }
       set { SetValue(value); }

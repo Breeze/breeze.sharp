@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Breeze.Sharp;
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Foo;
 using System.Collections.Specialized;

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Breeze.Core;
+using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
   /// <summary>
@@ -116,7 +116,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// The <see cref="T:IdeaBlade.EntityModel.EntityManager"/> that manages the <see cref="ParentEntity"/>.
+    /// The <see cref="T:Breeze.Sharp.EntityManager"/> that manages the <see cref="ParentEntity"/>.
     /// </summary>
     public EntityManager EntityManager {
       get {

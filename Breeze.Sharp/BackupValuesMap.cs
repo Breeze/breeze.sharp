@@ -1,10 +1,6 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 

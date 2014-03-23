@@ -1,4 +1,4 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using System;
 using System.Diagnostics;
 using System.Linq;

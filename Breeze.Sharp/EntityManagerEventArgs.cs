@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
   /// <summary>
-  /// Arguments to the <see cref="E:IdeaBlade.EntityModel.EntityManager.EntityManagerCreated"/> event.
+  /// Arguments to the <see cref="E:Breeze.Sharp.EntityManager.EntityManagerCreated"/> event.
   /// </summary>
   public class EntityManagerCreatedEventArgs : System.EventArgs {
 
@@ -29,7 +29,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// Arguments to the <see cref="E:IdeaBlade.EntityModel.EntityManager.EntityManagerCreated"/> event.
+  /// Arguments to the <see cref="E:Breeze.Sharp.EntityManager.EntityManagerCreated"/> event.
   /// </summary>
   public class EntityManagerHasChangesChangedEventArgs : System.EventArgs {
 

@@ -1,4 +1,4 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using Newtonsoft.Json;     // need because of JsonIgnore attribute
 using System;
 using System.Collections.Generic;

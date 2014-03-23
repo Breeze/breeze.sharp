@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
 
   // Dictionary with a ReadOnly property
   // should be used for internal list variable whose contents will need to be exposed 

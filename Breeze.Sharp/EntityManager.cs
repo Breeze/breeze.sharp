@@ -1,4 +1,4 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -28,6 +28,10 @@ namespace Breeze.Sharp {
       Initialize();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="em"></param>
     public EntityManager(EntityManager em) {
       DefaultDataService = em.DefaultDataService;
       DefaultQueryOptions = em.DefaultQueryOptions;
@@ -39,7 +43,6 @@ namespace Breeze.Sharp {
     }
 
     private void Initialize() {
-      
       var x = AuthorizedThreadId;
       EntityGroups = new EntityGroupCollection();
       UnattachedChildrenMap = new UnattachedChildrenMap();
@@ -142,16 +145,32 @@ namespace Breeze.Sharp {
 
     #region async methods
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dataService"></param>
+    /// <returns></returns>
     public async Task<DataService> FetchMetadata(DataService dataService = null) {
       dataService = dataService != null ? dataService : this.DefaultDataService;
       return await MetadataStore.FetchMetadata(dataService);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query) {
       var result = await ExecuteQuery((EntityQuery) query);
       return (IEnumerable<T>)result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public async Task<IEnumerable> ExecuteQuery(EntityQuery query) {
       if (query.ElementType == null) {
         throw new Exception("Cannot execute a query with a null TargetType");

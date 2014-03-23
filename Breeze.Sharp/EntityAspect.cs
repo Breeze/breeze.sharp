@@ -1,4 +1,4 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Breeze.Sharp {
 
   /// <summary>
   /// Provides entity services for all persistable business objects used within DevForce.  
-  /// <seealso cref="T:IdeaBlade.EntityModel.EntityManager"/>
+  /// <seealso cref="T:Breeze.Sharp.EntityManager"/>
   /// <seealso cref="EntityQuery"/>
   /// <seealso cref="IEntity"/>
   /// </summary>
@@ -62,7 +62,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// The <see cref="T:IdeaBlade.EntityModel.EntityManager"/> that manages this entity.
+    /// The <see cref="T:Breeze.Sharp.EntityManager"/> that manages this entity.
     /// </summary>
     /// <remarks>
     /// This value will be null until an object is attached to an <b>EntityManager</b> or if it was created using an EntityManager.
@@ -95,6 +95,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public override EntityState EntityState {
       get {
         return _entityState;
@@ -114,6 +117,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public override EntityVersion EntityVersion {
       get {
         if (_entityVersion == EntityVersion.Default) {
@@ -136,7 +142,6 @@ namespace Breeze.Sharp {
     /// The EntityManager will return a NullEntity instead of a null value when
     /// a requested entity is not found.
     /// </remarks>
-    /// <include file='Entity.Examples.xml' path='//Class[@name="Entity"]/method[@name="IsNullEntity"]/*' />
     public bool IsNullEntity {
       get;
       internal set;
@@ -177,10 +182,10 @@ namespace Breeze.Sharp {
     /// Marks this Entity for deletion; the <see cref="EntityState"/> becomes "Deleted".
     /// </summary>
     /// <remarks>
-    /// You must call <see cref="M:IdeaBlade.EntityModel.EntityManager.SaveChanges()"/> to persist this change to the 
+    /// You must call <see cref="Breeze.Sharp.EntityManager.SaveChanges()"/> to persist this change to the 
     /// backend data source.  
     /// <para>
-    /// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanging"/> and <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanged"/> events
+    /// The <see cref="Breeze.Sharp.EntityManager.EntityChanging"/> and <see cref="EntityManager.EntityChanged"/> events
     /// will fire during a <b>Delete</b> call with an EntityAction of <see cref="EntityAction.Delete"/>.
     /// </para>  
     /// </remarks>
@@ -233,15 +238,15 @@ namespace Breeze.Sharp {
 
     #region Add/Remove from manager
     /// <summary>
-    /// Adds a newly created entity to its associated <see cref="T:IdeaBlade.EntityModel.EntityManager"/>. 
+    /// Adds a newly created entity to its associated <see cref="T:Breeze.Sharp.EntityManager"/>. 
     /// </summary>
     /// <remarks>The associated EntityManager will either be the EntityManager that was called to create this Entity
-    /// (<see cref="IdeaBlade.EntityModel.EntityManager.CreateEntity{T}()"/>) or that was used to generate its ids ( <see cref="IdeaBlade.EntityModel.EntityManager.GenerateId"/>)
+    /// (<see cref="Breeze.Sharp.EntityManager.CreateEntity{T}()"/>) or that was used to generate its ids ( <see cref="Breeze.Sharp.EntityManager.GenerateId"/>)
     /// If neither of these cases apply, then the <see cref="EntityManager"/>'s DefaultManager"/> will be used.
     /// There is no difference between <b>AddToManager</b> and 
-    /// <see cref="M:IdeaBlade.EntityModel.EntityManager.AddEntity(IdeaBlade.EntityModel.Entity)"/>.
-    /// Use either method to add a business object created by the <see cref="M:IdeaBlade.EntityModel.EntityManager.CreateEntity(System.Type)"/> method
-    /// to the EntityManager cache.  The object must have a "detached" <see cref="M:IdeaBlade.EntityModel.Entity.EntityState"/>, must not
+    /// <see cref="M:Breeze.Sharp.EntityManager.AddEntity(Breeze.Sharp.Entity)"/>.
+    /// Use either method to add a business object created by the <see cref="M:Breeze.Sharp.EntityManager.CreateEntity(System.Type)"/> method
+    /// to the EntityManager cache.  The object must have a "detached" <see cref="M:Breeze.Sharp.Entity.EntityState"/>, must not
     /// have ever been associated with another EntityManager and must have a unique EntityKey within the EntityManager to which it will
     /// be added. 
     /// </remarks>
@@ -259,10 +264,10 @@ namespace Breeze.Sharp {
     /// Removes the entity from the EntityManager cache.
     /// </summary>
     /// <remarks>The Entity will be in a "detached" state after the remove. 
-    /// <b>RemoveFromManager</b> and <see cref="M:IdeaBlade.EntityModel.EntityManager.RemoveEntity(IdeaBlade.EntityModel.Entity)"/>
-    ///  can be used interchangeably. Calling <b>RemoveFromManager</b> also clears the EntityManager's <see cref="IdeaBlade.EntityModel.EntityManager.QueryCache"/>.
+    /// <b>RemoveFromManager</b> and <see cref="M:Breeze.Sharp.EntityManager.RemoveEntity(Breeze.Sharp.Entity)"/>
+    ///  can be used interchangeably. Calling <b>RemoveFromManager</b> also clears the EntityManager's <see cref="Breeze.Sharp.EntityManager.QueryCache"/>.
     ///<para>This does not delete the object from the backend server.  To delete an entity,
-    ///use the <see cref="M:IdeaBlade.EntityModel.Entity.Delete"/> method.</para>
+    ///use the <see cref="M:Breeze.Sharp.Entity.Delete"/> method.</para>
     /// </remarks>
     public bool Detach() {
 
@@ -316,11 +321,11 @@ namespace Breeze.Sharp {
     /// Rejects any changes made to the Entity since the last save operation.
     /// This will also remove the Entity from the <b>EntityManager</b> if it was an 'added' object.
     /// <para>
-    /// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanging"/> and <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanged"/> events
+    /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> and <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> events
     /// will fire during a <b>RejectChanges</b> call with an EntityAction of <see cref="EntityAction.Rollback"/>.
     /// </para>
-    /// <seealso cref="M:IdeaBlade.EntityModel.Entity.RejectChanges"/>
-    /// <seealso cref="M:IdeaBlade.EntityModel.Entity.RemoveFromManager()"/>
+    /// <seealso cref="M:Breeze.Sharp.Entity.RejectChanges"/>
+    /// <seealso cref="M:Breeze.Sharp.Entity.RemoveFromManager()"/>
     /// </remarks>
     public void RejectChanges() {
       if (this.IsDetached) return;

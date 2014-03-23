@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using Breeze.Sharp;
 using System.Collections.Generic;
 

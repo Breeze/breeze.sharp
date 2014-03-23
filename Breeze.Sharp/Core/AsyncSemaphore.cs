@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 
 // Source from: http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266983.aspx
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
   public class AsyncSemaphore {
     
     public AsyncSemaphore(int initialCount) {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
   /// <summary>
   /// Dynamic implementation of an IEqualityComparer.  
   /// </summary>

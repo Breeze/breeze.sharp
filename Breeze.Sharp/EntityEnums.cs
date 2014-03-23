@@ -175,7 +175,7 @@ namespace Breeze.Sharp {
   ///    Describes an action performed on an Entity.
   /// </summary>
   /// <remarks>
-  /// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanging"/> and <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanged"/> events
+  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> and <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> events
   /// both receive arguments containing the <b>EntityAction</b>.
   /// </remarks>
   [Flags]

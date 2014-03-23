@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;

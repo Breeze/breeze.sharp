@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
 
   // similar to the HashSet but will smaller surface and customizable 
   // should be subclassed to expose unique collections where the consumer

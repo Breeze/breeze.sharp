@@ -2,16 +2,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Services.Client;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
-   /// <summary>
+
+  /// <summary>
   /// For internal use only. Called to convert a query to a cache only in memory query
   /// </summary>
   internal class CacheQueryExpressionVisitor : ExpressionVisitor {

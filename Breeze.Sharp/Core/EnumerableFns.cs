@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
   /// <summary>
   /// Provides a set of static methods for querying objects that implement <see cref="IEnumerable{T}"/>.
   /// <seealso cref="System.Linq"/>

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
 
   // similar to the .NET KeyedCollection class ( but different ...) 
   public abstract class MapCollection<T,U> : ICollection<U> {

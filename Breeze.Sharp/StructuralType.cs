@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 using System.Reflection;
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using System.Diagnostics;
 
 namespace Breeze.Sharp {

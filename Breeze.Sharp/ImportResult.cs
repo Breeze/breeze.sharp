@@ -1,5 +1,5 @@
 ﻿
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 namespace Breeze.Sharp {

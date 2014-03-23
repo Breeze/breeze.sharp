@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
   public static class TypeFns {
 
     /// <summary>

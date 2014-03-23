@@ -65,12 +65,12 @@ namespace Breeze.Sharp {
 
   //#region EntityPropertyChangingEventArgs
   ///// <summary>
-  ///// Provides information to the <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityPropertyChanging"/> event.
+  ///// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityPropertyChanging"/> event.
   ///// </summary>
   ///// <remarks>
-  ///// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityPropertyChanging"/> event fires whenever a property
+  ///// The <see cref="E:Breeze.Sharp.EntityGroup.EntityPropertyChanging"/> event fires whenever a property
   ///// setter is called on an entity in your model before the new value is set.
-  ///// You can set the <see cref="P:IdeaBlade.EntityModel.EntityPropertyChangingEventArgs.Cancel"/> property to true in your handler to stop further 
+  ///// You can set the <see cref="P:Breeze.Sharp.EntityPropertyChangingEventArgs.Cancel"/> property to true in your handler to stop further 
   ///// processing of the change.  
   ///// </remarks>
   //public class EntityPropertyChangingEventArgs : EntityChangeCancelEventArgs {
@@ -133,10 +133,10 @@ namespace Breeze.Sharp {
 
   //#region EntityPropertyChangedEventArgs
   ///// <summary>
-  ///// Provides information to the <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityPropertyChanged"/> event.
+  ///// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityPropertyChanged"/> event.
   ///// </summary>
   ///// <remarks>
-  ///// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityPropertyChanged"/> event fires whenever a property
+  ///// The <see cref="E:Breeze.Sharp.EntityGroup.EntityPropertyChanged"/> event fires whenever a property
   ///// setter is called on an entity in your model after the new value is set.
   ///// </remarks>
   //public class EntityPropertyChangedEventArgs : EntityChangeEventArgs {
@@ -188,12 +188,12 @@ namespace Breeze.Sharp {
 
   #region EntityChangingEventArgs
   /// <summary>
-  /// Provides information to the <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanging"/> event.
+  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event.
   /// </summary>
   /// <remarks>
-  /// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanging"/> event fires whenever an action
+  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event fires whenever an action
   /// is about to take place on an entity.
-  /// You can set the <see cref="P:IdeaBlade.EntityModel.EntityChangingEventArgs.Cancel"/> property to true in your handler to stop further 
+  /// You can set the <see cref="P:Breeze.Sharp.EntityChangingEventArgs.Cancel"/> property to true in your handler to stop further 
   /// processing of the change.  See the <see cref="EntityAction"/> for the action to
   /// be performed.
   /// </remarks>
@@ -220,10 +220,10 @@ namespace Breeze.Sharp {
 
   #region EntityChangedEventArgs
   /// <summary>
-  /// Provides information to the <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanged"/> event.
+  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event.
   /// </summary>
   /// <remarks>
-  /// The <see cref="E:IdeaBlade.EntityModel.EntityGroup.EntityChanged"/> event fires whenever an action
+  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event fires whenever an action
   /// has taken place on an entity. See the <see cref="EntityAction"/> for the action performed.
   /// </remarks>
   public class EntityChangedEventArgs : EntityChangeEventArgs {

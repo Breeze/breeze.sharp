@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using Newtonsoft.Json.Serialization;
 
 namespace Breeze.Sharp {

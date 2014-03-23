@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Breeze.Core {
+namespace Breeze.Sharp.Core {
 
   /// <summary>
   /// Represents an observable set of unique values.

@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
-using Breeze.Core;
+using Breeze.Sharp.Core;
 using Breeze.Sharp;
 using System.Collections.Generic;
 
@@ -163,6 +163,20 @@ namespace Test_NetClient {
       var hs = r0.Select(r => r.QuantityPerUnit).ToHashSet();
       Assert.IsTrue(hs.Count() > 2, "should be more than 2 unique values");
 
+    }
+
+    [TestMethod]
+    public async Task InitializeTest() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var q = new EntityQuery<Fruit>().From("Fruits");
+      var r0 = await em1.ExecuteQuery(q);
+      var apple = r0.First(r => r is Apple);
+      Assert.IsTrue(apple.IsFruit);
+      Assert.IsTrue(apple.InitializedTypes.Count == 3);
+      Assert.IsTrue(apple.InitializedTypes[0] == "ItemOfProduce");
+      Assert.IsTrue(apple.InitializedTypes[1] == "Fruit");
+      Assert.IsTrue(apple.InitializedTypes[2] == "Apple");
     }
 
     //test("query Fruits w/client ofType", function () {

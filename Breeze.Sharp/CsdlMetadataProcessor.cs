@@ -1,4 +1,4 @@
-﻿using Breeze.Core;
+﻿using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
