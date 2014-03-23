@@ -5,12 +5,18 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class DataPropertyCollection : MapCollection<String, DataProperty> {
     protected override String GetKeyForItem(DataProperty item) {
       return item.Name;
     }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class DataProperty : StructuralProperty, IJsonSerializable {
     public DataProperty() {

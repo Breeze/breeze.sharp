@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using System.Threading;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// Instances of the EntityManager contain and manage collections of entities, either retrieved from a backend datastore or created on the client. 
+  /// </summary>
   public class EntityManager  {
 
     #region Ctor 
@@ -17,7 +21,10 @@ namespace Breeze.Sharp {
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="serviceName">"http://localhost:9000/"</param>
+    /// <param name="serviceName"></param>
+    /// <example><code>
+    /// var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
+    /// </code></example>
     public EntityManager(String serviceName) {
       DefaultDataService = new DataService(serviceName);
       DefaultQueryOptions = QueryOptions.Default;

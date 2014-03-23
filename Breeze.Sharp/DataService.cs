@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class DataService : IJsonSerializable {
 
     public DataService(String serviceName) {

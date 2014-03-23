@@ -11,7 +11,13 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
+  
   // TODO: EntityQuery is currently just additive - i.e. no way to remove clauses
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public class EntityQuery<T> : EntityQuery, IQueryable<T>, IOrderedQueryable<T>, IQueryProvider  {
 
     public EntityQuery( ) : base() {
@@ -211,6 +217,9 @@ namespace Breeze.Sharp {
 
   }
   
+  /// <summary>
+  /// 
+  /// </summary>
   public abstract class EntityQuery : IEntityQuery, IHasDataServiceQuery {
     public EntityQuery() {
       QueryOptions = new QueryOptions();

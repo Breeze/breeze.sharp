@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{Name}")]
   public class ComplexType: StructuralType, IJsonSerializable {
 
