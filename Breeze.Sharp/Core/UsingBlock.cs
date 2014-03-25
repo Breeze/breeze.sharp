@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp.Core {
+
   /// <summary>
   ///  For use with a using (Using in Visual Basic) statement to perform pre- and post- actions. 
   /// </summary>

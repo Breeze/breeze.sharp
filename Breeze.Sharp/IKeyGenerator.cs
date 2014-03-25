@@ -5,6 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public interface IKeyGenerator {
 
 

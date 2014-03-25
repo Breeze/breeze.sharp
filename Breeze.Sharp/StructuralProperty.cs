@@ -5,12 +5,18 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class PropertyCollection : KeyedCollection<String, StructuralProperty> {
     protected override String GetKeyForItem(StructuralProperty item) {
       return item.Name;
     }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public abstract class StructuralProperty  {
     public StructuralProperty() { }
 

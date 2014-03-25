@@ -11,7 +11,6 @@ namespace Breeze.Sharp {
   /// not share the same semantics.  This class allows IdeaBlade Entity queries against the Entity cache (Linq to Objects queries)
   /// to be interpreted like they will be against the Entity Framework.
   /// </summary>
-  
   public class CacheQueryOptions {
 
     static CacheQueryOptions() {

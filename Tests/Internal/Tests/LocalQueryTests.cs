@@ -7,7 +7,7 @@ using Breeze.Sharp;
 using System.Collections.Generic;
 using Foo;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class LocalQueryTests {

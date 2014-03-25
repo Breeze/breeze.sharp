@@ -1,5 +1,9 @@
 ﻿
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class QueryOptions : IJsonSerializable {
 
     public QueryOptions() {

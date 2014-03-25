@@ -26,7 +26,7 @@ namespace Breeze.Sharp {
         .Select(ParseCsdlEntityType).ToList();
       var complexTypes = ToEnumerable(_schema["complexType"]).Cast<JObject>()
         .Select(ParseCsdlComplexType).ToList();
-      entityTypes.ForEach(et => ResolveComplexTypeRefs(et));
+      entityTypes.ForEach(ResolveComplexTypeRefs);
 
       var entityContainer = _schema["entityContainer"];
       if (entityContainer != null) {
@@ -185,8 +185,8 @@ namespace Breeze.Sharp {
         ParentType = parentType,
         NameOnServer = nameVal,
         DataType = dataType,
-        IsNullable = isNullable,
         IsPartOfKey = isPartOfKey,
+        IsNullable = isNullable,
         MaxLength = maxLength,
         DefaultValue = defaultValue,
         // fixedLength: fixedLength,
@@ -194,6 +194,7 @@ namespace Breeze.Sharp {
         IsScalar = true ,
         IsAutoIncrementing = isAutoIncrementing
       };
+      
 
       if (dataType == DataType.Undefined) {
         dp.RawTypeName = typeVal;

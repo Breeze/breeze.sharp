@@ -9,12 +9,18 @@ using System.Diagnostics;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class StructuralTypeCollection : MapCollection<String, StructuralType> {
     protected override String GetKeyForItem(StructuralType item) {
       return item.ShortName + ":#" + item.Namespace;
     }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{Name}")]
   public abstract class StructuralType {
     public StructuralType() {
@@ -65,8 +71,10 @@ namespace Breeze.Sharp {
       }
       internal set {
         _clrType = value;
+        Name = TypeNameInfo.FromClrTypeName(_clrType.FullName).Name;
       }  
     }
+
     private Type _clrType;
     public String ShortName { get; private set; }
     public String Namespace { get; private set;}

@@ -1,11 +1,14 @@
-﻿
-using Breeze.Sharp.Core;
+﻿using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class SaveException : Exception {
     public static SaveException Parse(EntityManager em, String json) {
       var jn = JNode.DeserializeFrom(json);

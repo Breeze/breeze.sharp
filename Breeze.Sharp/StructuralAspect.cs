@@ -10,10 +10,17 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public interface IHasBackingStore {
     IDictionary<String, Object> BackingStore { get; set; }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public abstract class StructuralAspect {
 
     public StructuralAspect(IStructuralObject stObj) {

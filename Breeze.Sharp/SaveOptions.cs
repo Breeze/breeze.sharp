@@ -1,7 +1,10 @@
-﻿
-using System;
+﻿using System;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class SaveOptions : IJsonSerializable {
 
     public SaveOptions(string resourceName=null, DataService dataService=null, bool allowConcurrentSaves=false, String tag=null) {

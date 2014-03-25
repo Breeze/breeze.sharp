@@ -9,7 +9,7 @@ using Foo;
 using System.Threading;
 using System.Windows.Threading;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class QueryTests {

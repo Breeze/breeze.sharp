@@ -5,7 +5,14 @@ using System.Collections.Generic;
 namespace Breeze.Sharp.Core {
 
   // similar to the .NET KeyedCollection class ( but different ...) 
+
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="U"></typeparam>
   public abstract class MapCollection<T,U> : ICollection<U> {
+
     public MapCollection() {
       
     }

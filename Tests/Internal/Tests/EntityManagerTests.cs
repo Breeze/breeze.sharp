@@ -11,7 +11,7 @@ using Foo;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class EntityManagerTests {

@@ -21,3 +21,5 @@ GetFtpCredential.ps1
 
 breeze-*.zip
 breeze*.nupkg
+
+ApiDocs/html

@@ -95,7 +95,7 @@ namespace Breeze.Sharp {
         if (parentEntity != null) {
           return parentEntity;
         } else {
-          return (Parent as IComplexObject).ComplexAspect.ParentEntity;
+          return ((IComplexObject) Parent).ComplexAspect.ParentEntity;
         }
       }
     }

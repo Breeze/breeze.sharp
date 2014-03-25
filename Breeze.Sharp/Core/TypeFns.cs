@@ -6,6 +6,10 @@ using System.Linq;
 using System.Reflection;
 
 namespace Breeze.Sharp.Core {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public static class TypeFns {
 
     /// <summary>

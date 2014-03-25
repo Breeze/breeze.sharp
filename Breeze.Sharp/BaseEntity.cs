@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{EntityAspect.EntityKey} - {EntityAspect.EntityState}")]
   public abstract class BaseEntity : IEntity {
 

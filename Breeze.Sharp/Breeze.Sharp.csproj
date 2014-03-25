@@ -47,6 +47,7 @@
     <Compile Include="DataServiceAdapter.WebApi.cs" />
     <Compile Include="EntityQueryBuilder.cs" />
     <Compile Include="IDataServiceAdapter.cs" />
+    <Compile Include="EntityTypeBuilder.cs" />
     <Compile Include="SaveOptions.cs" />
     <Compile Include="SaveException.cs" />
     <Compile Include="SaveResult.cs" />

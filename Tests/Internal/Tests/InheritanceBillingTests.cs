@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Model.Inheritance.Billing;
 using System.Collections;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class InheritanceBillingTests {

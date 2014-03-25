@@ -9,6 +9,9 @@ using System.Diagnostics;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class TypeNameInfo {
 
 

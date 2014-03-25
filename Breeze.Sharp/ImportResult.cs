@@ -1,8 +1,9 @@
-﻿
-using Breeze.Sharp.Core;
+﻿using Breeze.Sharp.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+
 namespace Breeze.Sharp {
+
   /// <summary>
   /// Strategy to control how Entities are merged into an EntityManager's cache.
   /// </summary>

@@ -20,7 +20,7 @@ namespace Breeze.Sharp {
   [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class DataProperty : StructuralProperty, IJsonSerializable {
     public DataProperty() {
-
+      IsScalar = true;
     }
 
     public DataProperty(DataProperty dp)
@@ -34,8 +34,7 @@ namespace Breeze.Sharp {
       this.ConcurrencyMode = dp.ConcurrencyMode;
       this.IsUnmapped = dp.IsUnmapped;
       this.IsAutoIncrementing = dp.IsAutoIncrementing;
-
-      this.ComplexTypeName = dp.ComplexTypeName;
+      this.IsScalar = dp.IsScalar;
       this.ComplexType = dp.ComplexType;
       this.MaxLength = dp.MaxLength;
       this.EnumTypeName = dp.EnumTypeName;
@@ -47,6 +46,10 @@ namespace Breeze.Sharp {
       ComplexTypeName = jNode.Get<String>("complexTypeName");
       if (ComplexTypeName == null) {
         DataType = DataType.FromName(jNode.Get<String>("dataType"));
+      } else {
+        // may fail because ComplexType has not yet been defined - this will be resolved later in the 
+        // MetadataStore.ResolveComplexTypeRefs method
+        ComplexType = MetadataStore.Instance.GetComplexType(ComplexTypeName, true);
       }
       IsNullable = jNode.Get<bool>("isNullable", true);
       if (DataType != null) {
@@ -57,9 +60,10 @@ namespace Breeze.Sharp {
       IsAutoIncrementing = jNode.Get<bool>("isAutoIncrementing", false);
       ConcurrencyMode = (ConcurrencyMode)Enum.Parse(typeof(ConcurrencyMode), jNode.Get<String>("conncurrencyMode", ConcurrencyMode.None.ToString()));
       MaxLength = jNode.Get<int?>("maxLength");
-      EnumTypeName = jNode.Get<String>("enumType");
       IsScalar = jNode.Get<bool>("isScalar", true);
       _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
+      EnumTypeName = jNode.Get<String>("enumType");
+
     }
 
     JNode IJsonSerializable.ToJNode(Object config) {
@@ -74,22 +78,25 @@ namespace Breeze.Sharp {
       jn.AddPrimitive("isAutoIncrementing", this.IsAutoIncrementing, false);
       jn.AddPrimitive("concurrencyMode", this.ConcurrencyMode == ConcurrencyMode.None ? null : this.ConcurrencyMode.ToString());
       jn.AddPrimitive("maxLength", this.MaxLength);
+      jn.AddPrimitive("isScalar", this.IsScalar, true);
       jn.AddArray("validators", this.Validators);
       jn.AddPrimitive("enumType", this.EnumTypeName);
-      jn.AddPrimitive("isScalar", this.IsScalar, true);
       // jo.AddProperty("custom", this.Custom.ToJObject)
       return jn;
     }
 
-    
-
     public DataType DataType { get; internal set; }
+    public ComplexType ComplexType { get; internal set; }
+    // only used during deserialization of JNodes
+    internal String ComplexTypeName { get; set; }
+
+
     public override Type ClrType {
       get {
-        if (_clrType == null) {
-          if (IsComplexProperty) {
+        if (_clrType == null && ( DataType != null || ComplexType != null)) {
+          if (ComplexType != null) {
             _clrType = ComplexType.ClrType;
-          } else {
+          } else if (DataType != null) {
             var rawClrType = DataType.ClrType;
             _clrType = IsNullable ? TypeFns.GetNullableType(rawClrType) : rawClrType;
           }
@@ -97,29 +104,33 @@ namespace Breeze.Sharp {
         return _clrType;
       }
     }
-    private Type _clrType;
-    
+
     public bool IsNullable { get; internal set; }
-    // Not sure how this is set;
+
     public bool IsAutoIncrementing { get; internal set; }
-    
+
     public bool IsPartOfKey { get; internal set; }
+
     public Object DefaultValue { get; internal set; }
+
     public ConcurrencyMode ConcurrencyMode { get; internal set; }
+
     public Int64? MaxLength { get; internal set; }
+
+
+    public String EnumTypeName { get; internal set; }
+    public String RawTypeName { get; internal set; }
 
     public NavigationProperty InverseNavigationProperty { get; internal set; }
     public NavigationProperty RelatedNavigationProperty { get; internal set; } // only set if fk
     public bool IsForeignKey { get; internal set; } // may be set even if no RelatedNavigationProperty ( if unidirectional nav)
-    public ComplexType ComplexType { get; internal set; }
-    public String ComplexTypeName { get; internal set; }
-    public String EnumTypeName { get; internal set; }
-    public String RawTypeName { get; internal set; }
 
     public bool IsComplexProperty { get { return ComplexTypeName != null;}}
     public bool IsConcurrencyProperty { get { return ConcurrencyMode != ConcurrencyMode.None; } }
     public override bool IsDataProperty { get { return true; } }
     public override bool IsNavigationProperty { get { return false; } }
+
+    private Type _clrType;
     
   }
 

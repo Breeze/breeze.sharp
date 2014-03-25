@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
-  // This class is ThreadSafe
-  // and every object returned by it is immutable after being associated with this class.
-
+  /// <summary>
+  /// This class is ThreadSafe
+  /// </summary>
   public class MetadataStore : IJsonSerializable {
 
     #region Ctor related 

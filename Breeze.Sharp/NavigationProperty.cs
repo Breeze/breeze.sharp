@@ -6,14 +6,22 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class NavigationPropertyCollection : MapCollection<String, NavigationProperty> {
     protected override String GetKeyForItem(NavigationProperty item) {
       return item.Name;
     }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class NavigationProperty : StructuralProperty, IJsonSerializable {
+    // TODO: what about IsNullable on a scalar navigation property
+
     public NavigationProperty() {
 
     }
@@ -52,18 +60,22 @@ namespace Breeze.Sharp {
       return jo;
     }
 
-  
 
     public EntityType EntityType { get; internal set; }
+
     public override Type ClrType {
       get { return EntityType.ClrType; }
     }
-    public String EntityTypeName { get; internal set; }
+    
+    // needed during entityType reference resolution
+    internal String EntityTypeName { get; set; }
+    
     public String AssociationName { get; internal set; }
     
     public NavigationProperty Inverse { get; internal set; }
 
     // AsReadOnly doesn't seem to exist in the PCL
+    // Only exists if there is a fk on the same parent entity type
     public ReadOnlyCollection<DataProperty> RelatedDataProperties {
       get { return _relatedDataProperties.ReadOnlyValues; }
     }
@@ -112,7 +124,6 @@ namespace Breeze.Sharp {
     public override bool IsNavigationProperty { get { return true; } }
 
     internal SafeList<DataProperty> _relatedDataProperties = new SafeList<DataProperty>();
-
     internal SafeList<String> _foreignKeyNames = new SafeList<string>();
     internal SafeList<String> _foreignKeyNamesOnServer = new SafeList<string>();
     internal SafeList<String> _invForeignKeyNames = new SafeList<string>();

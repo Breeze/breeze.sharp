@@ -1,11 +1,13 @@
-﻿
-using Breeze.Sharp.Core;
-using System;
+﻿using Breeze.Sharp.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+
 namespace Breeze.Sharp {
   
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class SaveResult {
 
     internal SaveResult(IEnumerable<IEntity> entities, Dictionary<EntityKey, EntityKey> keyMappings) {

@@ -22,9 +22,10 @@ namespace Breeze.Sharp {
     /// 
     /// </summary>
     /// <param name="serviceName"></param>
-    /// <example><code>
-    /// var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
-    /// </code></example>
+    /// <remarks><code>
+    ///     // Example: 
+    ///     var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
+    /// </code></remarks>
     public EntityManager(String serviceName) {
       DefaultDataService = new DataService(serviceName);
       DefaultQueryOptions = QueryOptions.Default;

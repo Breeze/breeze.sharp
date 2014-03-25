@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class ValidationErrorCollection : MapCollection<String, ValidationError> {
     public ValidationErrorCollection(EntityAspect entityAspect) {
       EntityAspect = entityAspect;

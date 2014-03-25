@@ -1,6 +1,9 @@
 ﻿
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class ImportOptions {
 
     public ImportOptions(MergeStrategy? mergeStrategy = null, bool shouldMergeMetadata=true) {

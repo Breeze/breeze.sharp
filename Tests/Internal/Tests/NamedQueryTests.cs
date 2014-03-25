@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Net.Http;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class NamedQueryTests {

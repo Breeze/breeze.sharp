@@ -14,7 +14,6 @@ namespace Breeze.Sharp {
   /// </summary>
   /// <remarks><b>UniqueIds</b> are used when implementing the <see cref="IIdGenerator"/> interface.
   /// </remarks>
-  
   public class UniqueId : IComparable {
 
     // For deep cloning

@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
   public static class TestFns {
 
     public static void RunInWpfSyncContext(Func<Task> function) {

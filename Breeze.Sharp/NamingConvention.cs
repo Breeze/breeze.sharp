@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class NamingConvention {
 
     public static List<NamingConvention> __namingConventions = new List<NamingConvention>();

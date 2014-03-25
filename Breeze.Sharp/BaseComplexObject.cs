@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public abstract class BaseComplexObject : IComplexObject {
 
     protected BaseComplexObject() {

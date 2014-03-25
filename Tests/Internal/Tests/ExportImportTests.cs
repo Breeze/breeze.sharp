@@ -13,7 +13,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 
-namespace Test_NetClient {
+namespace Breeze.Sharp.Tests {
 
   [TestClass]
   public class ExportImportTests {

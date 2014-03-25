@@ -26,8 +26,11 @@ namespace Breeze.Sharp {
     }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class DataType {
-    public DataType(Type clrType) {
+    protected DataType(Type clrType) {
       Name = clrType.Name;
       ClrType = clrType;
       All.Add(this);
@@ -110,6 +113,11 @@ namespace Breeze.Sharp {
       DefaultValue = null,
       FmtOData = FmtUndefined,
     };
+
+    public static DataType FromClrType(Type clrType) {
+      var dataType = All.FirstOrDefault(dt => dt.ClrType == clrType);
+      return dataType != null ? dataType : DataType.Undefined;
+    }
 
     public static DataType FromName(String typeName) {
       var dataType = All.FirstOrDefault(dt => dt.Name == typeName);

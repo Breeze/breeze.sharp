@@ -3,6 +3,10 @@
 
 namespace Breeze.Sharp {
   // TODO: make immutable later
+
+  /// <summary>
+  /// 
+  /// </summary>
   public class ValidationOptions {
     public ValidationOptions() {
       ValidationApplicability = ValidationApplicability.Default;

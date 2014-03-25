@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   [DebuggerDisplay("{Name}")]
   public class EntityType : StructuralType, IJsonSerializable {
 
@@ -44,6 +47,7 @@ namespace Breeze.Sharp {
       // jo.AddProperty("custom", this.Custom.ToJObject)
       return jo;
     }
+
 
     #region Public properties
 
@@ -171,7 +175,7 @@ namespace Breeze.Sharp {
 
     #region private
     private NavigationPropertyCollection _navigationProperties = new NavigationPropertyCollection();
-    private SafeList<DataProperty> _keyProperties = new SafeList<DataProperty>();
+    internal SafeList<DataProperty> _keyProperties = new SafeList<DataProperty>();
     private SafeList<DataProperty> _foreignKeyProperties = new SafeList<DataProperty>();
     internal SafeList<DataProperty> _inverseForeignKeyProperties = new SafeList<DataProperty>();
     private SafeList<DataProperty> _concurrencyProperties = new SafeList<DataProperty>();
