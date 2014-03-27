@@ -218,11 +218,12 @@ namespace Breeze.Sharp {
     }
 
     public async Task<SaveResult> SaveChanges(IEnumerable<IEntity> entities = null, SaveOptions saveOptions = null) {
-      IEnumerable<IEntity> entitiesToSave;
+      List<IEntity> entitiesToSave;
       if (entities == null) {
-        entitiesToSave = this.GetChanges();
+        entitiesToSave = this.GetChanges().ToList();
       } else {
-        entitiesToSave = entities.Where(e => !e.EntityAspect.IsDetached && e.EntityAspect.EntityManager == this);
+        entitiesToSave =
+          entities.Where(e => !e.EntityAspect.IsDetached && e.EntityAspect.EntityManager == this).ToList();
       }
 
       if ((this.ValidationOptions.ValidationApplicability & ValidationApplicability.OnSave) > 0) {
