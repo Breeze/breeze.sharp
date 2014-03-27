@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
+
   /// <summary>
   /// Provides entity services to a <see cref="ComplexObject"/>.
   /// </summary>

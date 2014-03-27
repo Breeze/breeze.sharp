@@ -16,6 +16,11 @@ namespace Breeze.Sharp {
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="clrType"></param>
+    /// <param name="values"></param>
     public EntityKey(Type clrType, params Object[] values) {
       ClrType = clrType;
       EntityType = MetadataStore.Instance.GetEntityType(ClrType);

@@ -8,11 +8,17 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   public interface IEntity : IStructuralObject, INotifyDataErrorInfo, INotifyPropertyChanged, IEditableObject, 
     IChangeTracking, IRevertibleChangeTracking, IComparable {
     EntityAspect EntityAspect { get; set; }
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public interface IComplexObject : IStructuralObject, INotifyDataErrorInfo, IComparable {
     ComplexAspect ComplexAspect { get; set; }
   }

@@ -9,6 +9,9 @@ using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// 
+  /// </summary>
   [Flags]
   public enum DataTypeInfo {
     None = 0,

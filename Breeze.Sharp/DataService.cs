@@ -13,6 +13,10 @@ namespace Breeze.Sharp {
   /// </summary>
   public class DataService : IJsonSerializable {
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="serviceName"></param>
     public DataService(String serviceName) {
       ServiceName = serviceName;
       HasServerMetadata = true;
@@ -21,6 +25,10 @@ namespace Breeze.Sharp {
       InitializeHttpClient();
     }
 
+    /// <summary>
+    /// For internal use only.
+    /// </summary>
+    /// <param name="jNode"></param>
     public DataService(JNode jNode) {
       ServiceName = jNode.Get<String>("serviceName");
       HasServerMetadata = jNode.Get<bool>("hasServerMetadata");

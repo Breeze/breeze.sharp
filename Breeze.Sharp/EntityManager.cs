@@ -19,7 +19,7 @@ namespace Breeze.Sharp {
     #region Ctor 
 
     /// <summary>
-    /// 
+    /// Constructs an empty EntityManager with a specified default service name. 
     /// </summary>
     /// <param name="serviceName"></param>
     /// <remarks><code>
@@ -37,7 +37,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Creates a new EntityManager with the same configuration as another EntityManager but without any entities.
     /// </summary>
     /// <param name="em"></param>
     public EntityManager(EntityManager em) {
@@ -112,25 +112,41 @@ namespace Breeze.Sharp {
       private set;
     }
 
+    /// <summary>
+    /// The default DataService for this EntityManager.
+    /// </summary>
     public DataService DefaultDataService {
       get { return _defaultDataService; }
       set { _defaultDataService = InsureNotNull(value, "DefaultDataService"); }
     }
 
+    /// <summary>
+    /// Default QueryOptions for this EntityManager. These may be overriden for any specific query.
+    /// </summary>
     public QueryOptions DefaultQueryOptions {
       get { return _defaultQueryOptions; }
       set { _defaultQueryOptions = InsureNotNull(value, "DefaultQueryOptions"); }
     }
 
+    /// <summary>
+    /// Default SaveOptions for this EntityManager. These may be overriden for any specific save.
+    /// </summary>
     public SaveOptions DefaultSaveOptions {
       get { return _defaultSaveOptions; }
       set { _defaultSaveOptions = InsureNotNull(value, "DefaultSaveOptions"); }
     }
+
+    /// <summary>
+    /// The CacheQueryOptions to be used when querying the local cache.
+    /// </summary>
     public CacheQueryOptions CacheQueryOptions {
       get { return _cacheQueryOptions; }
       set { _cacheQueryOptions = InsureNotNull(value, "CacheQueryOptions"); }
     }
 
+    /// <summary>
+    /// Validation options.
+    /// </summary>
     public ValidationOptions ValidationOptions {
       get { return _validationOptions; }
       set { _validationOptions = InsureNotNull(value, "ValidationOptions"); }
@@ -141,6 +157,9 @@ namespace Breeze.Sharp {
       set { _keyGenerator = InsureNotNull(value, "KeyGenerator"); }
     }
 
+    /// <summary>
+    /// Whether or not change notification events will be fired. This includes both EntityChange and PropertyChange events.
+    /// </summary>
     public bool ChangeNotificationEnabled {
       get { return _changeNotificationEnabled; }
       set {
@@ -154,7 +173,8 @@ namespace Breeze.Sharp {
     #region async methods
 
     /// <summary>
-    /// 
+    /// Fetches the metadata associated with the EntityManager's current 'serviceName'. 
+    /// This call also occurs internally before the first query to any service if the metadata hasn't already been loaded.
     /// </summary>
     /// <param name="dataService"></param>
     /// <returns></returns>
@@ -164,7 +184,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Performs an asynchronous query and that returns a typed result.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
@@ -175,7 +195,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Performs an asynchronous query and that returns an untyped result.
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
@@ -213,10 +233,21 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Performs an asynchronous saves of all pending changes within this EntityManager.
+    /// </summary>
+    /// <param name="saveOptions"></param>
+    /// <returns></returns>
     public async Task<SaveResult> SaveChanges(SaveOptions saveOptions) {
       return await SaveChanges(null, saveOptions);
     }
 
+    /// <summary>
+    /// Performs an asynchronous save of just the specified entities within this EntityManager.
+    /// </summary>
+    /// <param name="entities"></param>
+    /// <param name="saveOptions"></param>
+    /// <returns></returns>
     public async Task<SaveResult> SaveChanges(IEnumerable<IEntity> entities = null, SaveOptions saveOptions = null) {
       List<IEntity> entitiesToSave;
       if (entities == null) {
@@ -259,6 +290,12 @@ namespace Breeze.Sharp {
       return saveResult;
     }
 
+    /// <summary>
+    /// Performs an asynchronous query that optionally checks the local cache first.
+    /// </summary>
+    /// <param name="entityKey"></param>
+    /// <param name="checkLocalCacheFirst"></param>
+    /// <returns></returns>
     public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false) {
       IEntity entity;
       if (checkLocalCacheFirst) {
@@ -270,6 +307,9 @@ namespace Breeze.Sharp {
       return new EntityKeyFetchResult(entity, false);
     }
 
+    /// <summary>
+    /// The async result of a FetchEntityByKey call.
+    /// </summary>
     public class EntityKeyFetchResult {
       public EntityKeyFetchResult(IEntity entity, bool fromCache) {
         Entity = entity;
@@ -353,22 +393,47 @@ namespace Breeze.Sharp {
 
     #region Export/Import entities
 
+    /// <summary>
+    /// Exports a specified list of entities as a string, with the option to include metadata
+    /// </summary>
+    /// <param name="entities"></param>
+    /// <param name="includeMetadata">Default is 'true'</param>
+    /// <returns></returns>
     public String ExportEntities(IEnumerable<IEntity> entities = null, bool includeMetadata = true) {
       var jn = ExportToJNode(entities, includeMetadata);
       return jn.Serialize();
     }
 
+    /// <summary>
+    /// Exports a specified list of entities via a TextWriter, with the option to include metadata
+    /// </summary>
+    /// <param name="entities"></param>
+    /// <param name="includeMetadata"></param>
+    /// <param name="textWriter"></param>
+    /// <returns></returns>
     public TextWriter ExportEntities(IEnumerable<IEntity> entities, bool includeMetadata, TextWriter textWriter) {
       var jn = ExportToJNode(entities, includeMetadata);
       jn.SerializeTo(textWriter);
       return textWriter;
     }
 
+    /// <summary>
+    /// Imports the string result of a previously executed ExportEntities call.
+    /// </summary>
+    /// <param name="exportedString"></param>
+    /// <param name="importOptions"></param>
+    /// <returns></returns>
     public ImportResult ImportEntities(String exportedString, ImportOptions importOptions = null) {
       var jn = JNode.DeserializeFrom(exportedString);
       return ImportEntities(jn, importOptions);
     }
 
+    /// <summary>
+    /// Imports the result of a previously executed ExportEntities call via a TextReader.
+    /// </summary>
+    /// <param name="textReader"></param>
+    /// <param name="importOptions"></param>
+    /// <returns></returns>
     public ImportResult ImportEntities(TextReader textReader, ImportOptions importOptions = null) {
       var jn = JNode.DeserializeFrom(textReader);
       return ImportEntities(jn, importOptions);
@@ -605,26 +670,51 @@ namespace Breeze.Sharp {
 
     #region Misc public methods
 
+    /// <summary>
+    /// Turns on or off change notification events for a specific entity type.
+    /// </summary>
+    /// <param name="clrEntityType"></param>
+    /// <param name="enabled"></param>
     public void EnableChangeNotification(Type clrEntityType, bool enabled = true) {
       CheckEntityType(clrEntityType);
       var eg = GetEntityGroup(clrEntityType);
       eg.ChangeNotificationEnabled = enabled;
     }
 
+    /// <summary>
+    /// Whether change notification events are enabled for a specific entity type.
+    /// </summary>
+    /// <param name="clrEntityType"></param>
+    /// <returns></returns>
     public bool IsChangeNotificationEnabled(Type clrEntityType) {
       CheckEntityType(clrEntityType);
       var eg = GetEntityGroup(clrEntityType);
       return eg.ChangeNotificationEnabled;
     }
 
+    /// <summary>
+    /// Executes the specified query against the local cache and returns a typed result. 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public IEnumerable<T> ExecuteQueryLocally<T>(EntityQuery<T> query) {
       return query.ExecuteLocally(query.EntityManager ?? this);
     }
 
+    /// <summary>
+    /// Executes the specified query against the local cache and returns an untyped result. 
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public IEnumerable ExecuteQueryLocally(EntityQuery query) {
       return query.ExecuteLocally(query.EntityManager ?? this);
     }
 
+    /// <summary>
+    /// Calls AcceptChanges on each Added, Deleted or Modified entity within the cache. All pending changes will be considered complete and after this call
+    /// the EntityManager will have no pending changes.
+    /// </summary>
     public void AcceptChanges() {
       var entities = this.GetChanges();
       using (NewIsLoadingBlock(false)) {
@@ -633,6 +723,10 @@ namespace Breeze.Sharp {
       SetHasChanges(false);
     }
 
+    /// <summary>
+    /// Calls RejectChanges on each Added, Deleted or Modified entity within the cache.  All pending changes will be lost and after this call
+    /// the EntityManager will have no pending changes.
+    /// </summary>
     public void RejectChanges() {
       var entities = this.GetChanges();
       using (NewIsLoadingBlock(false)) {
@@ -641,6 +735,9 @@ namespace Breeze.Sharp {
       SetHasChanges(false);
     }
 
+    /// <summary>
+    /// Removes all entities from this EntityManager.
+    /// </summary>
     public void Clear() {
       EntityGroups.ForEach(eg => eg.Clear());
       SetHasChanges(false);
@@ -662,7 +759,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// Retrieves all entities of a specified type with the specified entity state(s) from cache.
+    /// Retrieves all entities of a specified type with the specified entity state(s) from cache as a typed enumerable.
     /// </summary>
     /// <typeparam name="T">The type of Entity to retrieve</typeparam>
     /// <param name="entityState">EntityState(s) of entities to return</param>
@@ -675,6 +772,11 @@ namespace Breeze.Sharp {
       return GetEntities(typeof(T), entityState).Cast<T>();
     }
 
+    /// <summary>
+    /// Retrieves all entities of a specified type with the specified entity state(s) from cache.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public IEnumerable<IEntity> GetEntities(Type type) {
       return GetEntities(type, EntityState.AllButDetached);
     }
@@ -705,10 +807,20 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns a collection of all of the pending changes within this EntityManager.
+    /// </summary>
+    /// <param name="entityTypes"></param>
+    /// <returns></returns>
     public IEnumerable<IEntity> GetChanges(params Type[] entityTypes) {
       return GetChanges((IEnumerable<Type>) entityTypes);
     }
 
+    /// <summary>
+    /// Returns a collection of all of the pending changes within this EntityManager for a specified list of entity types.
+    /// </summary>
+    /// <param name="entityTypes"></param>
+    /// <returns></returns>
     public IEnumerable<IEntity> GetChanges(IEnumerable<Type> entityTypes = null) {
       if (entityTypes == null) {
         return GetEntities(EntityState.AnyAddedModifiedOrDeleted);
@@ -719,15 +831,32 @@ namespace Breeze.Sharp {
         .Select(ea => ea.Entity);
     }
 
+    /// <summary>
+    /// Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="entityKey"></param>
+    /// <returns></returns>
     public T GetEntityByKey<T>(EntityKey entityKey) {
       return (T)GetEntityByKey(entityKey);
     }
 
+    /// <summary>
+    /// Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="values"></param>
+    /// <returns></returns>
     public T GetEntityByKey<T>(params Object[] values) where T : IEntity {
       var ek = new EntityKey(typeof(T), values);
       return (T)GetEntityByKey(ek);
     }
 
+    /// <summary>
+    /// Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+    /// </summary>
+    /// <param name="entityKey"></param>
+    /// <returns></returns>
     public IEntity GetEntityByKey(EntityKey entityKey) {
 
       var subtypes = entityKey.EntityType.Subtypes;
@@ -747,22 +876,37 @@ namespace Breeze.Sharp {
 
     #endregion
 
-    #region FetchEntityByKey
-
-  
-
-    #endregion
-
     #region Create/Attach/Detach entity methods
 
+    /// <summary>
+    /// Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+    /// is also added to the EntityManager.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="entityState">Default is 'Added'</param>
+    /// <returns></returns>
     public T CreateEntity<T>(EntityState entityState = EntityState.Added) {
       return (T)CreateEntity(typeof(T), entityState);
     }
 
+    /// <summary>
+    /// Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+    /// is also added to the EntityManager.
+    /// </summary>
+    /// <param name="entityType"></param>
+    /// <param name="entityState"></param>
+    /// <returns></returns>
     public IEntity CreateEntity(EntityType entityType, EntityState entityState = EntityState.Added) {
       return CreateEntity(entityType.ClrType, entityState);
     }
 
+    /// <summary>
+    /// Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+    /// is also added to the EntityManager.
+    /// </summary>
+    /// <param name="clrType"></param>
+    /// <param name="entityState"></param>
+    /// <returns></returns>
     public IEntity CreateEntity(Type clrType, EntityState entityState = EntityState.Added) {
       var entity = (IEntity) Activator.CreateInstance(clrType);
       if (entityState == EntityState.Detached) {
@@ -773,10 +917,22 @@ namespace Breeze.Sharp {
       return entity;
     }
 
+    /// <summary>
+    /// Attaches a detached entity to this EntityManager and sets its EntityState to 'Added'.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public IEntity AddEntity(IEntity entity) {
       return AttachEntity(entity, EntityState.Added);
     }
 
+    /// <summary>
+    /// Attaches a detached entity to this EntityManager and sets its EntityState to a specified state.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="entityState">Defaults to 'Unchanged'</param>
+    /// <param name="mergeStrategy"></param>
+    /// <returns></returns>
     public IEntity AttachEntity(IEntity entity, EntityState entityState = EntityState.Unchanged, MergeStrategy mergeStrategy = MergeStrategy.Disallowed) {
       var aspect = PrepareForAttach(entity);
       if (aspect.IsAttached) return entity;
@@ -809,6 +965,12 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Removes a specified entity from this EntityManager. Note this is NOT a deletion.  It simply causes 
+    /// the EntityManager to 'forget' about this entity.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public bool DetachEntity(IEntity entity) {
       return entity.EntityAspect.Detach();
     }
@@ -1062,6 +1224,11 @@ namespace Breeze.Sharp {
 
     #region HasChanges/StateChange methods
 
+    /// <summary>
+    /// Returns whether there are any pending changes for this EntityManager or for selected types within this EntityManager.
+    /// </summary>
+    /// <param name="entityTypes"></param>
+    /// <returns></returns>
     public bool HasChanges(IEnumerable<Type> entityTypes = null) {
       if (!this._hasChanges) return false;
       if (entityTypes == null) return this._hasChanges;
