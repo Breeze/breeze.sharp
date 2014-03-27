@@ -20,6 +20,9 @@ namespace Breeze.Sharp {
     IsDate = 4
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public class NumericDataType : DataType {
     public NumericDataType(Type clrType, String fmtSuffix, bool isInteger)
       : base(clrType) {

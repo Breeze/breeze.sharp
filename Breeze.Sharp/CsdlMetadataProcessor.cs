@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Breeze.Sharp {
 
-  class CsdlMetadataProcessor {
+  internal class CsdlMetadataProcessor {
 
     public CsdlMetadataProcessor() {
       
@@ -65,16 +65,14 @@ namespace Breeze.Sharp {
       var isAbstract = abstractVal == "true";
       var etName = GetClientTypeNameFromShortName(shortNameVal);
       var entityType = MetadataStore.Instance.GetEntityType(etName);
-      // TODO: write these checks
-      // entityType.Check(entityType.isAbstract, isAbstract, "IsAbstract");
-
+      
+      entityType.IsAbstract = isAbstract;
+      EntityType baseEntityType = null;
       if (baseTypeVal != null) {
         var baseEtName = GetClientTypeNameFromClrTypeName(baseTypeVal);
-        var baseEntityType = _metadataStore.GetEntityType(baseEtName, true);
-        CompleteParseCsdlEntityType(entityType, csdlEntityType, baseEntityType);
-      } else {
-        CompleteParseCsdlEntityType(entityType, csdlEntityType, null);
+        baseEntityType = _metadataStore.GetEntityType(baseEtName, true);
       }
+      CompleteParseCsdlEntityType(entityType, csdlEntityType, baseEntityType);
       // entityType may or may not have been added to the metadataStore at this point.
       return entityType;
     }
@@ -171,6 +169,7 @@ namespace Breeze.Sharp {
         throw new Exception("Unable to locate a DataProperty named: " + dpName + " on the EntityType: " + parentType.Name);
       }
       dp.Check(dp.DataType, dataType, "DataType");
+      dp.Check(dp.IsScalar, true, "IsScalar");
 
       dp.IsPartOfKey = isPartOfKey;
       dp.IsNullable = isNullable;
@@ -178,7 +177,6 @@ namespace Breeze.Sharp {
       dp.DefaultValue = defaultValue;
         // fixedLength: fixedLength,
       dp.ConcurrencyMode = concurrencyMode;
-      dp.IsScalar = true;
       dp.IsAutoIncrementing = isAutoIncrementing;
 
       if (dataType == DataType.Undefined) {

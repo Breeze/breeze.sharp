@@ -60,10 +60,13 @@ namespace Breeze.Sharp {
       get { return _validators; }
     }
 
+
     internal void Check(Object v1, Object v2, String name) {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
-      throw new Exception("StructuralProperty: " + this.Name + ".  Metadata does not match for: " + name);
+      throw new Exception("StructuralType metadata mismatch. StructuralType: "  + this.ParentType.Name 
+        + ".  StructuralProperty: " + this.Name 
+        + ".  Property: " + name);
     }
 
     private void UpdateClientServerNames() {

@@ -13,25 +13,7 @@ using Breeze.Sharp.Core;
 namespace Breeze.Sharp {
 
   #region EntityGroup
-  /// <summary>
-  /// Abstract base class for the <see cref="EntityGroup{T}"/> class.
-  /// </summary>
-  /// <remarks>
-  /// An <b>EntityGroup</b> is used within the framework to hold entities of 
-  /// a specific type.  With the exception of some events provided by the
-  /// <b>EntityGroup</b>, you will rarely need to work with this class directly.
-  /// <para>
-  /// The <b>EntityGroup</b> provides several pre- and post- change events at both
-  /// the property and entity levels.  You can subscribe to <see cref="EntityPropertyChanging"/>
-  /// and <see cref="EntityPropertyChanged"/> to handle property-level changes to your
-  /// entities.  You can subscribe to <see cref="EntityChanging"/> and <see cref="EntityChanged"/>
-  /// to listen for any change to your entities.
-  /// </para>
-  /// <para>
-  /// You can obtain an EntityGroup instance from an <see cref="EntityManager"/>
-  /// using <see cref="M:Breeze.Sharp.EntityManager.GetEntityGroup(Type)"/>.
-  /// </para>
-  /// </remarks>
+  
   internal abstract class EntityGroup : IGrouping<Type, EntityAspect>  {
 
     #region ctors

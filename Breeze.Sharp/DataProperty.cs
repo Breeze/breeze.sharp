@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Unique collection of DataProperties.
   /// </summary>
   public class DataPropertyCollection : MapCollection<String, DataProperty> {
     protected override String GetKeyForItem(DataProperty item) {
@@ -17,7 +17,10 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// A DataProperty describes the metadata for a single property of an EntityType that contains simple data.
+  /// Instances of the DataProperty class are constructed automatically during assembly probing and 
+  /// and then updated via Metadata retrieval from an entity server. Itt is also possible to 
+  /// update/extend them directly on the client.
   /// </summary>
   [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class DataProperty : StructuralProperty, IJsonSerializable {
@@ -48,13 +51,15 @@ namespace Breeze.Sharp {
       
     }
 
-    public  void UpdateFromJNode(JNode jNode) {
+    internal  void UpdateFromJNode(JNode jNode) {
       var complexTypeName = jNode.Get<String>("complexTypeName");
       if (complexTypeName == null) {
         Check(DataType, DataType.FromName(jNode.Get<String>("dataType")), "DataType");
       } else {
         Check(ComplexType.Name, complexTypeName, "ComplexTypeName");  
       }
+      Check(this.IsScalar, jNode.Get<bool>("isScalar", true), "IsScalar");
+
       IsNullable = jNode.Get<bool>("isNullable", true);
       if (DataType != null) {
         DefaultValue = jNode.Get("defaultValue", DataType.ClrType);
@@ -64,13 +69,9 @@ namespace Breeze.Sharp {
       IsAutoIncrementing = jNode.Get<bool>("isAutoIncrementing", false);
       ConcurrencyMode = (ConcurrencyMode)Enum.Parse(typeof(ConcurrencyMode), jNode.Get<String>("conncurrencyMode", ConcurrencyMode.None.ToString()));
       MaxLength = jNode.Get<int?>("maxLength");
-      IsScalar = jNode.Get<bool>("isScalar", true);
-      _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
       EnumTypeName = jNode.Get<String>("enumType");
-
+      _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
     }
-
-    
 
     JNode IJsonSerializable.ToJNode(Object config) {
       var jn = new JNode();
@@ -91,8 +92,14 @@ namespace Breeze.Sharp {
       return jn;
     }
 
+    /// <summary>
+    /// The DataType for this property. This will be null for a ComplexType DataProperty.
+    /// </summary>
     public DataType DataType { get; internal set; }
 
+    /// <summary>
+    /// The ComplexType for this property. This will be null for a simple DataProprty.
+    /// </summary>
     public ComplexType ComplexType {
       get { return _complexType; }
       set {
@@ -104,11 +111,12 @@ namespace Breeze.Sharp {
         if (value != null) {
           ClrType = value.ClrType;
         }
-
       }
     }
 
-
+    /// <summary>
+    /// The CLR type for this property.
+    /// </summary>
     public override Type ClrType {
       get {
         return _clrType;
@@ -125,6 +133,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Whether this property is nullable.
+    /// </summary>
     public bool IsNullable {
       get { return _isNullable; }
       set {
@@ -150,6 +161,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Whether this property is autoincrementing.
+    /// </summary>
     public bool IsAutoIncrementing {
       get { return _isAutoIncrementing; }
       set {

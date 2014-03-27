@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp.Core {
+
   // Note: Do not make this public yet - too hard to understand and use ( but usefull);
   internal static class MethodReflector {
 

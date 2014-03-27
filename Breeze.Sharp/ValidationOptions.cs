@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace Breeze.Sharp {
   // TODO: make immutable later
 

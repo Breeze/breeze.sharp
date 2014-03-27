@@ -23,11 +23,11 @@ namespace Breeze.Sharp {
   public class NavigationProperty : StructuralProperty, IJsonSerializable {
     // TODO: what about IsNullable on a scalar navigation property
 
-    public NavigationProperty(String name) : base(name) {
+    internal NavigationProperty(String name) : base(name) {
       
     }
 
-    public NavigationProperty(NavigationProperty np) 
+    internal NavigationProperty(NavigationProperty np) 
       : base( np) {
       
       this.EntityType = np.EntityType;
@@ -37,7 +37,7 @@ namespace Breeze.Sharp {
       
     }
 
-    public void UpdateFromJNode(JNode jNode) {
+    internal void UpdateFromJNode(JNode jNode) {
       
       Check(EntityType.Name, jNode.Get<String>("entityTypeName"), "EntityTypeName");
       IsScalar = jNode.Get<bool>("isScalar", true);
@@ -61,28 +61,59 @@ namespace Breeze.Sharp {
       return jo;
     }
 
-
+    /// <summary>
+    /// The EntityType returned by this property.
+    /// </summary>
     public EntityType EntityType { get; internal set; }
 
+    /// <summary>
+    /// The CLR type, possibly enumerable, returned by this property.
+    /// </summary>
     public override Type ClrType {
       get { return EntityType.ClrType; }
       internal set {  throw new NotSupportedException("Cannot set the ClrType on a NavigationProperty directly - set the EntityType"); }
     }
        
+    /// <summary>
+    /// The name of the association to which that this property belongs. 
+    /// This associationName will be shared with this properties 'Inverse', if it exists.
+    /// </summary>
     public String AssociationName { get; internal set; }
     
+    /// <summary>
+    /// The inverse of this NavigationProperty. The NavigationProperty that 
+    /// represents a navigation in the opposite direction to this NavigationProperty.
+    /// </summary>
     public NavigationProperty Inverse { get; internal set; }
 
-    // AsReadOnly doesn't seem to exist in the PCL
-    // Only exists if there is a fk on the same parent entity type
+    
+    /// <summary>
+    /// The 'foreign key' DataProperties associated with this NavigationProperty. 
+    /// There will usually only be a single DataProperty associated with a Navigation property
+    /// except in the case of entities with multipart keys.
+    /// </summary>
+    /// <remarks>Only exists if there is a foreign key on the same parent entity type</remarks>
     public ReadOnlyCollection<DataProperty> RelatedDataProperties {
+      // AsReadOnly doesn't seem to exist in the PCL
       get { return _relatedDataProperties.ReadOnlyValues; }
     }
     
+    /// <summary>
+    /// The client side names of the foreign key DataProperties associated with this NavigationProperty. 
+    /// There will usually only be a single DataProperty associated with a Navigation property
+    /// except in the case of entities with multipart keys.
+    /// </summary>
     public ReadOnlyCollection<String> ForeignKeyNames {
       get { return _fkNames.ReadOnlyValues;  }
     }
 
+    /// <summary>
+    /// /// <summary>
+    /// The server side names of the foreign key DataProperties associated with this NavigationProperty. 
+    /// There will usually only be a single DataProperty associated with a Navigation property
+    /// except in the case of entities with multipart keys.
+    /// </summary>
+    /// </summary>
     public IList<String> ForeignKeyNamesOnServer {
       get {
         var nc = MetadataStore.Instance.NamingConvention;
@@ -90,6 +121,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public ReadOnlyCollection<String> InvForeignKeyNames {
       get { return _invFkNames.ReadOnlyValues; }
     }

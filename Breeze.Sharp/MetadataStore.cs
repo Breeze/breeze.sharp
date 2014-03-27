@@ -1,6 +1,7 @@
 ﻿using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -118,8 +119,6 @@ namespace Breeze.Sharp {
       _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
     }
 
-
-
     public async Task<DataService> FetchMetadata(DataService dataService) {
       String serviceName;
       
@@ -204,8 +203,6 @@ namespace Breeze.Sharp {
       }
     }
 
-
-
     // TODO: think about name
     public void AddResourceName(String resourceName, Type clrType, bool isDefault = false) {
       var entityType = GetEntityType(clrType);
@@ -221,11 +218,21 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns the default resource name for the specified CLR type.
+    /// </summary>
+    /// <param name="clrType"></param>
+    /// <returns></returns>
     public String GetDefaultResourceName(Type clrType) {
       var entityType = GetEntityType(clrType);
       return GetDefaultResourceName(entityType);
     }
 
+    /// <summary>
+    /// Returns the default resource name for the specified EntityType type.
+    /// </summary>
+    /// <param name="entityType"></param>
+    /// <returns></returns>
     public  string GetDefaultResourceName(EntityType entityType) {
       lock (_defaultResourceNameMap) {
         String resourceName = null;
@@ -240,6 +247,11 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns whether the specified CLR type is either an IEntity or a IComplexObject.
+    /// </summary>
+    /// <param name="clrType"></param>
+    /// <returns></returns>
     public static bool IsStructuralType(Type clrType) {
       return typeof(IStructuralObject).IsAssignableFrom(clrType);
     }
@@ -248,19 +260,36 @@ namespace Breeze.Sharp {
 
     #region Import/Export metadata
 
+    /// <summary>
+    /// Exports metadata as a string.
+    /// </summary>
+    /// <returns></returns>
     public String ExportMetadata() {
       return ((IJsonSerializable)this).ToJNode(null).Serialize();
     }
 
+    /// <summary>
+    /// Exports metadata via a TextWriter.
+    /// </summary>
+    /// <param name="textWriter"></param>
+    /// <returns></returns>
     public TextWriter ExportMetadata(TextWriter textWriter) {
       return ((IJsonSerializable)this).ToJNode(null).SerializeTo(textWriter);
     }
 
+    /// <summary>
+    /// Imports metadata from a string.
+    /// </summary>
+    /// <param name="metadata"></param>
     public void ImportMetadata(String metadata) {
       var jNode = JNode.DeserializeFrom(metadata);
       ImportMetadata(jNode);
     }
 
+    /// <summary>
+    /// Imports metadata via a TextReader.
+    /// </summary>
+    /// <param name="textReader"></param>
     public void ImportMetadata(TextReader textReader) {
       var jNode = JNode.DeserializeFrom(textReader);
       ImportMetadata(jNode);
@@ -389,15 +418,11 @@ namespace Breeze.Sharp {
 
     #region Internal and Private
 
-
     internal Type GetClrTypeFor(StructuralType stType) {
       lock (_structuralTypes) {
         return _clrTypeMap.GetClrType(stType);
       }
     }
-
-    // T is either <ComplexType> or <EntityType>
-   
 
     // T is either <ComplexType> or <EntityType>
     private T GetStructuralType<T>(String typeName, bool okIfNotFound = false) where T : class {
@@ -446,8 +471,7 @@ namespace Breeze.Sharp {
 
       }
     }
-
-
+    
     #endregion
 
     #region Inner classes 
@@ -462,12 +486,7 @@ namespace Breeze.Sharp {
         var stName = TypeNameInfo.FromClrTypeName(clrType.FullName).Name;
         TypePair tp;
         if (_map.TryGetValue(stName, out tp)) {
-          var stType = tp.StructuralType;
-          if (tp.ClrType == null) {
-            tp.ClrType = clrType;
-            _metadataStore.ProbeAssemblies(new Assembly[] { clrType.GetTypeInfo().Assembly });
-          }
-          return stType;
+          return tp.StructuralType;
         } else {
           _map.Add(stName, new TypePair() { ClrType = clrType });
           return null;
@@ -491,6 +510,7 @@ namespace Breeze.Sharp {
       private readonly MetadataStore _metadataStore;
       private readonly Dictionary<String, TypePair> _map = new Dictionary<String, TypePair>();
 
+      [DebuggerDisplay("{ClrType.FullName} - {StructuralType.Name}")]
       private class TypePair {
         public Type ClrType;
         public StructuralType StructuralType;

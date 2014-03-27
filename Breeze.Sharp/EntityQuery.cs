@@ -15,52 +15,110 @@ namespace Breeze.Sharp {
   // TODO: EntityQuery is currently just additive - i.e. no way to remove clauses
 
   /// <summary>
-  /// 
+  /// An EntityQuery instance is used to query entities either from a remote datasource or from a local EntityManager.
+  /// EntityQueries are immutable - this means that all EntityQuery methods that return an EntityQuery actually create a new EntityQuery. 
+  /// Therefore EntityQueries can be 'modified' without affecting any current instances.
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public class EntityQuery<T> : EntityQuery, IQueryable<T>, IOrderedQueryable<T>, IQueryProvider  {
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
     public EntityQuery( ) : base() {
       var context = new DataServiceContext(new Uri(__placeholderServiceName), DataServiceProtocolVersion.V3);
       DataServiceQuery = (DataServiceQuery<T>)context.CreateQuery<T>(__placeholderResourceName);
       QueryableType = typeof(T);
     }
 
+    /// <summary>
+    /// Contructor for a query against a specific resource.
+    /// </summary>
+    /// <param name="resourceName"></param>
     public EntityQuery(String resourceName)
       : this() {
       if (resourceName != null) ResourceName = resourceName;
     }
 
-    public EntityQuery(EntityQuery<T> query) : base(query) {
+    /// <summary>
+    /// May be called by subclasses that need to add additional behavior to a query.
+    /// The basic idea is to use this method to clone the query first and then add
+    /// or modify properties on the cloned instance. 
+    /// </summary>
+    /// <param name="query"></param>
+    protected EntityQuery(EntityQuery<T> query) : base(query) {
       DataServiceQuery = query.DataServiceQuery;
     }
 
+    /// <summary>
+    /// For internal use only.
+    /// </summary>
+    /// <returns></returns>
     public override object  Clone() {
       return new EntityQuery<T>(this);
     }
 
+    /// <summary>
+    /// Returns a new query with the specified resource name.
+    /// </summary>
+    /// <param name="resourceName"></param>
+    /// <returns></returns>
     public EntityQuery<T> From(String resourceName) {
       var q = new EntityQuery<T>(this);
       q.ResourceName = resourceName;
       return q;
     }
 
+    /// <summary>
+    /// Executes this query, against an optionally specified EntityManager. If no EntityManager
+    /// is specified then the query is run on the EntityManager specified by the EntityManager 
+    /// property on this instance. ( <see cref="EntityQueryExtensions.With(TQuery, EntityManager)"/> )
+    /// If this value is null an exception will be thrown.
+    /// </summary>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
     public new Task<IEnumerable<T>> Execute(EntityManager entityManager = null) {
       entityManager = CheckEm(entityManager);
       return entityManager.ExecuteQuery<T>(this);
     }
 
+    /// <summary>
+    /// Executes this query against the EntityManager's local cache, with an optionally specfied EntityManager.
+    /// If no EntityManager
+    /// is specified then the query is run on the EntityManager specified by the EntityManager 
+    /// property on this instance. ( <see cref="EntityQueryExtensions.With(TQuery, EntityManager)"/> )
+    /// If this value is null an exception will be thrown.
+    /// </summary>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
     public new IEnumerable<T> ExecuteLocally(EntityManager entityManager = null) {
       var result = base.ExecuteLocally(entityManager);
       return result.Cast<T>();
     }
 
+    /// <summary>
+    /// Returns a new query that will return related entities nested within its results. 
+    /// The Expand method allows you to identify related entities, via navigation property names such 
+    /// that a graph of entities may be retrieved with a single request. Any filtering occurs before
+    /// the results are 'expanded'.
+    /// </summary>
+    /// <typeparam name="TTarget"></typeparam>
+    /// <param name="navigationPropertyFn"></param>
+    /// <returns></returns>
     public EntityQuery<T> Expand<TTarget>(Expression<Func<T, TTarget>> navigationPropertyFn) {
       var q = new EntityQuery<T>(this);
       q.DataServiceQuery = this.DataServiceQuery.Expand(navigationPropertyFn);
       return q;
     }
 
+    /// <summary>
+    /// Returns a new query that will return related entities nested within its results. 
+    /// The Expand method allows you to identify related entities, via navigation property names such 
+    /// that a graph of entities may be retrieved with a single request. Any filtering occurs before
+    /// the results are 'expanded'.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     public EntityQuery<T> Expand(String path) {
       var q = new EntityQuery<T>(this);
       q.DataServiceQuery = this.DataServiceQuery.Expand(path.Replace('.','/'));
@@ -72,12 +130,23 @@ namespace Breeze.Sharp {
       return Expand(path);
     }
 
+    /// <summary>
+    /// Returns a new query that includes a specified parameter to pass to the server.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public EntityQuery<T> WithParameter(string name, Object value) {
       var q = new EntityQuery<T>(this);
       q.DataServiceQuery = this.DataServiceQuery.AddQueryOption(name, value);
       return q;
     }
 
+    /// <summary>
+    /// Returns a new query that includes a collection of parameters to pass to the server.
+    /// </summary>
+    /// <param name="dictionary"></param>
+    /// <returns></returns>
     public EntityQuery<T> WithParameters(IDictionary<String, Object> dictionary) {
       var q = new EntityQuery<T>(this);
       var dsq = this.DataServiceQuery;
@@ -86,12 +155,24 @@ namespace Breeze.Sharp {
       return q;
     }
     
+    /// <summary>
+    /// Returns a query with the 'inlineCount' capability either enabled or disabled. With 
+    /// 'InlineCount' enabled, an additional 'InlineCount' property will be returned with the 
+    /// query results that will contain the number of entities that would have been returned by 
+    /// this query with only the 'where'/'filter' clauses applied, i.e. without any 'skip'/'take'
+    /// operators applied. For local queries this clause is ignored.
+    /// </summary>
+    /// <returns></returns>
     public EntityQuery<T> InlineCount() {
       var q = new EntityQuery<T>(this);
       q.DataServiceQuery = this.DataServiceQuery.IncludeTotalCount();
       return q;
     }
 
+    /// <summary>
+    /// For internal use.
+    /// </summary>
+    /// <returns></returns>
     public override String GetResourcePath() {
       var dsq = this.DataServiceQuery;
       
@@ -202,10 +283,16 @@ namespace Breeze.Sharp {
 
     #endregion 
 
+    /// <summary>
+    /// The element type of the IEnumerable{T} returned by this query.
+    /// </summary>
     public override Type ElementType {
       get { return typeof(T);}
     }
 
+    /// <summary>
+    /// For internal use.
+    /// </summary>
     protected new DataServiceQuery<T> DataServiceQuery {
       get { return (DataServiceQuery<T>) base.DataServiceQuery;  }
       set { base.DataServiceQuery =  value; }
@@ -218,15 +305,22 @@ namespace Breeze.Sharp {
   }
   
   /// <summary>
-  /// 
+  /// Base class for all EntityQueries.  This class is untyped and may be used
+  /// when you need to create entity queries dynamically.
   /// </summary>
   public abstract class EntityQuery : IEntityQuery, IHasDataServiceQuery {
     public EntityQuery() {
       QueryOptions = new QueryOptions();
     }
 
-    public static EntityQuery Create(Type entityType) {
-      var queryType = typeof(EntityQuery<>).MakeGenericType(entityType);
+    /// <summary>
+    /// Creates a new typed EntityQuery for a specific type.  Same as new EntityQuery{T}
+    /// but can be used where the generic parameter 'T' cannot be specified.
+    /// </summary>
+    /// <param name="clrEntityType"></param>
+    /// <returns></returns>
+    public static EntityQuery Create(Type clrEntityType) {
+      var queryType = typeof(EntityQuery<>).MakeGenericType(clrEntityType);
       return (EntityQuery)Activator.CreateInstance(queryType);
     }
 
@@ -242,10 +336,15 @@ namespace Breeze.Sharp {
       return new EntityQuery<T>(resourceName);
     }
 
-    public EntityQuery(EntityQuery query) {
+    protected EntityQuery(EntityQuery query) {
       UpdateFrom(query);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
     public Task<IEnumerable> Execute(EntityManager entityManager = null) {
       entityManager = CheckEm(entityManager);
       return entityManager.ExecuteQuery(this);
@@ -277,21 +376,51 @@ namespace Breeze.Sharp {
       return entityManager;
     }
 
+
+    /// <summary>
+    /// The resource name specified for this query.
+    /// </summary>
+    public String ResourceName { get; protected internal set; }
+
+    /// <summary>
+    /// The element type of the IEnumerable being returned by this query.
+    /// </summary>
+    public virtual Type ElementType { get; protected set; }
+
+    /// <summary>
+    /// The type being queried.  This may not be the same as the type returned in the case 
+    /// of a 'Select'.
+    /// </summary>
+    public virtual Type QueryableType { get; protected set; }
+
+    /// <summary>
+    /// The DataService associated with this query.
+    /// </summary>
+    public DataService DataService { get; protected internal set; }
+
+
+    /// <summary>
+    /// The EntityManager associated with this query.
+    /// </summary>
+    public EntityManager EntityManager { get; protected internal set; }
+    public abstract Expression Expression { get; }
+    /// <summary>
+    /// The QueryOptions associated with this query. 
+    /// </summary>
+    public QueryOptions QueryOptions { get; protected internal set; }
+    /// <summary>
+    /// For internal use only.
+    /// </summary>
+    /// <returns></returns>
+    public abstract object Clone();
+    public abstract String GetResourcePath();
+
     DataServiceQuery IHasDataServiceQuery.DataServiceQuery {
       get { return DataServiceQuery; }
     }
-
-    public String ResourceName { get; protected internal set; }
-    public virtual Type ElementType { get; protected set; }
-    public virtual Type QueryableType { get; protected set; }
-    public DataService DataService { get; protected internal set; }
-    public DataServiceQuery DataServiceQuery { get; protected internal set; }
-    public EntityManager EntityManager { get; protected internal set; }
-    public abstract Expression Expression { get; }
-    public QueryOptions QueryOptions { get; protected internal set; }
-    public abstract object Clone();
-    public abstract String GetResourcePath();
+    internal DataServiceQuery DataServiceQuery { get; set; }
   }
+
 
   public interface IEntityQuery {
     DataService DataService { get;  }
