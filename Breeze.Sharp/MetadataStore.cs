@@ -17,7 +17,10 @@ namespace Breeze.Sharp {
 
     private MetadataStore() {
       _clrTypeMap = new ClrTypeMap(this);
-      RegisterTypeDiscoveryActionCore(typeof(IEntity), (t) => _clrTypeMap.GetStructuralType(t), false);
+      RegisterTypeDiscoveryActionCore(typeof(IEntity), (t) => {
+        StructuralTypeBuilder.GetEntityType(t);
+        _clrTypeMap.GetStructuralType(t);
+      }, false);
       RegisterTypeDiscoveryActionCore(typeof(IComplexObject), (t) => _clrTypeMap.GetStructuralType(t), false);
       RegisterTypeDiscoveryActionCore(typeof(Validator), (t) => RegisterValidator(t), true);
     }
@@ -94,7 +97,7 @@ namespace Breeze.Sharp {
               .ForEach(tpl => {
                 var type = tpl.Item1;
                 var action = tpl.Item2;
-                TypeFns.GetTypesImplementing(type, asm).ForEach(t => action(t));
+                TypeFns.GetTypesImplementing(type, asm).ForEach(action);
               });
           });
           return true;
@@ -135,7 +138,8 @@ namespace Breeze.Sharp {
         lock (_dataServiceMap) {
           _dataServiceMap[serviceName] = dataService;
         }
-        var metadataProcessor = new CsdlMetadataProcessor(this, metadata);
+        var metadataProcessor = new CsdlMetadataProcessor();
+        metadataProcessor.ProcessMetadata(this, metadata);
 
         return dataService;
 
@@ -171,6 +175,17 @@ namespace Breeze.Sharp {
       return GetStructuralType<ComplexType>(ctName, okIfNotFound);
     }
 
+    public T GetStructuralType<T>(Type clrType, bool okIfNotFound = false) where T : class {
+      var stype = GetStructuralType(clrType, okIfNotFound);
+      var ttype = stype as T;
+      if (ttype != null) {
+        return ttype;
+      } else {
+        if (okIfNotFound) return null;
+        throw new Exception("Unable to find a matching " + typeof(T).Name + " for " + clrType.Name);
+      }
+    }
+
     public StructuralType GetStructuralType(Type clrType, bool okIfNotFound = false) {
       lock (_structuralTypes) {
         if (IsStructuralType(clrType)) {
@@ -189,22 +204,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    public EntityType AddEntityType(EntityType entityType) {
-      if (entityType.KeyProperties.Count() == 0 && !entityType.IsAbstract) {
-        throw new Exception("Unable to add " + entityType.Name +
-            " to this MetadataStore.  An EntityType must have at least one property designated as a key property - See the 'DataProperty.isPartOfKey' property.");
-      }
 
-      AddStructuralType(entityType);
-
-      return entityType;
-
-    }
-
-    public ComplexType AddComplexType(ComplexType complexType) {
-      AddStructuralType(complexType);
-      return complexType;
-    }
 
     // TODO: think about name
     public void AddResourceName(String resourceName, Type clrType, bool isDefault = false) {
@@ -274,7 +274,7 @@ namespace Breeze.Sharp {
 
     private void ResolveComplexTypeRefs(EntityType et) {
       et.ComplexProperties.Where(cp => cp.ComplexType == null)
-        .ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexTypeName));
+        .ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexType.Name));
     }
 
     JNode IJsonSerializable.ToJNode(Object config) {
@@ -301,16 +301,27 @@ namespace Breeze.Sharp {
           _dataServiceMap.Add(ds.ServiceName, ds);
         }
       });
-      var stypes = jNode.GetJNodeArray("structuralTypes")
-        .Select(jn => jn.Get<bool>("isComplexType", false) 
-          ? (StructuralType)new ComplexType(jn) 
-          : (StructuralType)new EntityType(jn));
-      stypes.ForEach(st => this.AddStructuralType(st));
+      jNode.GetJNodeArray("structuralTypes")
+        .ForEach(UpdateStructuralTypeFromJNode);
 
       jNode.GetMap<String>("resourceEntityTypeMap").ForEach(kvp => {
         var et = GetEntityType(kvp.Value);
         AddResourceName(kvp.Key, et);
       });
+    }
+
+    private void UpdateStructuralTypeFromJNode(JNode jNode) {
+      var shortName = jNode.Get<String>("shortName");
+      var ns = jNode.Get<String>("namespace");
+      var name = TypeNameInfo.QualifyTypeName(shortName, ns);
+      var isComplexType = jNode.Get<bool>("isComplexType", false);
+      if (isComplexType) {
+        var ct = MetadataStore.Instance.GetComplexType(name);
+        ct.UpdateFromJNode(jNode);
+      } else {
+        var et = MetadataStore.Instance.GetEntityType(name);
+        et.UpdateFromJNode(jNode);
+      }
     }
 
     #endregion
@@ -378,6 +389,7 @@ namespace Breeze.Sharp {
 
     #region Internal and Private
 
+
     internal Type GetClrTypeFor(StructuralType stType) {
       lock (_structuralTypes) {
         return _clrTypeMap.GetClrType(stType);
@@ -385,16 +397,7 @@ namespace Breeze.Sharp {
     }
 
     // T is either <ComplexType> or <EntityType>
-    private T GetStructuralType<T>(Type clrType, bool okIfNotFound = false) where T : class {
-      var stype = GetStructuralType(clrType, okIfNotFound);
-      var ttype = stype as T;
-      if (ttype != null) {
-        return ttype;
-      } else {
-        if (okIfNotFound) return null;
-        throw new Exception("Unable to find a matching " + typeof(T).Name + " for " + clrType.Name);
-      }
-    }
+   
 
     // T is either <ComplexType> or <EntityType>
     private T GetStructuralType<T>(String typeName, bool okIfNotFound = false) where T : class {
@@ -418,152 +421,32 @@ namespace Breeze.Sharp {
       }
     }
 
+    internal EntityType AddEntityType(EntityType entityType) {
+      AddStructuralType(entityType);
+      return entityType;
+    }
+
+    internal ComplexType AddComplexType(ComplexType complexType) {
+      AddStructuralType(complexType);
+      return complexType;
+    }
+
     private void AddStructuralType(StructuralType stType, bool allowMerge = true) {
+      // don't register anon types
+      if (stType.IsAnonymous) return;
+
       lock (_structuralTypes) {
-        // for now ignore dups
-        // TODO: handle custom metadata later.
-        if (_structuralTypes[stType.Name] != null) return;
+        if (_structuralTypes.ContainsKey(stType.Name)) {
+          throw new Exception("Type " + stType.Name + " already exists in this MetadataStore.");
+        }
+
         _clrTypeMap.GetClrType(stType);
-        //// don't register anon types
-        if (!stType.IsAnonymous) {
-          if (_structuralTypes.ContainsKey(stType.Name)) {
-            throw new Exception("Type " + stType.Name + " already exists in this MetadataStore.");
-          }
+        _structuralTypes.Add(stType);
+        _shortNameMap[stType.ShortName] = stType.Name;
 
-          _structuralTypes.Add(stType);
-          _shortNameMap[stType.ShortName] = stType.Name;
-        }
-
-        stType.Properties.ForEach(prop => stType.UpdateClientServerFkNames(prop));
-
-        UpdateComplexProperties(stType);
-
-        var entityType = stType as EntityType;
-        if (entityType != null) {
-
-          UpdateNavigationProperties(entityType);
-
-          if (entityType.BaseEntityType != null) {
-            entityType.BaseEntityType.AddSubEntityType(entityType);
-          }
-        }
       }
     }
 
-    private void UpdateNavigationProperties(EntityType entityType) {
-      entityType.NavigationProperties.ForEach(np => {
-        if (np.EntityType != null) return;
-        if (!ResolveNp(np)) {
-          AddIncompleteNavigationProperty(np.EntityTypeName, np);
-        }
-      });
-
-      GetIncompleteNavigationProperties(entityType).ForEach(np => ResolveNp(np));
-      _incompleteTypeMap.Remove(entityType.Name);
-    }
-
-    private bool ResolveNp(NavigationProperty np) {
-      var entityType = GetEntityType(np.EntityTypeName, true);
-      if (entityType == null) return false;
-      np.EntityType = entityType;
-      var invNp = entityType.NavigationProperties.FirstOrDefault(altNp => {
-        // Can't do this because of possibility of comparing a base class np with a subclass altNp.
-        //return altNp.associationName === np.associationName
-        //    && altNp !== np;
-        // So use this instead.
-        return altNp.AssociationName == np.AssociationName &&
-            (altNp.Name != np.Name || altNp.EntityTypeName != np.EntityTypeName);
-      });
-      np.Inverse = invNp;
-      if (invNp == null) {
-        // unidirectional 1-n relationship
-        np.InvForeignKeyProperties.ForEach(invFkProp => {
-          
-          invFkProp.IsForeignKey = true;
-          var invEntityType = (EntityType)np.ParentType;
-          
-          invFkProp.InverseNavigationProperty = invEntityType.NavigationProperties.FirstOrDefault(np2 => {
-            return np2.InvForeignKeyNames.IndexOf(invFkProp.Name) >= 0 && np2.EntityType == invFkProp.ParentType;
-          });
-
-
-        });
-      }
-
-      ResolveRelated(np);
-      return true;
-    }
-
-    // sets navigation property: relatedDataProperties and dataProperty: relatedNavigationProperty
-    private void ResolveRelated(NavigationProperty np) {
-
-      var fkProps = np.ForeignKeyProperties;
-
-      fkProps.ForEach(dp => {
-        dp.RelatedNavigationProperty = np;
-        np.EntityType._inverseForeignKeyProperties.Add(dp);
-        dp.IsForeignKey = true;
-        np._relatedDataProperties.Add(dp);
-      });
-    }
-
-    private void UpdateComplexProperties(StructuralType structuralType) {
-
-      structuralType.ComplexProperties.ForEach(cp => {
-        if (cp.ComplexType != null) return;
-          cp.DataType = null;
-          cp.DefaultValue = null;
-          var complexType = GetComplexType(cp.ComplexTypeName, true);
-          if (complexType == null) {
-            AddIncompleteComplexProperty(cp.ComplexTypeName, cp);
-          } else {
-            cp.ComplexType = complexType;
-        }
-      });
-
-      if (!structuralType.IsEntityType) {
-        var incompleteProps = GetIncompleteComplexProperties(structuralType.Name);
-        incompleteProps.ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexTypeName));
-      }
-    }
-
-    private IEnumerable<NavigationProperty> GetIncompleteNavigationProperties(EntityType entityType) {
-      List<NavigationProperty> results;
-      if (_incompleteTypeMap.TryGetValue(entityType.Name, out results)) {
-        return results;
-      } else {
-        return Enumerable.Empty<NavigationProperty>();
-      }
-    }
-
-    private IEnumerable<DataProperty> GetIncompleteComplexProperties(String structuralTypeName) {
-      // destructive get routine - deliberately
-      List<DataProperty> results;
-      if (_incompleteComplexTypeMap.TryGetValue(structuralTypeName, out results)) {
-        _incompleteComplexTypeMap.Remove(structuralTypeName);
-        return results;
-      } else {
-        return Enumerable.Empty<DataProperty>();
-      }
-    }
-
-    private void AddIncompleteNavigationProperty(String entityTypeName, NavigationProperty np) {
-      List<NavigationProperty> results;
-      if (_incompleteTypeMap.TryGetValue(entityTypeName, out results)) {
-        results.Add(np);
-      } else {
-        _incompleteTypeMap.Add(entityTypeName, new List<NavigationProperty> { np });
-      }
-    }
-
-    private void AddIncompleteComplexProperty(String structuralTypeName, DataProperty dp) {
-      List<DataProperty> results;
-      if (_incompleteComplexTypeMap.TryGetValue(structuralTypeName, out results)) {
-        results.Add(dp);
-      } else {
-        _incompleteComplexTypeMap.Add(structuralTypeName, new List<DataProperty> { dp });
-      }
-    }
 
     #endregion
 
@@ -605,8 +488,8 @@ namespace Breeze.Sharp {
         }
       }
 
-      private MetadataStore _metadataStore;
-      private Dictionary<String, TypePair> _map = new Dictionary<String, TypePair>();
+      private readonly MetadataStore _metadataStore;
+      private readonly Dictionary<String, TypePair> _map = new Dictionary<String, TypePair>();
 
       private class TypePair {
         public Type ClrType;
@@ -624,36 +507,36 @@ namespace Breeze.Sharp {
 
     #region Private vars
 
+    private NamingConvention _namingConvention = NamingConvention.Default;
+
     private static MetadataStore __instance = new MetadataStore();
     private static readonly Object __lock = new Object();
     
     private readonly AsyncSemaphore _asyncSemaphore = new AsyncSemaphore(1);
-    private Object _lock = new Object();
+    private readonly Object _lock = new Object();
 
     // lock using _dataServiceMap
-    private Dictionary<String, DataService> _dataServiceMap = new Dictionary<String, DataService>();
-    private NamingConvention _namingConvention = NamingConvention.Default;
+    private readonly Dictionary<String, DataService> _dataServiceMap = new Dictionary<String, DataService>();
+    
     // locked using _structuralTypes
-    private ClrTypeMap _clrTypeMap;
-    private HashSet<Assembly> _probedAssemblies = new HashSet<Assembly>();
-    private List<Tuple<Type, Action<Type>, Func<Assembly, bool>>> _typeDiscoveryActions = new List<Tuple<Type, Action<Type>, Func<Assembly, bool>>>();
+    private readonly ClrTypeMap _clrTypeMap;
+    private readonly HashSet<Assembly> _probedAssemblies = new HashSet<Assembly>();
+    private readonly List<Tuple<Type, Action<Type>, Func<Assembly, bool>>> _typeDiscoveryActions = new List<Tuple<Type, Action<Type>, Func<Assembly, bool>>>();
 
-    private StructuralTypeCollection _structuralTypes = new StructuralTypeCollection();
-    private Dictionary<String, String> _shortNameMap = new Dictionary<string, string>();
-    private Dictionary<String, List<NavigationProperty>> _incompleteTypeMap = new Dictionary<String, List<NavigationProperty>>(); // key is typeName
-    private Dictionary<String, List<DataProperty>> _incompleteComplexTypeMap = new Dictionary<String, List<DataProperty>>();   // key is typeName
+    private readonly StructuralTypeCollection _structuralTypes = new StructuralTypeCollection();
+    private readonly Dictionary<String, String> _shortNameMap = new Dictionary<string, string>();
     
 
     // locked using _resourceNameEntityTypeMap
-    private Dictionary<EntityType, String> _defaultResourceNameMap = new Dictionary<EntityType, string>();
-    private Dictionary<String, EntityType> _resourceNameEntityTypeMap = new Dictionary<string, EntityType>();
+    private readonly Dictionary<EntityType, String> _defaultResourceNameMap = new Dictionary<EntityType, string>();
+    private readonly Dictionary<String, EntityType> _resourceNameEntityTypeMap = new Dictionary<string, EntityType>();
 
     // validator related. - both locked using _validatorMap
-    private Dictionary<String, Type> _validatorMap = new Dictionary<string, Type>();
-    private Dictionary<JNode, Validator> _validatorJNodeCache = new Dictionary<JNode, Validator>();
+    private readonly Dictionary<String, Type> _validatorMap = new Dictionary<string, Type>();
+    private readonly Dictionary<JNode, Validator> _validatorJNodeCache = new Dictionary<JNode, Validator>();
     
 
-    private List<Exception> _errors = new List<Exception>();
+    private readonly List<Exception> _errors = new List<Exception>();
 
     #endregion
 

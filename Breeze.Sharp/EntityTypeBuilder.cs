@@ -1,4 +1,7 @@
 ﻿
+using System.Linq;
+using System.ServiceModel.Channels;
+using System.Threading;
 using Breeze.Sharp.Core;
 using System;
 using System.Linq.Expressions;
@@ -6,24 +9,158 @@ using System.Reflection;
 
 namespace Breeze.Sharp {
 
+  public class StructuralTypeBuilder {
+
+    public static StructuralType GetStructuralType(Type clrType) {
+      if (typeof (IEntity).IsAssignableFrom(clrType)) {
+        return GetEntityType(clrType);
+      } else {
+        return GetComplexType(clrType);
+      }
+    }
+
+    public static EntityType GetEntityType(Type clrType) {
+      var entityType = MetadataStore.Instance.GetEntityType(clrType, true);
+      return entityType ?? CreateEntityType(clrType);
+    }
+
+    public static ComplexType GetComplexType(Type clrType) {
+      var complexType = MetadataStore.Instance.GetComplexType(clrType, true);
+      return complexType ?? CreateComplexType(clrType);
+    }
+
+    private static EntityType CreateEntityType(Type clrType ) {
+      var typeInfo = clrType.GetTypeInfo();
+      var baseEntityType = (typeInfo.BaseType == typeof(Object)) ? null : GetEntityType(typeInfo.BaseType);
+      
+      var entityType = new EntityType() {
+        ClrType = clrType,
+        BaseEntityType = baseEntityType
+      };
+
+      MetadataStore.Instance.AddEntityType(entityType);
+
+      if (baseEntityType != null) {
+        if (typeof (IEntity).IsAssignableFrom(typeInfo.BaseType) && typeInfo.BaseType != typeof (BaseEntity)) {
+          UpdateBaseProperties(entityType, baseEntityType);
+        }
+      }
+
+      foreach (var pi in typeInfo.DeclaredProperties) {
+        if (!pi.GetMethod.IsPublic) continue;
+        if (pi.Name == "EntityAspect") continue;
+
+        if (pi.PropertyType.GenericTypeArguments.Any() &&
+            pi.PropertyType.GetGenericTypeDefinition() == typeof (NavigationSet<>)) {
+          CreateNavigationProperty(entityType, pi);
+        } else if (typeof (IEntity).IsAssignableFrom(pi.PropertyType)) {
+          CreateNavigationProperty(entityType, pi);
+        } else {
+          CreateDataProperty(entityType, pi);
+        }
+      }
+
+      
+      return entityType;
+    }
+
+    private static ComplexType CreateComplexType(Type clrType) {
+      var typeInfo = clrType.GetTypeInfo();
+      var complexType = new ComplexType() {
+        ClrType = clrType
+      };
+
+      MetadataStore.Instance.AddComplexType(complexType);
+
+      var baseComplexType = (typeInfo.BaseType == typeof(Object)) ? null : GetComplexType(typeInfo.BaseType);
+      if (baseComplexType != null)
+      if (typeof(IComplexObject).IsAssignableFrom(typeInfo.BaseType) && typeInfo.BaseType != typeof(BaseComplexObject)) {
+        UpdateBaseProperties(complexType, baseComplexType);
+      }
+
+      foreach (var pi in typeInfo.DeclaredProperties) {
+        if (!pi.GetMethod.IsPublic) {
+          continue;
+        }
+        CreateDataProperty(complexType, pi);
+      }
+      
+      return complexType;
+    }
+
+    private static void UpdateBaseProperties(StructuralType structuralType, StructuralType baseStructuralType) {
+      baseStructuralType.DataProperties.ForEach(dp => {
+        var newDp = new DataProperty(dp);
+        structuralType.AddDataProperty(newDp);
+      });
+      if (baseStructuralType.IsEntityType) {
+        var entityType = (EntityType) structuralType;
+        var baseEntityType = (EntityType) baseStructuralType;
+        baseEntityType.NavigationProperties.ForEach(np => {
+          var newNp = new NavigationProperty(np);
+          entityType.AddNavigationProperty(newNp);
+        });
+      }
+    }
+
+    protected static DataProperty CreateDataProperty(StructuralType structuralType, PropertyInfo pInfo) {
+      var propType = pInfo.PropertyType;
+      var dp = new DataProperty(pInfo.Name);
+
+      // TODO: handle isScalar
+      if (typeof(IComplexObject).IsAssignableFrom(propType)) {
+        dp.ComplexType = GetComplexType(propType);
+        dp.IsNullable = false;
+        // complex Objects do not have defaultValues currently
+      } else {
+        dp.ClrType = propType;
+        dp.DataType = DataType.FromClrType(TypeFns.GetNonNullableType(propType));
+        dp.IsNullable = TypeFns.IsNullableType(propType);
+        dp.DefaultValue = dp.IsNullable ? null : dp.DataType.DefaultValue;
+      }
+
+      structuralType.AddDataProperty(dp);
+      return dp;
+    }
+
+    protected static NavigationProperty CreateNavigationProperty(EntityType entityType, PropertyInfo pInfo ) {
+      Type targetType;
+      bool isScalar;
+      if (pInfo.PropertyType.GenericTypeArguments.Any()) {
+        targetType = pInfo.PropertyType.GenericTypeArguments[0];
+        isScalar = false;
+      } else {
+        targetType = pInfo.PropertyType;
+        isScalar = true;
+      }
+
+      var np = new NavigationProperty(pInfo.Name);
+      
+      np.IsScalar = isScalar;
+      // np.EntityTypeName = TypeNameInfo.FromClrTypeName(targetType.FullName).Name;
+      np.EntityType = GetEntityType(targetType);
+      // may change later
+      np.AssociationName = entityType.Name + "_" + np.Name;
+
+      entityType.AddNavigationProperty(np);
+      return np;
+    }
+  
+  }
+
   /// <summary>
   /// 
   /// </summary>
-  public class EntityTypeBuilder<TEntity> where TEntity:IEntity  {
+  public class EntityTypeBuilder<TEntity> : StructuralTypeBuilder where TEntity:IEntity  {
 
+    // TODO: also need a ComplexTypeBuilder;
     public EntityTypeBuilder() {
-      EntityType = MetadataStore.Instance.GetEntityType(typeof(TEntity), true);
-      if (EntityType == null) {
-        EntityType = new EntityType();
-        EntityType.ClrType = typeof(TEntity);
-        // can't add until later - no key props yet
-        // MetadataStore.Instance.AddEntityType(EntityType);
-      }
+      EntityType = GetEntityType(typeof (TEntity));
     }
 
     public EntityType EntityType {
       get;
-      private set;
+      protected set;
     }
 
     /// <summary>
@@ -36,25 +173,9 @@ namespace Breeze.Sharp {
     public DataPropertyBuilder DataProperty<TValue>(Expression<Func<TEntity, TValue>> propExpr) {
       var pInfo = GetPropertyInfo(propExpr);
       var dp = EntityType.GetDataProperty(pInfo.Name);
-      if (dp != null) {
-        return new DataPropertyBuilder(dp);
-      }
-      var propType = pInfo.PropertyType;
-      dp = new DataProperty();
-      dp.Name = pInfo.Name;
-      // TODO: handle isScalar
-      if (typeof (IComplexObject).IsAssignableFrom(propType)) {
-        dp.ComplexType = MetadataStore.Instance.GetComplexType(propType);
-        dp.IsNullable = false;
-        // complex Objects do not have defaultValues currently
-      } else {
-        dp.DataType = DataType.FromClrType(propType);
-        dp.IsNullable = TypeFns.IsNullableType(propType);
-        dp.DefaultValue = dp.IsNullable ? null : dp.DataType.DefaultValue;
-      }
-      
-      EntityType.AddDataProperty(dp);
-
+      if (dp == null) {
+        dp = CreateDataProperty(EntityType, pInfo);
+      } 
       return new DataPropertyBuilder(dp);
     }
 
@@ -62,25 +183,19 @@ namespace Breeze.Sharp {
     public NavigationPropertyBuilder<TEntity, TTarget> NavigationProperty<TTarget>(
       Expression<Func<TEntity, TTarget>> propExpr) where TTarget:IEntity {
       var pInfo = GetPropertyInfo(propExpr);
-      return GetNavPropBuilder<TTarget>(pInfo, true);
+      return GetNavPropBuilder<TTarget>(pInfo);
     }
 
     public NavigationPropertyBuilder<TEntity, TTarget> NavigationProperty<TTarget>(
       Expression<Func<TEntity, NavigationSet<TTarget>>> propExpr) where TTarget: IEntity {
       var pInfo = GetPropertyInfo(propExpr);
-      return GetNavPropBuilder<TTarget>(pInfo, false);
+      return GetNavPropBuilder<TTarget>(pInfo);
     }
 
-    private NavigationPropertyBuilder<TEntity, TTarget> GetNavPropBuilder<TTarget>(PropertyInfo pInfo, bool isScalar) where TTarget : IEntity {
+    private NavigationPropertyBuilder<TEntity, TTarget> GetNavPropBuilder<TTarget>(PropertyInfo pInfo) where TTarget : IEntity {
       var np = EntityType.GetNavigationProperty(pInfo.Name);
       if (np == null) {
-        np = new NavigationProperty();
-        np.Name = pInfo.Name;
-        np.IsScalar = isScalar;
-        np.EntityTypeName = TypeNameInfo.FromClrTypeName(typeof (TTarget).FullName).Name;
-        // may change later
-        np.AssociationName = EntityType.Name + "_" + np.Name;
-        EntityType.AddNavigationProperty(np);
+        np = CreateNavigationProperty(EntityType, pInfo);
       }
       return new NavigationPropertyBuilder<TEntity, TTarget>(this, np);
     }
@@ -114,30 +229,17 @@ namespace Breeze.Sharp {
       return this;
     }
 
-    public DataPropertyBuilder IsPartOfKey() {
-      DataProperty.IsPartOfKey = true;
-      DataProperty.IsNullable = false;
-      var et = DataProperty.ParentType as EntityType;
-      if (et != null) {
-        var isAlreadyKey = et._keyProperties.Contains(DataProperty);
-        if (!isAlreadyKey) {
-          et._keyProperties.Add(DataProperty);
-        }
-      }
+    public DataPropertyBuilder IsPartOfKey(bool isPartOfKey = true) {
+      DataProperty.IsPartOfKey = isPartOfKey;
       return this;
     }
 
-    public DataPropertyBuilder IsAutoIncrementing() {
-      DataProperty.IsAutoIncrementing = true;
-      var et = DataProperty.ParentType as EntityType;
-      if (et != null) {
-        et.AutoGeneratedKeyType = AutoGeneratedKeyType.Identity;
-      }
+    public DataPropertyBuilder IsAutoIncrementing(bool isAutoIncrementing = true) {
+      DataProperty.IsAutoIncrementing = isAutoIncrementing;
       return this;
     }
 
     public DataPropertyBuilder DefaultValue(Object defaultValue) {
-      // TODO: check if valid
       DataProperty.DefaultValue = defaultValue;
       return this;
     }
@@ -174,13 +276,8 @@ namespace Breeze.Sharp {
       }
       var dpb = _etb.DataProperty(propExpr);
       var fkProp = dpb.DataProperty;
-      fkProp.IsForeignKey = true;
 
       fkProp.RelatedNavigationProperty = NavigationProperty;
-      var fkNames = NavigationProperty._foreignKeyNames;
-      if (!fkNames.Contains(fkProp.Name)) {
-        fkNames.Add(fkProp.Name);
-      }
       return this;
     }
 
@@ -189,13 +286,8 @@ namespace Breeze.Sharp {
       var invEtb = new EntityTypeBuilder<TTarget>();
       var invDpBuilder = invEtb.DataProperty(propExpr);
       var invFkProp = invDpBuilder.DataProperty;
-      invFkProp.IsForeignKey = true;
-
+      
       invFkProp.InverseNavigationProperty = NavigationProperty;
-      var invFkNames = NavigationProperty._invForeignKeyNames;
-      if (!invFkNames.Contains(invFkProp.Name)) {
-        invFkNames.Add(invFkProp.Name);
-      }
       return this;
     }
 

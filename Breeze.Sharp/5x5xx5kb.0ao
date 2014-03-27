@@ -10,11 +10,7 @@ namespace Breeze.Sharp {
 
   class CsdlMetadataProcessor {
 
-    public CsdlMetadataProcessor() {
-      
-    }
-    
-    public void ProcessMetadata(MetadataStore metadataStore, String jsonMetadata) {
+    public CsdlMetadataProcessor(MetadataStore metadataStore, String jsonMetadata) {
       _metadataStore = metadataStore;
       var json = (JObject)JsonConvert.DeserializeObject(jsonMetadata);
       _schema = json["schema"];
@@ -28,18 +24,9 @@ namespace Breeze.Sharp {
 
       var entityTypes = ToEnumerable(_schema["entityType"]).Cast<JObject>()
         .Select(ParseCsdlEntityType).ToList();
-
-      // fixup all related nav props.
-      entityTypes.ForEach(et => {
-        if (et.KeyProperties.Count == 0) {
-          throw new Exception("Unable to locate key property for EntityType: " + et.Name);
-        }
-        et.UpdateNavigationProperties();
-      });
-      
-
       var complexTypes = ToEnumerable(_schema["complexType"]).Cast<JObject>()
         .Select(ParseCsdlComplexType).ToList();
+      entityTypes.ForEach(ResolveComplexTypeRefs);
 
       var entityContainer = _schema["entityContainer"];
       if (entityContainer != null) {
@@ -57,6 +44,10 @@ namespace Breeze.Sharp {
       get { return MetadataStore.Instance.NamingConvention; }
     }
 
+    private void ResolveComplexTypeRefs(EntityType et) {
+      et.ComplexProperties.Where(cp => cp.ComplexType == null)
+        .ForEach(cp => cp.ComplexType = _metadataStore.GetComplexType(cp.ComplexTypeName));
+    }
 
     private EntityType ParseCsdlEntityType(JObject csdlEntityType) {
       var abstractVal = (String)csdlEntityType["abstract"];
@@ -65,13 +56,23 @@ namespace Breeze.Sharp {
       var isAbstract = abstractVal == "true";
       var etName = GetClientTypeNameFromShortName(shortNameVal);
       var entityType = MetadataStore.Instance.GetEntityType(etName);
-      // TODO: write these checks
-      // entityType.Check(entityType.isAbstract, isAbstract, "IsAbstract");
 
       if (baseTypeVal != null) {
         var baseEtName = GetClientTypeNameFromClrTypeName(baseTypeVal);
+        entityType.BaseTypeName = baseEtName;
         var baseEntityType = _metadataStore.GetEntityType(baseEtName, true);
-        CompleteParseCsdlEntityType(entityType, csdlEntityType, baseEntityType);
+        if (baseEntityType != null) {
+          CompleteParseCsdlEntityType(entityType, csdlEntityType, baseEntityType);
+        } else {
+          List<DeferredTypeInfo> deferrals;
+          if (_deferredTypeMap.ContainsKey(baseEtName)) {
+            deferrals = _deferredTypeMap[baseEtName];
+          } else {
+            deferrals = new List<DeferredTypeInfo>();
+            _deferredTypeMap[baseEtName] = deferrals;
+          }
+          deferrals.Add(new DeferredTypeInfo { EntityType = entityType, CsdlEntityType = csdlEntityType });
+        }
       } else {
         CompleteParseCsdlEntityType(entityType, csdlEntityType, null);
       }
@@ -102,6 +103,13 @@ namespace Breeze.Sharp {
         ParseCsdlNavigationProperty(entityType, (JObject)csdlNavProp);
       });
 
+      List<DeferredTypeInfo> deferrals;
+      if (_deferredTypeMap.TryGetValue(entityType.Name, out deferrals)) {
+        deferrals.ForEach( dti => {
+          CompleteParseCsdlEntityType(dti.EntityType, dti.CsdlEntityType, entityType);
+        });
+        _deferredTypeMap.Remove(entityType.Name);
+      }
     
     }
 
@@ -121,6 +129,7 @@ namespace Breeze.Sharp {
       }
 
       if (dp != null) {
+        parentType.AddDataProperty(dp);
         AddValidators(dp);
       }
       return dp;
@@ -197,7 +206,7 @@ namespace Breeze.Sharp {
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
       var dp = parentType.GetDataProperty(name);
 
-      dp.Check(dp.ComplexType.Name, complexTypeName, "ComplexTypeName");
+      dp.Check(dp.ComplexTypeName, complexTypeName, "ComplexTypeName");
 
       return dp;
     }
@@ -226,20 +235,21 @@ namespace Breeze.Sharp {
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
       var np = parentType.GetNavigationProperty(name);
 
-      np.Check(np.EntityType.Name, dataEtName, "EntityTypeName");
-      np.Check(np.IsScalar, isScalar, "IsScalar");
+      np.Check(np.EntityTypeName, dataEtName, "EntityTypeName");
 
+      np.Check(np.IsScalar, isScalar, "IsScalar");
       np.AssociationName = (String) association["name"];
-      
+
+
       var principal = constraintVal["principal"];
       var dependent = constraintVal["dependent"];
 
       var propRefs = ToEnumerable(dependent["propertyRef"]);
       var fkNames = propRefs.Select(pr => (String)pr["name"]).ToSafeList();
       if (fromRoleVal == (String)principal["role"]) {
-        np.SetInvFkNames(fkNames, true);
+        np._invForeignKeyNamesOnServer = fkNames;
       } else {
-        np.SetFkNames(fkNames, true);
+        np._foreignKeyNamesOnServer = fkNames;
       }
 
 
@@ -267,6 +277,7 @@ namespace Breeze.Sharp {
       ToEnumerable(csdlComplexType["property"])
         .ForEach(prop => ParseCsdlDataProperty(complexType, (JObject)prop, null));
 
+      _metadataStore.AddComplexType(complexType);
       return complexType;
     }
 
@@ -363,11 +374,16 @@ namespace Breeze.Sharp {
       }
     }
 
+    private class DeferredTypeInfo {
+      public EntityType EntityType { get; set; }
+      public JObject CsdlEntityType { get; set; }
+    }
+
     private JToken _schema;
     private String _namespace;
     private MetadataStore _metadataStore;
     private Dictionary<String, String> _cSpaceOSpaceMap;
-
+    private Dictionary<String, List<DeferredTypeInfo>> _deferredTypeMap = new Dictionary<String, List<DeferredTypeInfo>>();
 
 
 

@@ -36,7 +36,7 @@ namespace Breeze.Sharp.Tests {
     }
 
 
-    [TestMethod]
+    // [TestMethod]
     
     public async Task SimpleCall() {
       var orderBuilder = new EntityTypeBuilder<Order>();

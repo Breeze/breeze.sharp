@@ -8,7 +8,7 @@ using System.Xml;
 using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
-  
+
   [Flags]
   public enum DataTypeInfo {
     None = 0,
@@ -17,8 +17,9 @@ namespace Breeze.Sharp {
     IsDate = 4
   }
 
-  public class NumericDataType : DataType  {
-    public NumericDataType(Type clrType, String fmtSuffix, bool isInteger) : base(clrType) {
+  public class NumericDataType : DataType {
+    public NumericDataType(Type clrType, String fmtSuffix, bool isInteger)
+      : base(clrType) {
       DefaultValue = Convert.ChangeType(0, clrType);
       FmtOData = (Object source) => FmtNumber(source, clrType, fmtSuffix);
       GetNextTempValue = () => GetNextNumber(clrType);
@@ -38,25 +39,25 @@ namespace Breeze.Sharp {
 
     public static Int64 NextNumber = -1;
     public static Int64 NextNumberIncrement = -1;
-    
+
     public static String StringPrefix = "K_";
-      
+
     public String Name { get; internal set; }
     public Type ClrType { get; internal set; }
     public Object DefaultValue { get; internal set; }
-    public virtual Object Parse(Object val) { 
+    public virtual Object Parse(Object val) {
       if (val == null) return null;
       return Convert.ChangeType(val, ClrType);
     }
     public Func<Object, String> FmtOData { get; internal set; }
-    public Func<Object> GetNextTempValue { get; internal set;}
+    public Func<Object> GetNextTempValue { get; internal set; }
     public DataTypeInfo DataTypeInfo { get; internal set; }
-    public static List<DataType> All = new List<DataType>();   
-    
+    public static List<DataType> All = new List<DataType>();
+
     public static DataType String = new DataType(typeof(String)) {
-        DefaultValue = "",
-        FmtOData =  FmtString,
-        GetNextTempValue =  null
+      DefaultValue = "",
+      FmtOData = FmtString,
+      GetNextTempValue = null
     };
 
     public static DataType Int64 = new NumericDataType(typeof(Int64), "L", true);
@@ -65,7 +66,7 @@ namespace Breeze.Sharp {
 
     public static DataType Int16 = new NumericDataType(typeof(Int16), "", true);
 
-    public static DataType Byte  = new NumericDataType(typeof(Byte), "", true);
+    public static DataType Byte = new NumericDataType(typeof(Byte), "", true);
 
     public static DataType Decimal = new NumericDataType(typeof(Decimal), "m", false);
 
@@ -81,7 +82,7 @@ namespace Breeze.Sharp {
     };
 
     public static DataType DateTimeOffset = new DataType(typeof(DateTimeOffset)) {
-      DefaultValue = new DateTimeOffset(1900, 1, 1,0,0,0, new TimeSpan()),
+      DefaultValue = new DateTimeOffset(1900, 1, 1, 0, 0, 0, new TimeSpan()),
       FmtOData = FmtDateTime,
       DataTypeInfo = DataTypeInfo.IsDate
     };
@@ -125,20 +126,20 @@ namespace Breeze.Sharp {
     }
 
     public static DataType FromEdmType(String typeName) {
-      DataType dt = DataType.Undefined;        
+      DataType dt = DataType.Undefined;
       var parts = typeName.Split('.');
       if (parts.Length > 1) {
-          var simpleName = parts[1];
-          if (simpleName == "image") {
-              // hack
-              dt = DataType.Byte;
-          } else if (parts.Length == 2) {
-            dt = DataType.FromName(simpleName);
-          } else {
-              // enum
-              // dt = DataType.Int32;
-              dt = DataType.String;
-          }
+        var simpleName = parts[1];
+        if (simpleName == "image") {
+          // hack
+          dt = DataType.Byte;
+        } else if (parts.Length == 2) {
+          dt = DataType.FromName(simpleName);
+        } else {
+          // enum
+          // dt = DataType.Int32;
+          dt = DataType.Undefined;
+        }
       }
       return dt;
     }
@@ -181,7 +182,7 @@ namespace Breeze.Sharp {
 
     protected static String FmtDateTime(Object val) {
       if (val == null) return null;
-      var date = (DateTime) Convert.ChangeType(val, typeof(DateTime));
+      var date = (DateTime)Convert.ChangeType(val, typeof(DateTime));
       var tmp = date.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
       return "datetime'" + tmp + "'";
     }
@@ -209,8 +210,8 @@ namespace Breeze.Sharp {
 
     protected static String FmtBoolean(Object val) {
       if (val == null) return null;
-      var tmp  = (Boolean)val;
-      return  tmp ? "true" : "false";
+      var tmp = (Boolean)val;
+      return tmp ? "true" : "false";
     }
 
     protected static String FmtBinary(Object val) {

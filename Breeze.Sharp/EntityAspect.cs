@@ -671,7 +671,7 @@ namespace Breeze.Sharp {
         }
       } else if (property.InvForeignKeyProperties.Count > 0 && this.IsAttached) { // && !EntityManager._inKeyFixup) {
         // var invForeignKeyNames = property.InvForeignKeyNames;
-        var invForeignKeyProps = property._invForeignKeyProperties;
+        var invForeignKeyProps = property.InvForeignKeyProperties;
         if (newValue != null) {
           // Example: unidirectional navProperty: 1->1: order -> internationalOrder
           // order.InternationalOrder <- internationalOrder

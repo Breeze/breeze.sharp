@@ -18,9 +18,13 @@ namespace Breeze.Sharp {
   /// 
   /// </summary>
   public abstract class StructuralProperty  {
-    public StructuralProperty() { }
+    protected StructuralProperty(String name) {
+      Name = name;
+      UpdateClientServerNames();
+    }
 
-    public StructuralProperty(StructuralProperty prop) {
+    protected StructuralProperty(StructuralProperty prop) {
+      this.IsInherited = true;
       this.Name = prop.Name;
       this.NameOnServer = prop.NameOnServer;
       this.Custom = prop.Custom;
@@ -29,15 +33,46 @@ namespace Breeze.Sharp {
       this.IsUnmapped = prop.IsUnmapped;
       this._validators = new ValidatorCollection(prop.Validators);
     }
+
     public StructuralType ParentType { get; internal set; }
-    public abstract Type ClrType { get; }
+    public abstract Type ClrType { get; internal set; }
     public String Name { get; internal set; }
     public String NameOnServer { get; internal set; }
     public bool IsScalar { get; internal set; }
     public bool IsInherited { get; internal set; }
-    public bool IsUnmapped { get; internal set; }
+
+    public bool IsUnmapped {
+      get { return _isUnmapped; }
+      set {
+        if (_isUnmapped == value) return;
+        if (this.IsNavigationProperty) {
+          if (value) { 
+            throw new Exception("Cannot set IsUnmapped on a NavigationProperty");
+          }
+          return;
+        }
+        _isUnmapped = value;
+        ParentType.UpdateUnmappedProperties((DataProperty) this);
+      }
+    }
+
     public ICollection<Validator> Validators {
       get { return _validators; }
+    }
+
+    internal void Check(Object v1, Object v2, String name) {
+      if (v1 == null && v2 == null) return;
+      if (Object.Equals(v1, v2)) return;
+      throw new Exception("StructuralProperty: " + this.Name + ".  Metadata does not match for: " + name);
+    }
+
+    private void UpdateClientServerNames() {
+      var nc = MetadataStore.Instance.NamingConvention;
+      if (!String.IsNullOrEmpty(Name)) {
+        NameOnServer = nc.TestPropertyName(Name, true);
+      } else {
+        Name = nc.TestPropertyName(NameOnServer, false);
+      }
     }
 
     // TODO: enhance this later with DisplayName property and localization
@@ -49,6 +84,7 @@ namespace Breeze.Sharp {
     public abstract bool IsDataProperty { get;  }
     public abstract bool IsNavigationProperty { get; }
 
+    private bool _isUnmapped = false;
     internal ValidatorCollection _validators = new ValidatorCollection();
 
   }

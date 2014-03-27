@@ -103,20 +103,9 @@ namespace Breeze.Sharp {
 
     internal virtual DataProperty AddDataProperty(DataProperty dp) {
       dp.ParentType = this;
-      UpdateClientServerName(dp);
       _dataProperties.Add(dp);
-
-      if (dp.IsComplexProperty) {
-        _complexProperties.Add(dp);
-      }
-
-      if (dp.IsUnmapped) {
-        _unmappedProperties.Add(dp);
-      }
-
       return dp;
     } 
-
 
     public ReadOnlyCollection<DataProperty> ComplexProperties {
       get { return _complexProperties.ReadOnlyValues; }
@@ -130,39 +119,33 @@ namespace Breeze.Sharp {
       get { return _validators; }
     }
 
-    internal void UpdateClientServerName(StructuralProperty property) {
-      var nc = MetadataStore.NamingConvention;
-      if (!String.IsNullOrEmpty(property.Name)) {
-        property.NameOnServer = nc.TestPropertyName(property.Name, true);
+    internal void UpdateComplexProperties(DataProperty dp) {
+      UpdateCollection( _complexProperties, dp, dp.IsComplexProperty);
+    }
+
+    internal void UpdateUnmappedProperties(DataProperty dp) {
+      UpdateCollection( _unmappedProperties, dp, dp.IsUnmapped);
+    }
+
+
+    protected void UpdateCollection(SafeList<DataProperty> list, DataProperty dp, bool add) {
+      var isSet = list.Contains(dp);
+      if (add) {
+        if (!isSet) {
+          list.Add(dp);
+        }
       } else {
-        property.Name = nc.TestPropertyName(property.NameOnServer, false);
-      }
-    }
-      
-    internal void UpdateClientServerFkNames(StructuralProperty property) {
-      // TODO: add check for name roundtriping ( to see if ok)
-      var nc = MetadataStore.NamingConvention;
-      var navProp = property as NavigationProperty;
-      if (navProp != null) {
-        if (navProp._foreignKeyNames.Count > 0) {
-          navProp._foreignKeyNamesOnServer = navProp._foreignKeyNames.Select(fkn => nc.TestPropertyName(fkn, true)).ToSafeList();
-        } else {
-          navProp._foreignKeyNames = navProp._foreignKeyNamesOnServer.Select(fkn => nc.TestPropertyName(fkn, false)).ToSafeList();
-        }
-
-        if (navProp._invForeignKeyNames.Count > 0) {
-          navProp._invForeignKeyNamesOnServer = navProp._invForeignKeyNames.Select(fkn => nc.TestPropertyName(fkn, true)).ToSafeList();
-        } else {
-          navProp._invForeignKeyNames = navProp._invForeignKeyNamesOnServer.Select(fkn => nc.TestPropertyName(fkn, false)).ToSafeList();
+        if (isSet) {
+          list.Remove(dp);
         }
       }
     }
 
-    protected String _nameOnServer;
-    protected DataPropertyCollection _dataProperties = new DataPropertyCollection();
-    protected SafeList<DataProperty> _complexProperties = new SafeList<DataProperty>();
-    protected SafeList<DataProperty> _unmappedProperties = new SafeList<DataProperty>();
-    protected ValidatorCollection _validators = new ValidatorCollection();
+    private String _nameOnServer;
+    protected readonly DataPropertyCollection _dataProperties = new DataPropertyCollection();
+    protected readonly SafeList<DataProperty> _complexProperties = new SafeList<DataProperty>();
+    protected readonly SafeList<DataProperty> _unmappedProperties = new SafeList<DataProperty>();
+    protected  ValidatorCollection _validators = new ValidatorCollection();
 
   }
 

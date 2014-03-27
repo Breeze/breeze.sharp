@@ -46,6 +46,7 @@
     <Compile Include="Core\SafeDictionary.cs" />
     <Compile Include="DataServiceAdapter.WebApi.cs" />
     <Compile Include="EntityQueryBuilder.cs" />
+    <Compile Include="EntityTypeReflector.cs" />
     <Compile Include="IDataServiceAdapter.cs" />
     <Compile Include="EntityTypeBuilder.cs" />
     <Compile Include="SaveOptions.cs" />

@@ -16,13 +16,17 @@ namespace Breeze.Sharp {
 
     }
 
-    public ComplexType(JNode jNode) {
+    public void UpdateFromJNode(JNode jNode) {
       var shortName = jNode.Get<String>("shortName");
       var ns = jNode.Get<String>("namespace");
       Name = TypeNameInfo.QualifyTypeName(shortName, ns);
       // BaseTypeName = jnode.Get<String>("baseTypeName");
       // IsAbstract = jnode.Get<bool>("isAbstract");
-      jNode.GetJNodeArray("dataProperties").Select(jn => new DataProperty(jn)).ForEach(dp => AddDataProperty(dp));
+      jNode.GetJNodeArray("dataProperties").ForEach(jn => {
+        var dpName = jn.Get<String>("name");
+        var dp = this.GetDataProperty(dpName);
+        dp.UpdateFromJNode(jn);
+      });
       // validators
       // custom
     }
