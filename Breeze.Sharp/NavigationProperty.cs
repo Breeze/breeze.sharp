@@ -194,12 +194,13 @@ namespace Breeze.Sharp {
       }
     }
 
-    private IEnumerable<NavigationProperty> SelfAndSubtypeNps {
-      get {
-        var entityType = (EntityType) this.ParentType;
-        return new NavigationProperty[] { this }.Concat(entityType.Subtypes.Select(st => st.GetNavigationProperty(this.Name)));
-      }
-    }
+    // Not yet needed.
+    //private IEnumerable<NavigationProperty> SelfAndSubtypeNps {
+    //  get {
+    //    var entityType = (EntityType) this.ParentType;
+    //    return new NavigationProperty[] { this }.Concat(entityType.Subtypes.Select(st => st.GetNavigationProperty(this.Name)));
+    //  }
+    //}
 
     public override bool IsDataProperty { get { return false; } }
     public override bool IsNavigationProperty { get { return true; } }

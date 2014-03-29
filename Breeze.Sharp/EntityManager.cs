@@ -862,7 +862,7 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public IEntity GetEntityByKey(EntityKey entityKey) {
 
-      var subtypes = entityKey.EntityType.Subtypes;
+      var subtypes = entityKey.EntityType.SubEntityTypes;
       EntityAspect ea;
       if (subtypes.Count > 0) {
         ea = subtypes.Select(st => {

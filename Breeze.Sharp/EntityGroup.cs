@@ -98,7 +98,7 @@ namespace Breeze.Sharp {
     public ReadOnlyCollection<EntityGroup> SelfAndSubtypeGroups {
       get {
         if (_selfAndSubtypeGroups == null) {
-          _selfAndSubtypeGroups = new EntityType[] { EntityType }.Concat(EntityType.Subtypes)
+          _selfAndSubtypeGroups = new EntityType[] { EntityType }.Concat(EntityType.SubEntityTypes)
             .Select(et => EntityManager.GetEntityGroup(et.ClrType))
             .ToSafeList();
         }

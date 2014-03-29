@@ -309,7 +309,7 @@ namespace Breeze.Sharp {
       get {
         var entityType = this.ParentType as EntityType;
         if (entityType != null) {
-          return new DataProperty[] {this}.Concat(entityType.Subtypes.Select(st => st.GetDataProperty(this.Name)));
+          return new DataProperty[] {this}.Concat(entityType.SubEntityTypes.Select(st => st.GetDataProperty(this.Name)));
         } else {
           // TODO: update this once we support inherited complexTypes
           return new DataProperty[] {this};
