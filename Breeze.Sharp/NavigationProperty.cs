@@ -32,7 +32,9 @@ namespace Breeze.Sharp {
       
       this.EntityType = np.EntityType;
       this.AssociationName = np.AssociationName;
-      this._fkNames = np._fkNames;
+      // ok for next two var to ref the base class collections because these should be shared.
+      // and other code assumes that if the base class collection is updated then so will the subclass.
+      this._fkNames = np._fkNames;  
       this._invFkNames = np._invFkNames;
       
     }
@@ -166,7 +168,7 @@ namespace Breeze.Sharp {
         var nc = MetadataStore.Instance.NamingConvention;
         fkNames = fkNames.Select(nc.ServerPropertyNameToClient);
       }
-      _fkNames = new SafeList<string>(fkNames);
+      _fkNames.AddRange(fkNames);
     }
 
     internal void SetInvFkNames(IEnumerable<String> invFkNames, bool onServer) {
@@ -174,7 +176,7 @@ namespace Breeze.Sharp {
         var nc = MetadataStore.Instance.NamingConvention;
         invFkNames = invFkNames.Select(nc.ServerPropertyNameToClient);
       }
-      _invFkNames = new SafeList<string>(invFkNames);
+      _invFkNames.AddRange(invFkNames);
     }
 
 
@@ -192,12 +194,19 @@ namespace Breeze.Sharp {
       }
     }
 
+    private IEnumerable<NavigationProperty> SelfAndSubtypeNps {
+      get {
+        var entityType = (EntityType) this.ParentType;
+        return new NavigationProperty[] { this }.Concat(entityType.Subtypes.Select(st => st.GetNavigationProperty(this.Name)));
+      }
+    }
+
     public override bool IsDataProperty { get { return false; } }
     public override bool IsNavigationProperty { get { return true; } }
 
     private readonly SafeList<DataProperty> _relatedDataProperties = new SafeList<DataProperty>();
-    private SafeList<String> _fkNames = new SafeList<string>();
-    private SafeList<String> _invFkNames = new SafeList<string>();
+    private readonly SafeList<String> _fkNames = new SafeList<string>();
+    private readonly SafeList<String> _invFkNames = new SafeList<string>();
     
 
     private SafeList<DataProperty> _fkProps = null;
