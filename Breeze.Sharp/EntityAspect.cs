@@ -26,7 +26,7 @@ namespace Breeze.Sharp {
     // what about IDataErrorInfo
 
     /// <summary>
-    /// 
+    /// For internal use only.
     /// </summary>
     /// <param name="entity"></param>
     public EntityAspect(IEntity entity, EntityType entityType = null)
@@ -42,6 +42,9 @@ namespace Breeze.Sharp {
 
     #region Public properties
 
+    /// <summary>
+    /// The Entity that this aspect is associated with.
+    /// </summary>
     public IEntity Entity { get; private set; }
 
     public EntityType EntityType {
@@ -53,10 +56,16 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Whether this entity is detached from an EntityManager. 
+    /// </summary>
     public bool IsDetached {
       get { return this.EntityState == EntityState.Detached; }
     }
 
+    /// <summary>
+    /// Whether this entity is attached to an EntityManager. 
+    /// </summary>
     public bool IsAttached {
       get { return this.EntityState != EntityState.Detached; }
     }
@@ -73,6 +82,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns the EntityKey for the associated Entity.
+    /// </summary>
     public EntityKey EntityKey {
       get {
         // need to insure 
@@ -96,7 +108,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Returns the EntityState for the associated Entity.
     /// </summary>
     public override EntityState EntityState {
       get {
@@ -118,7 +130,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Returns the EntityVersion for the associated Entity.
     /// </summary>
     public override EntityVersion EntityVersion {
       get {
@@ -147,6 +159,10 @@ namespace Breeze.Sharp {
       internal set;
     }
 
+    /// <summary>
+    /// Whether the associated Entity has a 'temporary' EntityKey. i.e. one that will change after
+    /// a successful save.
+    /// </summary>
     public bool HasTemporaryKey {
       get {
         var dp = this.EntityType.KeyProperties.First();
@@ -165,6 +181,9 @@ namespace Breeze.Sharp {
       set { _entityGroup = value; }
     }
 
+    /// <summary>
+    /// The StructuralType associated with this Entity.
+    /// </summary>
     public override StructuralType StructuralType {
       get { return this.EntityType; }
     }

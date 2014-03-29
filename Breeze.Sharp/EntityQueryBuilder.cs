@@ -8,9 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
-  /// <summary>
-  /// Used internally by the framework to build an <see cref="EntityQuery"/>.
-  /// </summary>
+  
   internal static class EntityQueryBuilder  {
 
     /// <summary>

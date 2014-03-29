@@ -334,6 +334,9 @@ namespace Breeze.Sharp {
     private Object _defaultValue;
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
   public enum ConcurrencyMode {
     None = 0,
     Fixed = 1

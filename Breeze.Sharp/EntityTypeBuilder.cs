@@ -9,7 +9,10 @@ using System.Reflection;
 
 namespace Breeze.Sharp {
 
-  public class StructuralTypeBuilder {
+  /// <summary>
+  /// Base class that provides a fluent interface for configuring the MetadataStore.
+  /// </summary>
+  public abstract class StructuralTypeBuilder {
 
     public static StructuralType GetStructuralType(Type clrType) {
       if (typeof (IEntity).IsAssignableFrom(clrType)) {
@@ -149,7 +152,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// Provides a fluent interface for configuring an EntityType within the MetadataStore.
   /// </summary>
   public class EntityTypeBuilder<TEntity> : StructuralTypeBuilder where TEntity:IEntity  {
 
@@ -220,57 +223,107 @@ namespace Breeze.Sharp {
     }
   }
 
+  /// <summary>
+  /// Provides a fluent interface for configuring an DataProperty within the MetadataStore.
+  /// </summary>
   public class DataPropertyBuilder {
-    public DataPropertyBuilder(DataProperty dp ) {
+    internal DataPropertyBuilder(DataProperty dp ) {
       DataProperty = dp;
     }
     
+    /// <summary>
+    /// Used to defined that this DataProperty is nullable.
+    /// </summary>
+    /// <returns></returns>
     public DataPropertyBuilder IsNullable() {
       DataProperty.IsNullable = true;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined that this DataProperty is required. ( The opposite of IsNullable. )
+    /// </summary>
+    /// <returns></returns>
     public DataPropertyBuilder IsRequired() {
       DataProperty.IsNullable = false;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined that this DataProperty is part of this Entity's EntityKey.
+    /// </summary>
+    /// <param name="isPartOfKey"></param>
+    /// <returns></returns>
     public DataPropertyBuilder IsPartOfKey(bool isPartOfKey = true) {
       DataProperty.IsPartOfKey = isPartOfKey;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined that this DataProperty is autoIncrementing.
+    /// </summary>
+    /// <param name="isAutoIncrementing"></param>
+    /// <returns></returns>
     public DataPropertyBuilder IsAutoIncrementing(bool isAutoIncrementing = true) {
       DataProperty.IsAutoIncrementing = isAutoIncrementing;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined the default value for this DataProperty.
+    /// </summary>
+    /// <param name="defaultValue"></param>
+    /// <returns></returns>
     public DataPropertyBuilder DefaultValue(Object defaultValue) {
       DataProperty.DefaultValue = defaultValue;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined the ConcurrencyMode for this DataProperty.
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <returns></returns>
     public DataPropertyBuilder ConcurrencyMode(ConcurrencyMode mode) {
       DataProperty.ConcurrencyMode = mode;
       return this;
     }
 
+    /// <summary>
+    /// Used to defined the maximum string length for this DataProperty.
+    /// </summary>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
     public DataPropertyBuilder MaxLength(int? maxLength) {
       DataProperty.MaxLength = maxLength;
       return this;
     }
 
+    /// <summary>
+    /// The DataProperty associated with this builder.
+    /// </summary>
     public DataProperty DataProperty { get; private set; }
-    }
 
+  }
 
+  /// <summary>
+  /// Provides a fluent interface for configuring an NavigatiomProperty within the MetadataStore.
+  /// </summary>
+  /// <typeparam name="TEntity"></typeparam>
+  /// <typeparam name="TTarget"></typeparam>
   public class NavigationPropertyBuilder<TEntity, TTarget> where TEntity: IEntity where TTarget: IEntity {
 
-    public NavigationPropertyBuilder(EntityTypeBuilder<TEntity> etb, NavigationProperty np) {
+    internal NavigationPropertyBuilder(EntityTypeBuilder<TEntity> etb, NavigationProperty np) {
       _etb = etb;
       NavigationProperty = np;
     }
 
+    /// <summary>
+    /// Used to define the foreign key property associated with this NavigationProperty.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="propExpr"></param>
+    /// <returns></returns>
     public NavigationPropertyBuilder<TEntity, TTarget> HasForeignKey<TValue>(Expression<Func<TEntity, TValue>> propExpr) {
       if (!NavigationProperty.IsScalar) {
         throw new Exception("Can only call 'WithForeignKey' on a scalar NavigationProperty");
@@ -282,7 +335,14 @@ namespace Breeze.Sharp {
       return this;
     }
 
-    // only needed in unusual cases.
+    
+    /// <summary>
+    /// Used to define the 'inverse' foreign key property associated with this NavigationProperty. This method will only
+    /// be needed in unusual cases.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="propExpr"></param>
+    /// <returns></returns>
     public NavigationPropertyBuilder<TEntity, TTarget> HasInverseForeignKey<TValue>(Expression<Func<TTarget, TValue>> propExpr) {
       var invEtb = new EntityTypeBuilder<TTarget>();
       var invDpBuilder = invEtb.DataProperty(propExpr);
@@ -292,13 +352,22 @@ namespace Breeze.Sharp {
       return this;
     }
 
+    /// <summary>
+    /// Used to define the scalar Inverse navigation property associated with this NavigationProperty.
+    /// </summary>
+    /// <param name="propExpr"></param>
+    /// <returns></returns>
     public NavigationPropertyBuilder<TEntity, TTarget> HasInverse(Expression<Func<TTarget, TEntity>> propExpr) {
       var invEtb = new EntityTypeBuilder<TTarget>();
       var invNp = invEtb.NavigationProperty(propExpr).NavigationProperty;
       return HasInverseCore(invNp);
-      
     }
 
+    /// <summary>
+    /// Used to define the nonscalar Inverse navigation property associated with this NavigationProperty.
+    /// </summary>
+    /// <param name="propExpr"></param>
+    /// <returns></returns>
     public NavigationPropertyBuilder<TEntity, TTarget> HasInverse(Expression<Func<TTarget, NavigationSet<TEntity>>> propExpr) {
       var invEtb = new EntityTypeBuilder<TTarget>();
       var invNp = invEtb.NavigationProperty(propExpr).NavigationProperty;
@@ -313,6 +382,10 @@ namespace Breeze.Sharp {
     }
 
     private readonly EntityTypeBuilder<TEntity> _etb;
+
+    /// <summary>
+    /// The NavigationProperty associated with this builder.
+    /// </summary>
     public NavigationProperty NavigationProperty { get; private set; }
   }
 }

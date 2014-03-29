@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// This class is ThreadSafe
+  /// An instance of the MetadataStore contains all of the metadata about a collection of EntityTypes and ComplexTypes. 
+  /// The MetadataStore.Instance property returns a singleton MetadataStore that is shared by all EntityManagers.
+  /// This class is threadsafe meaning that single MetadataStore.Instance value may be shared across multiple threads. 
+  /// This is NOT true of most other instances of classes within Breeze.
   /// </summary>
   public class MetadataStore : IJsonSerializable {
 
@@ -43,6 +46,9 @@ namespace Breeze.Sharp {
 
     public static String MetadataVersion = "1.0.3";
 
+    /// <summary>
+    /// Returns a list of all of the <see cref="EntityType"/>s within this store.
+    /// </summary>
     public List<EntityType> EntityTypes {
       get {
         lock (_structuralTypes) {
@@ -51,6 +57,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns a list of all of the <see cref="ComplexType"/>s within this store.
+    /// </summary>
     public List<ComplexType> ComplexTypes {
       get {
         lock (_structuralTypes) {
@@ -59,6 +68,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// The NamingConvention associated with this MetadataStore.
+    /// </summary>
     public NamingConvention NamingConvention {
       get { 
         lock( _lock) {
@@ -136,6 +148,12 @@ namespace Breeze.Sharp {
       _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
     }
 
+    /// <summary>
+    /// Fetches the metadata for a specified 'service'. This method is automatically called 
+    /// internally by an EntityManager before its first query against a new service.
+    /// </summary>
+    /// <param name="dataService"></param>
+    /// <returns></returns>
     public async Task<DataService> FetchMetadata(DataService dataService) {
       String serviceName;
       
@@ -151,9 +169,8 @@ namespace Breeze.Sharp {
 
         var metadata = await dataService.GetAsync("Metadata");
         dataService.ServerMetadata = metadata;
-        lock (_dataServiceMap) {
-          _dataServiceMap[serviceName] = dataService;
-        }
+        AddDataService(dataService);
+        
         var metadataProcessor = new CsdlMetadataProcessor();
         metadataProcessor.ProcessMetadata(this, metadata);
 
@@ -165,6 +182,11 @@ namespace Breeze.Sharp {
 
     }
 
+    /// <summary>
+    /// Returns the DataService for a specified service name or null.
+    /// </summary>
+    /// <param name="serviceName"></param>
+    /// <returns></returns>
     public DataService GetDataService(String serviceName) {
       lock (_dataServiceMap) {
         if (_dataServiceMap.ContainsKey(serviceName)) {
@@ -175,23 +197,64 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Adds a DataService to this MetadataStore. If a DataService with the same serviceName 
+    /// is already in the MetadataStore an exception will be thrown unless the 'shouldOverwrite'
+    /// parameter is set to 'true'.
+    /// </summary>
+    /// <param name="dataService"></param>
+    /// <param name="shouldOverwrite"></param>
+    public void AddDataService(DataService dataService, bool shouldOverwrite = false) {
+      lock (_dataServiceMap) {
+        if (_dataServiceMap.ContainsKey(dataService.ServiceName) && !shouldOverwrite) {
+          throw new Exception("A dataService with this name '" + dataService.ServiceName + "' already exists in this MetadataStore");
+        }
+        _dataServiceMap[dataService.ServiceName] = dataService;
+      }
+    }
+
+    /// <summary>
+    /// Returns an EntityType given its CLR type.
+    /// </summary>
+    /// <param name="clrEntityType"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
     public EntityType GetEntityType(Type clrEntityType, bool okIfNotFound = false) {
       return GetStructuralType<EntityType>(clrEntityType, okIfNotFound);
     }
 
+    /// <summary>
+    /// Returns an EntityType given its name.
+    /// </summary>
+    /// <param name="etName"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
     public EntityType GetEntityType(String etName, bool okIfNotFound = false) {
       return GetStructuralType<EntityType>(etName, okIfNotFound);
     }
 
+    /// <summary>
+    /// Returns an ComplexType given its CLR type.
+    /// </summary>
+    /// <param name="clrComplexType"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
     public ComplexType GetComplexType(Type clrComplexType, bool okIfNotFound = false) {
       return GetStructuralType<ComplexType>(clrComplexType, okIfNotFound);
     }
 
+    /// <summary>
+    /// Returns an EntityType given its name.
+    /// </summary>
+    /// <param name="ctName"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
     public ComplexType GetComplexType(String ctName, bool okIfNotFound = false) {
       return GetStructuralType<ComplexType>(ctName, okIfNotFound);
     }
 
-    public T GetStructuralType<T>(Type clrType, bool okIfNotFound = false) where T : class {
+
+    internal T GetStructuralType<T>(Type clrType, bool okIfNotFound = false) where T : class {
       var stype = GetStructuralType(clrType, okIfNotFound);
       var ttype = stype as T;
       if (ttype != null) {
@@ -202,6 +265,12 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Returns an StructuralType (EntityType or ComplexType) given its CLR type.
+    /// </summary>
+    /// <param name="clrType"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
     public StructuralType GetStructuralType(Type clrType, bool okIfNotFound = false) {
       lock (_structuralTypes) {
         if (IsStructuralType(clrType)) {
@@ -221,10 +290,17 @@ namespace Breeze.Sharp {
     }
 
     // TODO: think about name
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="resourceName"></param>
+    /// <param name="clrType"></param>
+    /// <param name="isDefault"></param>
     public void AddResourceName(String resourceName, Type clrType, bool isDefault = false) {
       var entityType = GetEntityType(clrType);
       AddResourceName(resourceName, entityType, isDefault);
     }
+
 
     internal void AddResourceName(String resourceName, EntityType entityType, bool isDefault = false) {
       lock (_defaultResourceNameMap) {
@@ -313,7 +389,6 @@ namespace Breeze.Sharp {
     }
 
     internal void ImportMetadata(JNode jNode ) {
-
       DeserializeFrom(jNode);
       EntityTypes.ForEach(et => ResolveComplexTypeRefs(et));
     }
@@ -343,8 +418,8 @@ namespace Breeze.Sharp {
       NamingConvention = NamingConvention.FromName(jNode.Get<String>("namingConvention"));
       // localQueryComparisonOptions
       jNode.GetJNodeArray("dataServices").Select(jn => new DataService(jn)).ForEach(ds => {
-        if (!_dataServiceMap.ContainsKey(ds.ServiceName)) {
-          _dataServiceMap.Add(ds.ServiceName, ds);
+        if (GetDataService(ds.ServiceName) == null) {
+          AddDataService(ds);
         }
       });
       jNode.GetJNodeArray("structuralTypes")

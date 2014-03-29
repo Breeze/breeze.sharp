@@ -9,8 +9,18 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// A DataService instance is used to encapsulate the details of a single 'service'; 
+  /// this includes a serviceName, a dataService adapterInstance, and whether the service has server side metadata.
   /// </summary>
+  /// <remarks>
+  /// You can construct an EntityManager with either a serviceName or a DataService instance, 
+  /// if you use a serviceName then a DataService is constructed for you. 
+  /// The same applies to the MetadataStore.FetchMetadata method, i.e. it takes either a serviceName or a DataService instance.
+  /// Each metadataStore contains a list of DataServices, each accessible via its ‘serviceName’. 
+  /// ( see MetadataStore.GetDataService and MetadataStore.addDataService). 
+  /// The ‘addDataService’ method is called internally anytime a MetadataStore.FetchMetadata call 
+  /// occurs with a new dataService ( or service name).
+  /// </remarks>
   public class DataService : IJsonSerializable {
 
     /// <summary>

@@ -17,7 +17,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Constructs a new EntityKey. Each entity within an EntityManager will have a unique EntityKey.
     /// </summary>
     /// <param name="clrType"></param>
     /// <param name="values"></param>
@@ -28,7 +28,7 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// Initializes a new instance of the EntityKey class.    
+    /// Constructs a new EntityKey. Each entity within an EntityManager will have a unique EntityKey.
     /// </summary>
     /// <param name="entityType">The Entity type</param>
     /// <param name="values">The values of the primary key properties</param>
@@ -93,21 +93,29 @@ namespace Breeze.Sharp {
     /// <summary>
     /// An array of values associated with individual properties of the key.
     /// </summary>
-
     public Object[] Values {
       get;
       internal set;
     }
 
+    /// <summary>
+    /// Constructs an untyped EntityQuery for a single entity based on this EntityKey.
+    /// </summary>
+    /// <returns></returns>
     public EntityQuery ToQuery() {
       return EntityQueryBuilder.BuildQuery(this);
     }
 
+    /// <summary>
+    /// Constructs a typed EntityQuery for a single entity based on this EntityKey.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public EntityQuery<T> ToQuery<T>() {
       return (EntityQuery<T>) EntityQueryBuilder.BuildQuery(this);
     }
 
-    public bool IsEmpty() {
+    internal bool IsEmpty() {
       return Values == null || Values.Length == 0 || Values.Any(v => v==null) ;
     }
 
