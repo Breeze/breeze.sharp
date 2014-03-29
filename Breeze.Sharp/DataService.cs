@@ -70,7 +70,7 @@ namespace Breeze.Sharp {
 
     public IDataServiceAdapter Adapter { get; set; }
 
-    public JsonResultsAdapter JsonResultsAdapter { get; set; }
+    public IJsonResultsAdapter JsonResultsAdapter { get; set; }
 
     // Only available for server retrieved metadata
     public String ServerMetadata { get; internal set; }

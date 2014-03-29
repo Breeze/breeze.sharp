@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace Breeze.Sharp {
 
@@ -19,15 +20,26 @@ namespace Breeze.Sharp {
     #region Ctor 
 
     /// <summary>
-    /// Constructs an empty EntityManager with a specified default service name. 
+    /// Constructs an empty EntityManager with a specified data service name. 
     /// </summary>
     /// <param name="serviceName"></param>
     /// <remarks><code>
     ///     // Example: 
     ///     var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
     /// </code></remarks>
-    public EntityManager(String serviceName) {
-      DefaultDataService = new DataService(serviceName);
+    public EntityManager(String serviceName) 
+      : this(new DataService(serviceName)) {
+    
+    }
+
+    /// <summary>
+    /// /// <summary>
+    /// Constructs an empty EntityManager with a specified DataService. 
+    /// </summary>
+    /// </summary>
+    /// <param name="dataService"></param>
+    public EntityManager(DataService dataService) {
+      DataService = dataService;
       DefaultQueryOptions = QueryOptions.Default;
       CacheQueryOptions = CacheQueryOptions.Default;
       ValidationOptions = ValidationOptions.Default;
@@ -41,7 +53,7 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="em"></param>
     public EntityManager(EntityManager em) {
-      DefaultDataService = em.DefaultDataService;
+      DataService = em.DataService;
       DefaultQueryOptions = em.DefaultQueryOptions;
       CacheQueryOptions = em.CacheQueryOptions;
       ValidationOptions = em.ValidationOptions;
@@ -115,9 +127,9 @@ namespace Breeze.Sharp {
     /// <summary>
     /// The default DataService for this EntityManager.
     /// </summary>
-    public DataService DefaultDataService {
-      get { return _defaultDataService; }
-      set { _defaultDataService = InsureNotNull(value, "DefaultDataService"); }
+    public DataService DataService {
+      get { return _dataService; }
+      set { _dataService = InsureNotNull(value, "DataService"); }
     }
 
     /// <summary>
@@ -179,7 +191,10 @@ namespace Breeze.Sharp {
     /// <param name="dataService"></param>
     /// <returns></returns>
     public async Task<DataService> FetchMetadata(DataService dataService = null) {
-      dataService = dataService != null ? dataService : this.DefaultDataService;
+      dataService = dataService != null ? dataService : this.DataService;
+      if (!dataService.HasServerMetadata) {
+        throw new Exception("This DataService does not provide metadata: " + dataService.ServiceName);
+      }
       return await MetadataStore.FetchMetadata(dataService);
     }
 
@@ -210,18 +225,27 @@ namespace Breeze.Sharp {
         //tcs.SetResult(query.ExecuteLocally());
         //return tcs.Task;
       }
-      var dataService = query.DataService ?? this.DefaultDataService;
-      await FetchMetadata(dataService);
-      CheckAuthorizedThreadId();
+      var dataService = query.DataService ?? this.DataService;
+      if (dataService.HasServerMetadata) {
+        await FetchMetadata(dataService);
+        CheckAuthorizedThreadId();
+      }
       var resourcePath = query.GetResourcePath();
       // HACK
       resourcePath = resourcePath.Replace("/*", "");
       var result = await dataService.GetAsync(resourcePath);
+      
       CheckAuthorizedThreadId();
       var mergeStrategy = query.QueryOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy;
+
+      var mappingContext = new MappingContext() {
+        EntityManager = this,
+        MergeStrategy = mergeStrategy.Value,
+        LoadingOperation = LoadingOperation.Query
+      };
+      // cannot reuse a jsonConverter - internal mappingContext is one instance/query
+      var jsonConverter = new JsonEntityConverter(mappingContext);
       
-      // cannot reuse a jsonConverter - internal refMap is one instance/query
-      var jsonConverter = new JsonEntityConverter(this, mergeStrategy.Value, LoadingOperation.Query);
       Type rType;
       if (resourcePath.Contains("inlinecount")) {
         rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
@@ -229,8 +253,18 @@ namespace Breeze.Sharp {
         rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
       }
       using (NewIsLoadingBlock()) {
-        return (IEnumerable)JsonConvert.DeserializeObject(result, rType, jsonConverter);
+        var jt = JToken.Parse(result);
+        jt = ExtractResults(jt);
+        var serializer = new JsonSerializer();
+        serializer.Converters.Add(jsonConverter);
+        return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+        // return (IEnumerable)JsonConvert.DeserializeObject(result, rType, jsonConverter);
       }
+    }
+
+    private JToken ExtractResults(JToken jt) {
+      return jt;
+      // return jt["makeHolder"];
     }
 
     /// <summary>
@@ -282,7 +316,7 @@ namespace Breeze.Sharp {
       }
       saveOptions = new SaveOptions(saveOptions ?? this.DefaultSaveOptions ?? SaveOptions.Default);
       if (saveOptions.ResourceName == null) saveOptions.ResourceName = "SaveChanges";
-      if (saveOptions.DataService == null) saveOptions.DataService = this.DefaultDataService;
+      if (saveOptions.DataService == null) saveOptions.DataService = this.DataService;
       var dataServiceAdapter = saveOptions.DataService.Adapter;
       var saveResult = await dataServiceAdapter.SaveChanges(entitiesToSave, saveOptions);
       if (entities == null) {
@@ -449,7 +483,7 @@ namespace Breeze.Sharp {
         if (msNode != null) {
           MetadataStore.ImportMetadata(msNode);
           var dsJn = jn.GetJNode("dataService");
-          if (dsJn != null) DefaultDataService = new DataService(dsJn);
+          if (dsJn != null) DataService = new DataService(dsJn);
           var qoJn = jn.GetJNode("queryOptions");
           if (qoJn != null) DefaultQueryOptions = new QueryOptions(qoJn);
         }
@@ -582,7 +616,7 @@ namespace Breeze.Sharp {
       var jn = ExportEntityGroupsAndTempKeys(entities);
 
       if (includeMetadata) {
-        jn.AddJNode("dataService", this.DefaultDataService);
+        jn.AddJNode("dataService", this.DataService);
         jn.AddJNode("queryOptions", this.DefaultQueryOptions);
         // jo.AddObject("saveOptions", this.SaveOptions);
         // jo.AddObject("validationOptions", this.ValidationOptions);
@@ -1352,7 +1386,7 @@ namespace Breeze.Sharp {
     private EntityGroupCollection EntityGroups { get; set; }
     private List<Action> _queuedEvents = new List<Action>();
     private bool _changeNotificationEnabled = true;
-    private DataService _defaultDataService;
+    private DataService _dataService;
     private QueryOptions _defaultQueryOptions;
     private SaveOptions _defaultSaveOptions;
     private CacheQueryOptions _cacheQueryOptions;

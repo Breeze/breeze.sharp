@@ -12,38 +12,38 @@ using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
 
+  public class MappingContext {
+    public MappingContext() {
+      RefMap = new Dictionary<string, object>();
+      Entities = new List<IEntity>();
+    }
+    public EntityManager EntityManager;
+    public MergeStrategy MergeStrategy;
+    public LoadingOperation LoadingOperation;
+    // AllEntities is a list of all deserialized entities not just the top level ones.
+    public List<IEntity> Entities { get; private set; }
+    public Dictionary<String, Object> RefMap { get; private set; }
+  }
+
+  public enum LoadingOperation {
+    Query,
+    Save
+    // Import - not yet needed
+    // Attach - not yet needed
+  }
+
   public class JsonEntityConverter : JsonConverter {
   
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
-    public JsonEntityConverter(EntityManager entityManager, MergeStrategy mergeStrategy, LoadingOperation loadingOperation) {
-      _entityManager = entityManager;
-      _metadataStore = entityManager.MetadataStore;
-      _mergeStrategy = mergeStrategy;
-      _loadingOperation = loadingOperation;
-      
-      _allEntities = new List<IEntity>();
+    public JsonEntityConverter(MappingContext mappingContext) {
+      _mappingContext = mappingContext;
     }
 
-    // AllEntities is a list of all deserialized entities not just the top level ones.
-    public List<IEntity> AllEntities {
-      get { return _allEntities; }
-    }
-
+    
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       if (reader.TokenType != JsonToken.Null) {
         // Load JObject from stream
         var jObject = JObject.Load(reader);
-
-        //if (objectType == typeof(IEntity)) {
-        //  JToken typeNameToken;
-        //  if (jObject.TryGetValue("$type", out typeNameToken)) {
-        //    if (_normalizeTypeNameFn == null) {
-        //      throw new Exception("NormalizeTypeNameFn not defined");
-        //    }
-        //    var entityTypeName = _normalizeTypeNameFn(typeNameToken.Value<String>());
-        //    objectType = MetadataStore.Instance.GetEntityType(entityTypeName).ClrType;
-        //  }
-        //}
 
         var jsonContext = new JsonContext { JObject = jObject, ObjectType = objectType, Serializer = serializer };
         // Create target object based on JObject
@@ -68,7 +68,7 @@ namespace Breeze.Sharp {
 
       JToken refToken = null;
       if (jObject.TryGetValue("$ref", out refToken)) {
-        return _refMap[refToken.Value<String>()];
+        return _mappingContext.RefMap[refToken.Value<String>()];
       }
 
       EntityType entityType;
@@ -78,7 +78,7 @@ namespace Breeze.Sharp {
         var clrTypeName = typeToken.Value<String>();
         var serverTypeInfo = TypeNameInfo.FromClrTypeName(clrTypeName);
         var clientEntityTypeName = serverTypeInfo.ToClient().Name; 
-        entityType = _metadataStore.GetEntityType(clientEntityTypeName);
+        entityType = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
         objectType = entityType.ClrType;
         if (!jsonContext.ObjectType.IsAssignableFrom(objectType)) {
           throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " + jsonContext.ObjectType.Name);
@@ -86,7 +86,7 @@ namespace Breeze.Sharp {
         jsonContext.ObjectType = objectType;
       } else {
         objectType = jsonContext.ObjectType;
-        entityType =  _metadataStore.GetEntityType(objectType);
+        entityType =  MetadataStore.Instance.GetEntityType(objectType);
       }
 
       // an entity type
@@ -95,13 +95,13 @@ namespace Breeze.Sharp {
         .Select(p => jObject[p.Name].ToObject(p.ClrType))
         .ToArray();
       var entityKey = EntityKey.Create(entityType, keyValues);
-      var entity = _entityManager.GetEntityByKey(entityKey);
+      var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
       if (entity == null) {
         entity = (IEntity)Activator.CreateInstance(objectType);
       }
       // must be called before populate
       UpdateRefMap(jObject, entity);
-      _allEntities.Add(entity);
+      _mappingContext.Entities.Add(entity);
       return PopulateEntity(jsonContext, entity);
 
     }
@@ -109,7 +109,7 @@ namespace Breeze.Sharp {
     private void UpdateRefMap(JObject jObject, Object target) {
       JToken idToken = null;
       if (jObject.TryGetValue("$id", out idToken)) {
-        _refMap[idToken.Value<String>()] = target;
+        _mappingContext.RefMap[idToken.Value<String>()] = target;
       }
     }
 
@@ -122,12 +122,12 @@ namespace Breeze.Sharp {
         aspect.Initialize();
         // TODO: This is a nit.  Wierd case where a save adds a new entity will show up with
         // a AttachOnQuery operation instead of AttachOnSave
-        _entityManager.AttachQueriedEntity(entity, (EntityType) jsonContext.StructuralType);
-      } else if (_mergeStrategy == MergeStrategy.OverwriteChanges || aspect.EntityState == EntityState.Unchanged) {
+        _mappingContext.EntityManager.AttachQueriedEntity(entity, (EntityType) jsonContext.StructuralType);
+      } else if (_mappingContext.MergeStrategy == MergeStrategy.OverwriteChanges || aspect.EntityState == EntityState.Unchanged) {
         // overwrite existing entityManager
         ParseObject(jsonContext, aspect);
         aspect.Initialize();
-        aspect.OnEntityChanged(_loadingOperation == LoadingOperation.Query ? EntityAction.MergeOnQuery : EntityAction.MergeOnSave);
+        aspect.OnEntityChanged(_mappingContext.LoadingOperation == LoadingOperation.Query ? EntityAction.MergeOnQuery : EntityAction.MergeOnSave);
       } else {
         // preserveChanges handling - we still want to handle expands.
         ParseObject(jsonContext, null );
@@ -216,20 +216,10 @@ namespace Breeze.Sharp {
       public JsonSerializer Serializer;
     }
 
-    private EntityManager _entityManager;
-    private MetadataStore _metadataStore;
-    private MergeStrategy _mergeStrategy;
-    private LoadingOperation _loadingOperation;
-    private List<IEntity> _allEntities;
-    private Dictionary<String, Object> _refMap = new Dictionary<string, object>();
+    private MappingContext _mappingContext;
   }
 
-  public enum LoadingOperation {
-    Query,
-    Save
-    // Import - not yet needed
-    // Attach - not yet needed
-  }
+  
 
   //public static class JsonFns {
 

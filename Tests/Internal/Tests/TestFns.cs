@@ -40,6 +40,16 @@ namespace Breeze.Sharp.Tests {
       }
     }
 
+    public static async Task<EntityManager> NewEm(DataService dataService) {
+      if (dataService.HasServerMetadata && MetadataStore.Instance.GetDataService(dataService.ServiceName) == null) {
+        var em = new EntityManager(dataService.ServiceName);
+        await em.FetchMetadata();
+        return em;
+      } else {
+        return new EntityManager(dataService);
+      }
+    }
+
     public static bool DEBUG_MONGO = false;
     public static bool DEBUG_ODATA = false;
     public static string EmployeeKeyName = "EmployeeID";

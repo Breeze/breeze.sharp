@@ -61,6 +61,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EdmundsTests.cs" />
     <Compile Include="MetadataByHandTests.cs" />
     <Compile Include="InheritanceBillingTests.cs">
       <SubType>Code</SubType>
@@ -90,6 +91,10 @@
       <Project>{54b1ce10-2847-4565-839a-26da3a51af38}</Project>
       <Name>Breeze.Sharp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Model.Edmunds\Model.Edmunds.csproj">
+      <Project>{c365d56f-1bd4-4d6c-88ef-84f78de9243d}</Project>
+      <Name>Model.Edmunds</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model.Inheritance.Billing.Sharp\Model.Inheritance.Billing.Sharp.csproj">
       <Project>{58b41cc6-8d34-40c4-9342-db55ae6cca02}</Project>
       <Name>Model.Inheritance.Billing.Sharp</Name>
@@ -98,9 +103,9 @@
       <Project>{73c7f5c5-53ee-4f8c-af80-2fd74a9cf553}</Project>
       <Name>Model.Inheritance.Produce.Sharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model.Northwind.Sharp\Model_Northwind.Sharp.csproj">
+    <ProjectReference Include="..\Model.Northwind.Sharp\Model.Northwind.Sharp.csproj">
       <Project>{e357f17b-6a21-4682-b7c8-3ebfebf862f3}</Project>
-      <Name>Model_Northwind.Sharp</Name>
+      <Name>Model.Northwind.Sharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

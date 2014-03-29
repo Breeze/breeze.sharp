@@ -170,12 +170,13 @@ namespace Breeze.Sharp {
         var metadata = await dataService.GetAsync("Metadata");
         dataService.ServerMetadata = metadata;
         AddDataService(dataService);
-        
+
         var metadataProcessor = new CsdlMetadataProcessor();
         metadataProcessor.ProcessMetadata(this, metadata);
 
         return dataService;
-
+      } catch (Exception e) {
+        throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
       } finally {
         _asyncSemaphore.Release();
       }

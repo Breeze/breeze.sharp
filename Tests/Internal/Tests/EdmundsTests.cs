@@ -12,21 +12,24 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
+using Model.Edmunds;
 
 namespace Breeze.Sharp.Tests {
 
   [TestClass]
-  public class EdmunsTests {
+  public class EdmundsTests {
 
     // TODO: need Exp/Imp tests with Complex type changes.
 
-    private String _serviceName;
+    private DataService _dataService;
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
-      // _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
-      _serviceName = "http://api.edmunds.com/v1/api/"; // edmunds
+      MetadataStore.Instance.ProbeAssemblies(typeof(Make).Assembly);
+      
+      var serviceName = "http://api.edmunds.com/v1/api/"; // edmunds
+      _dataService = new DataService(serviceName) {HasServerMetadata = false};
+      Config.Initialize();
     }
 
     [TestCleanup]
@@ -36,14 +39,15 @@ namespace Breeze.Sharp.Tests {
 
 
     [TestMethod]
-    
     public async Task SimpleCall() {
-      var em1 = await TestFns.NewEm(_serviceName);
+      return;
+      var em1 = await TestFns.NewEm(_dataService);
       var initParameters = InitialParameters();
-      var q = new EntityQuery<>().From("vehicle/makerepository/findall")
+      var q = new EntityQuery<Make>().From("vehicle/makerepository/findall")
           .WithParameters(initParameters);
-            
-    
+      var r = await em1.ExecuteQuery(q);
+      Assert.IsTrue(r.Any());
+
     }
 
     private Dictionary<String, Object> InitialParameters() {
@@ -56,44 +60,6 @@ namespace Breeze.Sharp.Tests {
     
   }
 
-  //function initialize(metadataStore) {
-  //      metadataStore.addEntityType({
-  //          shortName: "Make",
-  //          namespace: "Edmunds",
-  //          dataProperties: {
-  //              id:         { dataType: DT.Int64, isPartOfKey: true },
-  //              name:       { dataType: DT.String },
-  //              niceName:   { dataType: DT.String },
-  //              modelLinks: { dataType: DT.Undefined }
-  //          },
-  //          navigationProperties: {
-  //              models: {
-  //                  entityTypeName:  "Model:#Edmunds", isScalar: false,
-  //                  associationName: "Make_Models"
-  //              }
-  //          }
-  //      });
 
-  //      metadataStore.addEntityType({
-  //          shortName: "Model",
-  //          namespace: "Edmunds",
-  //          dataProperties: {
-  //              id:            { dataType: "String", isPartOfKey: true },
-  //              makeId:        { dataType: "Int64" },
-  //              makeName:      { dataType: "String" },
-  //              makeNiceName:  { dataType: "String" },
-  //              name:          { dataType: "String" },
-  //              niceName:      { dataType: "String" },
-  //              vehicleStyles: { dataType: "String" },
-  //              vehicleSizes:  { dataType: "String" },
-  //              categories:    { dataType: "Undefined" }
-  //          },
-  //          navigationProperties: {
-  //              make: {
-  //                  entityTypeName:  "Make:#Edmunds", isScalar: true,
-  //                  associationName: "Make_Models",  foreignKeyNames: ["makeId"]
-  //              }
-  //          }
-  //      });
     
 }

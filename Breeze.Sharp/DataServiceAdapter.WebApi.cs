@@ -127,12 +127,17 @@ namespace Breeze.Sharp {
         if (prop == null) return null;
         var entityNodes = (JArray)prop.Value;
         var serializer = new JsonSerializer();
-        var jsonConverter = new JsonEntityConverter(entityManager, MergeStrategy.OverwriteChanges, LoadingOperation.Save);
+        var mappingContext = new MappingContext() {
+          EntityManager = entityManager,
+          MergeStrategy = MergeStrategy.OverwriteChanges,
+          LoadingOperation = LoadingOperation.Save
+        };
+        var jsonConverter = new JsonEntityConverter(mappingContext);
         serializer.Converters.Add(jsonConverter);
         // Don't use the result of the Deserialize call to get the list of entities 
         // because it won't include entities added on the server.
         serializer.Deserialize<IEnumerable<IEntity>>(entityNodes.CreateReader());
-        var allEntities = jsonConverter.AllEntities;
+        var allEntities = mappingContext.Entities;
         allEntities.ForEach(e => e.EntityAspect.AcceptChanges());
         return new SaveResult(allEntities, keyMappings);
       }
