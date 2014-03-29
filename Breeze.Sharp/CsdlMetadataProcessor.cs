@@ -56,8 +56,7 @@ namespace Breeze.Sharp {
     private NamingConvention NamingConvention {
       get { return MetadataStore.Instance.NamingConvention; }
     }
-
-
+    
     private EntityType ParseCsdlEntityType(JObject csdlEntityType) {
       var abstractVal = (String)csdlEntityType["abstract"];
       var baseTypeVal = (String)csdlEntityType["baseType"];
@@ -157,10 +156,8 @@ namespace Breeze.Sharp {
       var concurrencyMode = concurrencyModeVal == "fixed" ? ConcurrencyMode.Fixed : ConcurrencyMode.None;
 
       var dpName = MetadataStore.Instance.NamingConvention.ServerPropertyNameToClient(nameVal);
-      var dp = parentType.GetDataProperty(dpName);
-      if (dp == null) {
-        throw new Exception("Unable to locate a DataProperty named: " + dpName + " on the EntityType: " + parentType.Name);
-      }
+      var dp = GetDataProperty(parentType, dpName);
+
       dp.Check(dp.DataType, dataType, "DataType");
       dp.Check(dp.IsScalar, true, "IsScalar");
 
@@ -186,10 +183,32 @@ namespace Breeze.Sharp {
       // can't set the name until we go thru namingConventions and these need the dp.
       var nameOnServer = (String)csdlProperty["name"];
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
-      var dp = parentType.GetDataProperty(name);
+      var dp = GetDataProperty(parentType, name);
 
+      if (!dp.IsComplexProperty) {
+        var msg = "Metadata mismatch - " + parentType.FormatDpName(name) +
+                  " is defined as a ComplexProperty on the server but not on the client";
+        MetadataStore.Instance.AddMessage(msg, MessageType.Error);;
+      }
       dp.Check(dp.ComplexType.Name, complexTypeName, "ComplexTypeName");
+      return dp;
+    }
 
+    private DataProperty GetDataProperty(StructuralType parentType, String propertyName) {
+      var dp = parentType.GetDataProperty(propertyName);
+      if (dp == null) {
+        var msg = "Metadata mismatch - Unable to locate a " + parentType.FormatDpName(propertyName);
+        MetadataStore.Instance.AddMessage(msg, MessageType.Error);
+      }
+      return dp;
+    }
+
+    private NavigationProperty GetNavigationProperty(EntityType entityType, String propertyName) {
+      var dp = entityType.GetNavigationProperty(propertyName);
+      if (dp == null) {
+        var msg = "Metadata mismatch - Unable to locate a " + entityType.FormatNpName(propertyName);
+        MetadataStore.Instance.AddMessage(msg, MessageType.Error);
+      }
       return dp;
     }
 
@@ -215,7 +234,7 @@ namespace Breeze.Sharp {
       }
       
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
-      var np = parentType.GetNavigationProperty(name);
+      var np = GetNavigationProperty(parentType, name);
 
       np.Check(np.EntityType.Name, dataEtName, "EntityTypeName");
       np.Check(np.IsScalar, isScalar, "IsScalar");
@@ -233,9 +252,7 @@ namespace Breeze.Sharp {
         np.SetFkNames(fkNames, true);
       }
 
-
       return np;
-
     }
 
     private JObject GetAssociation(JObject csdlNavProperty) {
@@ -358,8 +375,6 @@ namespace Breeze.Sharp {
     private String _namespace;
     private MetadataStore _metadataStore;
     private Dictionary<String, String> _cSpaceOSpaceMap;
-
-
 
 
   }

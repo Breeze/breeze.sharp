@@ -72,8 +72,25 @@ namespace Breeze.Sharp {
       } 
     }
 
-    public IEnumerable<Exception> Errors {
-      get { return _errors.ToList(); }
+    internal void AddMessage(String message, MessageType messageType) {
+      lock (_lock) {
+        _messages.Add(new Message() { Text = message, MessageType = messageType });
+        if (messageType == MessageType.Error) {
+          throw new Exception(message);
+        }
+      }
+    }
+
+    public IEnumerable<String> GetWarnings() {
+      lock (_lock) {
+        return _messages.ToList().Where(m => m.MessageType == MessageType.Error).Select(m => m.Text);
+      }
+    }
+
+    public IEnumerable<String> GetErrors() {
+      lock (_lock) {
+        return _messages.ToList().Where(m => m.MessageType == MessageType.Error).Select(m => m.Text);
+      }
     }
 
     #endregion
@@ -405,8 +422,7 @@ namespace Breeze.Sharp {
       var vrName = jNode.Get<String>("name");
       Type vrType;
       if (!_validatorMap.TryGetValue(vrName, out vrType)) {
-        var e = new Exception("Unable to create a validator for " + vrName);
-        _errors.Add(e);
+        AddMessage("Unable to create a validator for " + vrName, MessageType.Warning);
         return null;
       }
       // Deserialize the object
@@ -554,9 +570,10 @@ namespace Breeze.Sharp {
     // validator related. - both locked using _validatorMap
     private readonly Dictionary<String, Type> _validatorMap = new Dictionary<string, Type>();
     private readonly Dictionary<JNode, Validator> _validatorJNodeCache = new Dictionary<JNode, Validator>();
-    
 
-    private readonly List<Exception> _errors = new List<Exception>();
+
+    private readonly List<Message> _messages = new List<Message>();
+
 
     #endregion
 
@@ -584,8 +601,17 @@ namespace Breeze.Sharp {
     #endregion
   }
 
+  internal class Message {
+    public MessageType MessageType { get; set; }
+    public String Text { get; set; }
+  }
 
 
+  internal enum MessageType {
+    Message = 0,
+    Warning = 1,
+    Error = 2
+  }
 
 
 

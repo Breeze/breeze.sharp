@@ -127,7 +127,15 @@ namespace Breeze.Sharp {
       UpdateCollection( _unmappedProperties, dp, dp.IsUnmapped);
     }
 
+    internal String FormatDpName(String propertyName) {
+      var typeLabel = this.IsEntityType ? "EntityType" : "ComplexType";
+      return String.Format("Data Property: '{0}' on the {1}: '{2}'", propertyName, typeLabel, this.Name);
+    }
 
+    internal String FormatNpName(String propertyName) {
+      return String.Format("Navigation Property: '{0}' on the EntityType: '{1}'", propertyName, this.Name);
+    }
+    
     protected void UpdateCollection(SafeList<DataProperty> list, DataProperty dp, bool add) {
       var isSet = list.Contains(dp);
       if (add) {

@@ -210,7 +210,7 @@ namespace Breeze.Sharp {
         //tcs.SetResult(query.ExecuteLocally());
         //return tcs.Task;
       }
-      var dataService = query.DataService != null ? query.DataService : this.DefaultDataService;
+      var dataService = query.DataService ?? this.DefaultDataService;
       await FetchMetadata(dataService);
       CheckAuthorizedThreadId();
       var resourcePath = query.GetResourcePath();
@@ -255,6 +255,9 @@ namespace Breeze.Sharp {
       } else {
         entitiesToSave =
           entities.Where(e => !e.EntityAspect.IsDetached && e.EntityAspect.EntityManager == this).ToList();
+      }
+      if (entitiesToSave.Count == 0) {
+        return SaveResult.Empty;
       }
 
       if ((this.ValidationOptions.ValidationApplicability & ValidationApplicability.OnSave) > 0) {

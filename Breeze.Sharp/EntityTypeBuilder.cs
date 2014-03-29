@@ -103,7 +103,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    protected static DataProperty CreateDataProperty(StructuralType structuralType, PropertyInfo pInfo) {
+    private static DataProperty CreateDataProperty(StructuralType structuralType, PropertyInfo pInfo) {
       var propType = pInfo.PropertyType;
       var dp = new DataProperty(pInfo.Name);
 
@@ -123,7 +123,7 @@ namespace Breeze.Sharp {
       return dp;
     }
 
-    protected static NavigationProperty CreateNavigationProperty(EntityType entityType, PropertyInfo pInfo ) {
+    private static NavigationProperty CreateNavigationProperty(EntityType entityType, PropertyInfo pInfo ) {
       Type targetType;
       bool isScalar;
       if (pInfo.PropertyType.GenericTypeArguments.Any()) {
@@ -154,13 +154,18 @@ namespace Breeze.Sharp {
   public class EntityTypeBuilder<TEntity> : StructuralTypeBuilder where TEntity:IEntity  {
 
     // TODO: also need a ComplexTypeBuilder;
-    public EntityTypeBuilder() {
+    public EntityTypeBuilder(bool checkOnly = false) {
       EntityType = GetEntityType(typeof (TEntity));
+      CheckOnly = checkOnly;
     }
 
     public EntityType EntityType {
       get;
       protected set;
+    }
+
+    public bool CheckOnly {
+      get; set;
     }
 
     /// <summary>
@@ -174,8 +179,8 @@ namespace Breeze.Sharp {
       var pInfo = GetPropertyInfo(propExpr);
       var dp = EntityType.GetDataProperty(pInfo.Name);
       if (dp == null) {
-        dp = CreateDataProperty(EntityType, pInfo);
-      } 
+        throw new ArgumentException("Unable to locate a DataProperty named: " + pInfo.Name);
+      }
       return new DataPropertyBuilder(dp);
     }
 
@@ -195,7 +200,7 @@ namespace Breeze.Sharp {
     private NavigationPropertyBuilder<TEntity, TTarget> GetNavPropBuilder<TTarget>(PropertyInfo pInfo) where TTarget : IEntity {
       var np = EntityType.GetNavigationProperty(pInfo.Name);
       if (np == null) {
-        np = CreateNavigationProperty(EntityType, pInfo);
+        throw new ArgumentException("Unable to locate a NavigationProperty named: " + pInfo.Name);
       }
       return new NavigationPropertyBuilder<TEntity, TTarget>(this, np);
     }
@@ -216,14 +221,15 @@ namespace Breeze.Sharp {
   }
 
   public class DataPropertyBuilder {
-    public DataPropertyBuilder(DataProperty dp) {
+    public DataPropertyBuilder(DataProperty dp ) {
       DataProperty = dp;
     }
-
+    
     public DataPropertyBuilder IsNullable() {
       DataProperty.IsNullable = true;
       return this;
     }
+
     public DataPropertyBuilder IsRequired() {
       DataProperty.IsNullable = false;
       return this;
@@ -251,11 +257,6 @@ namespace Breeze.Sharp {
 
     public DataPropertyBuilder MaxLength(int? maxLength) {
       DataProperty.MaxLength = maxLength;
-      return this;
-    }
-
-    public DataPropertyBuilder IsScalar(bool isScalar) {
-      DataProperty.IsScalar = isScalar;
       return this;
     }
 

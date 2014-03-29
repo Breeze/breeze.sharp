@@ -64,9 +64,14 @@ namespace Breeze.Sharp {
     internal void Check(Object v1, Object v2, String name) {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
-      throw new Exception("StructuralType metadata mismatch. StructuralType: "  + this.ParentType.Name 
-        + ".  StructuralProperty: " + this.Name 
-        + ".  Property: " + name);
+      var msg = "Metadata mismatch - values do not match between server and client for " + FormatName() + " Metadata property: " + name;
+      MetadataStore.Instance.AddMessage(msg, MessageType.Error);
+    }
+
+    internal String FormatName() {
+      var typeLabel = this.ParentType.IsEntityType ? "EntityType" : "ComplexType";
+      var propLabel = this.IsDataProperty ? "DataProperty" : "NavigationProperty";
+      return String.Format("{0}: '{1}' on the {2}: '{3}'", propLabel, this.Name, typeLabel, this.ParentType.Name);
     }
 
     private void UpdateClientServerNames() {

@@ -1,4 +1,5 @@
-﻿using Breeze.Sharp.Core;
+﻿using System.Linq;
+using Breeze.Sharp.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -25,6 +26,8 @@ namespace Breeze.Sharp {
 
     private SafeList<IEntity> _savedEntities;
     private SafeDictionary<EntityKey, EntityKey> _keyMappings;
+
+    public static SaveResult Empty = new SaveResult(Enumerable.Empty<IEntity>(), new Dictionary<EntityKey, EntityKey>() );
     
   }
 

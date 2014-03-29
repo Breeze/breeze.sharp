@@ -68,7 +68,9 @@ namespace Breeze.Sharp {
     internal void Check(Object v1, Object v2, String name) {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
-      throw new Exception("EntityType metadata mismatch. EntityType: " + this.Name + ".  Metadata property: " + name);
+      var msg = String.Format("EntityType) metadata mismatch. EntityType: '{0}'.  Metadata property: '{1}'.  Client value: '{2}',  Server value: '{3}'",
+        this.Name, name, (v1 ?? "").ToString(), (v2 ?? "").ToString());
+      MetadataStore.Instance.AddMessage(msg, MessageType.Error);
     }
 
     #region Public properties
@@ -161,7 +163,9 @@ namespace Breeze.Sharp {
       return _navigationProperties[npName];
     }
 
-
+    public override string ToString() {
+      return this.Name;
+    }
 
     #endregion
 
@@ -175,6 +179,11 @@ namespace Breeze.Sharp {
     }
 
     internal override DataProperty AddDataProperty(DataProperty dp) {
+      var altDp = GetDataProperty(dp.Name);
+      if (altDp != null) {
+        // this can happen if subtype overrides base type property.
+        return altDp;
+      }
       base.AddDataProperty(dp);
       if (dp.IsPartOfKey) _keyProperties.Add(dp);
       if (dp.IsConcurrencyProperty) _concurrencyProperties.Add(dp);

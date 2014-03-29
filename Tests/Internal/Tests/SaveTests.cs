@@ -35,6 +35,14 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task SaveNoChanges() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var sr1 = await em1.SaveChanges();
+      Assert.IsTrue(sr1.Entities.Count == 0);
+    }
+
+    [TestMethod]
     public async Task HasChangesChangedAfterSave() {
       var em1 = await TestFns.NewEm(_serviceName);
 
