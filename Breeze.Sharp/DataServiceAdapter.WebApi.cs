@@ -1,4 +1,5 @@
 ﻿using Breeze.Sharp.Core;
+using Microsoft.Data.OData;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,12 +17,16 @@ namespace Breeze.Sharp {
       get { return "WebApi"; }
     }
 
+    public IJsonResultsAdapter JsonResultsAdapter {
+      get { return WebApiJsonResultsAdapter.Instance; }
+    }
+
     public async Task<SaveResult> SaveChanges(IEnumerable<IEntity> entitiesToSave, SaveOptions saveOptions) {
       var entityManager = entitiesToSave.First().EntityAspect.EntityManager;
       var saveBundleNode = PrepareSaveBundle(entitiesToSave, saveOptions);
       try {
         var saveResultJson = await saveOptions.DataService.PostAsync(saveOptions.ResourceName, saveBundleNode.Serialize());
-        return ProcessSaveResult(entityManager, saveResultJson);
+        return ProcessSaveResult(entityManager, saveOptions, saveResultJson);
       } catch (HttpRequestException e) {
         throw SaveException.Parse(entityManager, e.Message);
       }
@@ -110,7 +115,7 @@ namespace Breeze.Sharp {
 
     #region Save results processing
 
-    private SaveResult ProcessSaveResult(EntityManager entityManager, string saveResultJson) {
+    private SaveResult ProcessSaveResult(EntityManager entityManager, SaveOptions saveOptions, string saveResultJson) {
 
       var jo = JObject.Parse(saveResultJson);
 
@@ -130,7 +135,8 @@ namespace Breeze.Sharp {
         var mappingContext = new MappingContext() {
           EntityManager = entityManager,
           MergeStrategy = MergeStrategy.OverwriteChanges,
-          LoadingOperation = LoadingOperation.Save
+          LoadingOperation = LoadingOperation.Save,
+          JsonResultsAdapter = saveOptions.DataService.JsonResultsAdapter
         };
         var jsonConverter = new JsonEntityConverter(mappingContext);
         serializer.Converters.Add(jsonConverter);
@@ -157,12 +163,49 @@ namespace Breeze.Sharp {
     #endregion
   }
 
-
   public class KeyMapping {
     public String EntityTypeName;
     public Object TempValue;
     public Object RealValue;
   }
+
+  public class WebApiJsonResultsAdapter : IJsonResultsAdapter {
+
+    public static WebApiJsonResultsAdapter Instance = new WebApiJsonResultsAdapter();
+
+    public string Name {
+      get { return "WebApiDefault"; }
+    }
+
+    public JToken ExtractResults(JToken node) {
+      return node;
+    }
+
+    public JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, VisitContext nodeContext) {
+      var result = new JsonNodeInfo();
+
+      JToken refToken;
+      if (node.TryGetValue("$ref", out refToken)) {
+        result.NodeRefId = refToken.Value<String>();
+        return result;
+      }
+
+      JToken idToken;
+      if (node.TryGetValue("$id", out idToken)) {
+        result.NodeId = idToken.Value<String>();
+      }
+
+      JToken typeToken;
+      if (node.TryGetValue("$type", out typeToken)) {
+        var clrTypeName = typeToken.Value<String>();
+        result.ServerTypeNameInfo = TypeNameInfo.FromClrTypeName(clrTypeName);
+      }
+
+      return result;
+    }
+  }
+
+  
 
 
  

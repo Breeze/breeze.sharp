@@ -11,6 +11,7 @@ namespace Breeze.Sharp {
   /// </summary>
   public interface IDataServiceAdapter {
     String Name { get; }
+    IJsonResultsAdapter JsonResultsAdapter { get;  }
     Task<SaveResult> SaveChanges(IEnumerable<IEntity> entitiesToSave, SaveOptions saveOptions);
   }
 }

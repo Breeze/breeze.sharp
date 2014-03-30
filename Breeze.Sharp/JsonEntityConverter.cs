@@ -20,9 +20,18 @@ namespace Breeze.Sharp {
     public EntityManager EntityManager;
     public MergeStrategy MergeStrategy;
     public LoadingOperation LoadingOperation;
+    public IJsonResultsAdapter JsonResultsAdapter;
     // AllEntities is a list of all deserialized entities not just the top level ones.
     public List<IEntity> Entities { get; private set; }
     public Dictionary<String, Object> RefMap { get; private set; }
+  }
+
+  public class NodeContext {
+    public JObject Node;
+    public JsonNodeInfo NodeInfo;
+    public Type ObjectType;
+    public StructuralType StructuralType;
+    public JsonSerializer Serializer;
   }
 
   public enum LoadingOperation {
@@ -31,6 +40,8 @@ namespace Breeze.Sharp {
     // Import - not yet needed
     // Attach - not yet needed
   }
+
+  
 
   public class JsonEntityConverter : JsonConverter {
   
@@ -43,11 +54,11 @@ namespace Breeze.Sharp {
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       if (reader.TokenType != JsonToken.Null) {
         // Load JObject from stream
-        var jObject = JObject.Load(reader);
+        var node = JObject.Load(reader);
 
-        var jsonContext = new JsonContext { JObject = jObject, ObjectType = objectType, Serializer = serializer };
+        var nodeContext = new NodeContext { Node = node, ObjectType = objectType, Serializer = serializer };
         // Create target object based on JObject
-        var target = CreateAndPopulate( jsonContext);
+        var target = CreateAndPopulate( nodeContext);
         return target;
       } else {
         return null;
@@ -63,36 +74,37 @@ namespace Breeze.Sharp {
     }
 
 
-    protected virtual Object CreateAndPopulate(JsonContext jsonContext) {
-      var jObject = jsonContext.JObject;
+    protected virtual Object CreateAndPopulate(NodeContext nodeContext) {
+      var node = nodeContext.Node;
 
-      JToken refToken = null;
-      if (jObject.TryGetValue("$ref", out refToken)) {
-        return _mappingContext.RefMap[refToken.Value<String>()];
+      var nodeInfo = _mappingContext.JsonResultsAdapter.VisitNode(node, _mappingContext, new VisitContext());
+      if (nodeInfo.Ignore) return null;
+
+      node = nodeInfo.Node ?? node;      
+
+      if (nodeInfo.NodeRefId != null) {
+        return _mappingContext.RefMap[nodeInfo.NodeRefId];
       }
 
       EntityType entityType;
       Type objectType;
-      JToken typeToken = null;
-      if (jObject.TryGetValue("$type", out typeToken)) {
-        var clrTypeName = typeToken.Value<String>();
-        var serverTypeInfo = TypeNameInfo.FromClrTypeName(clrTypeName);
-        var clientEntityTypeName = serverTypeInfo.ToClient().Name; 
+      if (nodeInfo.ServerTypeNameInfo != null) { 
+        var clientEntityTypeName = nodeInfo.ServerTypeNameInfo.ToClient().Name; 
         entityType = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
         objectType = entityType.ClrType;
-        if (!jsonContext.ObjectType.IsAssignableFrom(objectType)) {
-          throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " + jsonContext.ObjectType.Name);
+        if (!nodeContext.ObjectType.IsAssignableFrom(objectType)) {
+          throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " + nodeContext.ObjectType.Name);
         }
-        jsonContext.ObjectType = objectType;
+        nodeContext.ObjectType = objectType;
       } else {
-        objectType = jsonContext.ObjectType;
+        objectType = nodeContext.ObjectType;
         entityType =  MetadataStore.Instance.GetEntityType(objectType);
       }
 
       // an entity type
-      jsonContext.StructuralType = entityType;
+      nodeContext.StructuralType = entityType;
       var keyValues = entityType.KeyProperties
-        .Select(p => jObject[p.Name].ToObject(p.ClrType))
+        .Select(p => node[p.Name].ToObject(p.ClrType))
         .ToArray();
       var entityKey = EntityKey.Create(entityType, keyValues);
       var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
@@ -100,37 +112,34 @@ namespace Breeze.Sharp {
         entity = (IEntity)Activator.CreateInstance(objectType);
       }
       // must be called before populate
-      UpdateRefMap(jObject, entity);
-      _mappingContext.Entities.Add(entity);
-      return PopulateEntity(jsonContext, entity);
-
-    }
-
-    private void UpdateRefMap(JObject jObject, Object target) {
-      JToken idToken = null;
-      if (jObject.TryGetValue("$id", out idToken)) {
-        _mappingContext.RefMap[idToken.Value<String>()] = target;
+      if (nodeInfo.NodeId != null) {
+        _mappingContext.RefMap[nodeInfo.NodeId] = entity;
       }
+      
+      _mappingContext.Entities.Add(entity);
+      return PopulateEntity(nodeContext, entity);
+
     }
 
-    protected virtual Object PopulateEntity(JsonContext jsonContext, IEntity entity) {
+
+    protected virtual Object PopulateEntity(NodeContext nodeContext, IEntity entity) {
       
       var aspect = entity.EntityAspect;
       if (aspect.EntityManager == null) {
         // new to this entityManager
-        ParseObject(jsonContext, aspect);
+        ParseObject(nodeContext, aspect);
         aspect.Initialize();
         // TODO: This is a nit.  Wierd case where a save adds a new entity will show up with
         // a AttachOnQuery operation instead of AttachOnSave
-        _mappingContext.EntityManager.AttachQueriedEntity(entity, (EntityType) jsonContext.StructuralType);
+        _mappingContext.EntityManager.AttachQueriedEntity(entity, (EntityType) nodeContext.StructuralType);
       } else if (_mappingContext.MergeStrategy == MergeStrategy.OverwriteChanges || aspect.EntityState == EntityState.Unchanged) {
         // overwrite existing entityManager
-        ParseObject(jsonContext, aspect);
+        ParseObject(nodeContext, aspect);
         aspect.Initialize();
         aspect.OnEntityChanged(_mappingContext.LoadingOperation == LoadingOperation.Query ? EntityAction.MergeOnQuery : EntityAction.MergeOnSave);
       } else {
         // preserveChanges handling - we still want to handle expands.
-        ParseObject(jsonContext, null );
+        ParseObject(nodeContext, null );
       }
 
       return entity;
@@ -139,11 +148,11 @@ namespace Breeze.Sharp {
     
 
 
-    private void ParseObject(JsonContext jsonContext, EntityAspect targetAspect) {
+    private void ParseObject(NodeContext nodeContext, EntityAspect targetAspect) {
       // backingStore will be null if not allowed to overwrite the entity.
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
-      var dict = (IDictionary<String, JToken>) jsonContext.JObject;
-      var structuralType = jsonContext.StructuralType;
+      var dict = (IDictionary<String, JToken>) nodeContext.Node;
+      var structuralType = nodeContext.StructuralType;
       dict.ForEach(kvp => {
         var key = kvp.Key;
         var prop = structuralType.GetProperty(key);
@@ -167,10 +176,10 @@ namespace Breeze.Sharp {
             var np = (NavigationProperty)prop;
             
             if (kvp.Value.HasValues) {
-              JsonContext newContext;
+              NodeContext newContext;
               if (np.IsScalar) {
                 var nestedOb = (JObject)kvp.Value;
-                newContext = new JsonContext() { JObject = nestedOb, ObjectType = prop.ClrType, Serializer = jsonContext.Serializer }; 
+                newContext = new NodeContext() { Node = nestedOb, ObjectType = prop.ClrType, Serializer = nodeContext.Serializer }; 
                 var entity = (IEntity)CreateAndPopulate(newContext);
                 if (backingStore != null) backingStore[key] = entity;
               } else {
@@ -178,7 +187,7 @@ namespace Breeze.Sharp {
                 var navSet = (INavigationSet) TypeFns.CreateGenericInstance(typeof(NavigationSet<>), prop.ClrType);
                 
                 nestedArray.Cast<JObject>().ForEach(jo => {
-                  newContext = new JsonContext() { JObject=jo, ObjectType = prop.ClrType, Serializer = jsonContext.Serializer };
+                  newContext = new NodeContext() { Node=jo, ObjectType = prop.ClrType, Serializer = nodeContext.Serializer };
                   var entity = (IEntity)CreateAndPopulate(newContext);
                   navSet.Add(entity);
                 });
@@ -209,12 +218,7 @@ namespace Breeze.Sharp {
       
     }
 
-    protected class JsonContext {
-      public JObject JObject;
-      public Type ObjectType;
-      public StructuralType StructuralType;
-      public JsonSerializer Serializer;
-    }
+  
 
     private MappingContext _mappingContext;
   }

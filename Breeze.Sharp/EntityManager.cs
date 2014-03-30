@@ -241,7 +241,8 @@ namespace Breeze.Sharp {
       var mappingContext = new MappingContext() {
         EntityManager = this,
         MergeStrategy = mergeStrategy.Value,
-        LoadingOperation = LoadingOperation.Query
+        LoadingOperation = LoadingOperation.Query,
+        JsonResultsAdapter = dataService.JsonResultsAdapter
       };
       // cannot reuse a jsonConverter - internal mappingContext is one instance/query
       var jsonConverter = new JsonEntityConverter(mappingContext);

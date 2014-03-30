@@ -32,6 +32,7 @@ namespace Breeze.Sharp {
       HasServerMetadata = true;
       UseJsonP = false;
       Adapter = new WebApiDataServiceAdapter();
+      JsonResultsAdapter = Adapter.JsonResultsAdapter;
       InitializeHttpClient();
     }
 
@@ -45,6 +46,8 @@ namespace Breeze.Sharp {
       
       UseJsonP = jNode.Get<bool>("useJsonp");
       Adapter = GetAdapter(jNode.Get<String>("adapterName"));
+      // TODO: need to do the same as above with JsonResultsAdapter.
+      JsonResultsAdapter = Adapter.JsonResultsAdapter;
       InitializeHttpClient();
     }
 
