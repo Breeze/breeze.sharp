@@ -23,15 +23,19 @@ namespace Breeze.Sharp {
     public IJsonResultsAdapter JsonResultsAdapter;
     // AllEntities is a list of all deserialized entities not just the top level ones.
     public List<IEntity> Entities { get; private set; }
+    public JsonSerializer Serializer { get; internal set; }
     public Dictionary<String, Object> RefMap { get; private set; }
+
+    public JsonNodeInfo VisitNode(NodeContext nodeContext) {
+      return JsonResultsAdapter.VisitNode(nodeContext.Node, this, nodeContext);
+    }
   }
 
   public class NodeContext {
     public JObject Node;
-    public JsonNodeInfo NodeInfo;
     public Type ObjectType;
     public StructuralType StructuralType;
-    public JsonSerializer Serializer;
+    public StructuralProperty StructuralProperty;
   }
 
   public enum LoadingOperation {
@@ -56,7 +60,7 @@ namespace Breeze.Sharp {
         // Load JObject from stream
         var node = JObject.Load(reader);
 
-        var nodeContext = new NodeContext { Node = node, ObjectType = objectType, Serializer = serializer };
+        var nodeContext = new NodeContext { Node = node, ObjectType = objectType };
         // Create target object based on JObject
         var target = CreateAndPopulate( nodeContext);
         return target;
@@ -73,14 +77,13 @@ namespace Breeze.Sharp {
       return MetadataStore.IsStructuralType(objectType);
     }
 
-
     protected virtual Object CreateAndPopulate(NodeContext nodeContext) {
       var node = nodeContext.Node;
 
-      var nodeInfo = _mappingContext.JsonResultsAdapter.VisitNode(node, _mappingContext, new VisitContext());
+      var nodeInfo = _mappingContext.VisitNode(nodeContext);
       if (nodeInfo.Ignore) return null;
 
-      node = nodeInfo.Node ?? node;      
+      node = nodeInfo.Node ?? node;
 
       if (nodeInfo.NodeRefId != null) {
         return _mappingContext.RefMap[nodeInfo.NodeRefId];
@@ -88,17 +91,19 @@ namespace Breeze.Sharp {
 
       EntityType entityType;
       Type objectType;
-      if (nodeInfo.ServerTypeNameInfo != null) { 
-        var clientEntityTypeName = nodeInfo.ServerTypeNameInfo.ToClient().Name; 
+      if (nodeInfo.ServerTypeNameInfo != null) {
+        var clientEntityTypeName = nodeInfo.ServerTypeNameInfo.ToClient().Name;
         entityType = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
         objectType = entityType.ClrType;
         if (!nodeContext.ObjectType.IsAssignableFrom(objectType)) {
-          throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " + nodeContext.ObjectType.Name);
+          throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " +
+                              nodeContext.ObjectType.Name);
         }
         nodeContext.ObjectType = objectType;
-      } else {
+      }
+      else {
         objectType = nodeContext.ObjectType;
-        entityType =  MetadataStore.Instance.GetEntityType(objectType);
+        entityType = MetadataStore.Instance.GetEntityType(objectType);
       }
 
       // an entity type
@@ -109,16 +114,15 @@ namespace Breeze.Sharp {
       var entityKey = EntityKey.Create(entityType, keyValues);
       var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
       if (entity == null) {
-        entity = (IEntity)Activator.CreateInstance(objectType);
+        entity = (IEntity) Activator.CreateInstance(objectType);
       }
       // must be called before populate
       if (nodeInfo.NodeId != null) {
         _mappingContext.RefMap[nodeInfo.NodeId] = entity;
       }
-      
+
       _mappingContext.Entities.Add(entity);
       return PopulateEntity(nodeContext, entity);
-
     }
 
 
@@ -179,7 +183,7 @@ namespace Breeze.Sharp {
               NodeContext newContext;
               if (np.IsScalar) {
                 var nestedOb = (JObject)kvp.Value;
-                newContext = new NodeContext() { Node = nestedOb, ObjectType = prop.ClrType, Serializer = nodeContext.Serializer }; 
+                newContext = new NodeContext() { Node = nestedOb, ObjectType = prop.ClrType, StructuralProperty = np}; 
                 var entity = (IEntity)CreateAndPopulate(newContext);
                 if (backingStore != null) backingStore[key] = entity;
               } else {
@@ -187,7 +191,7 @@ namespace Breeze.Sharp {
                 var navSet = (INavigationSet) TypeFns.CreateGenericInstance(typeof(NavigationSet<>), prop.ClrType);
                 
                 nestedArray.Cast<JObject>().ForEach(jo => {
-                  newContext = new NodeContext() { Node=jo, ObjectType = prop.ClrType, Serializer = nodeContext.Serializer };
+                  newContext = new NodeContext() { Node=jo, ObjectType = prop.ClrType, StructuralProperty = np};
                   var entity = (IEntity)CreateAndPopulate(newContext);
                   navSet.Add(entity);
                 });

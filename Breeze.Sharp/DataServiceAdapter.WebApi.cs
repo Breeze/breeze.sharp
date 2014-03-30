@@ -181,7 +181,7 @@ namespace Breeze.Sharp {
       return node;
     }
 
-    public JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, VisitContext nodeContext) {
+    public JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, NodeContext nodeContext) {
       var result = new JsonNodeInfo();
 
       JToken refToken;

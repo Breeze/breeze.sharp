@@ -6,9 +6,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Breeze.Sharp {
 
-  public class VisitContext {
-    
-  }
+  
+  
 
   public class JsonNodeInfo {
     public TypeNameInfo ServerTypeNameInfo { get; set; }
@@ -23,6 +22,6 @@ namespace Breeze.Sharp {
   public interface IJsonResultsAdapter {
     String Name { get; }
     JToken ExtractResults(JToken node);
-    JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, VisitContext visitContext);
+    JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, NodeContext visitContext);
   }
 }
