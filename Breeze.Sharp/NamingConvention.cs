@@ -30,7 +30,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    public virtual String ServerPropertyNameToClient(String clientName) {
+    public virtual String ServerPropertyNameToClient(String clientName, StructuralType parentType) {
       return clientName;
     }
 
@@ -44,7 +44,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    public virtual String ClientPropertyNameToServer(String serverName) {
+    public virtual String ClientPropertyNameToServer(String serverName, StructuralType parentType) {
       return serverName;
     }
 
@@ -53,8 +53,8 @@ namespace Breeze.Sharp {
       _serverTypeNamespaceMap[serverNamespace] = clientNamespace;
     }
 
-    public Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
-    public Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
+    private Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
+    private Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
 
 
     public static NamingConvention Default = new NamingConvention("Default");
@@ -66,9 +66,9 @@ namespace Breeze.Sharp {
       }
     }
 
-    public String TestPropertyName(String testVal, bool toServer) {
-      Func<String, String> fn1;
-      Func<String, String> fn2;
+    public String TestPropertyName(String testVal, StructuralType parentType, bool toServer) {
+      Func<String, StructuralType, String> fn1;
+      Func<String, StructuralType, String> fn2;
       if (toServer) {
         fn1 = ClientPropertyNameToServer;
         fn2 = ServerPropertyNameToClient;
@@ -76,8 +76,8 @@ namespace Breeze.Sharp {
         fn1 = ServerPropertyNameToClient;
         fn2 = ClientPropertyNameToServer;
       }
-      var t1 = fn1(testVal);
-      var t2 = fn2(t1);
+      var t1 = fn1(testVal, parentType);
+      var t2 = fn2(t1, parentType);
       if (t2 != testVal) {
         throw new Exception("NamingConvention: " + this.Name + " does not roundtrip the following value correctly: " + testVal);
       }
@@ -90,10 +90,10 @@ namespace Breeze.Sharp {
       : base("CamelCase") {
     }
     
-    public override String ServerPropertyNameToClient(String serverName) {
+    public override String ServerPropertyNameToClient(String serverName, StructuralType parentType) {
       return serverName.Substring(0,1).ToLower() + serverName.Substring(1);
     }
-    public override String ClientPropertyNameToServer(String clientName) {
+    public override String ClientPropertyNameToServer(String clientName, StructuralType parentType) {
       return clientName.Substring(0, 1).ToUpper() + clientName.Substring(1);
     }
   }

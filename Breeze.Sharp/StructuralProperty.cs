@@ -77,9 +77,9 @@ namespace Breeze.Sharp {
     private void UpdateClientServerNames() {
       var nc = MetadataStore.Instance.NamingConvention;
       if (!String.IsNullOrEmpty(Name)) {
-        NameOnServer = nc.TestPropertyName(Name, true);
+        NameOnServer = nc.TestPropertyName(Name, ParentType, true);
       } else {
-        Name = nc.TestPropertyName(NameOnServer, false);
+        Name = nc.TestPropertyName(NameOnServer, ParentType, false);
       }
     }
 

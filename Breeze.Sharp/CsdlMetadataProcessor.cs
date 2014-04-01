@@ -155,7 +155,7 @@ namespace Breeze.Sharp {
       var maxLength = (maxLengthVal == null || maxLengthVal == "Max") ? (Int64?)null : Int64.Parse(maxLengthVal);
       var concurrencyMode = concurrencyModeVal == "fixed" ? ConcurrencyMode.Fixed : ConcurrencyMode.None;
 
-      var dpName = MetadataStore.Instance.NamingConvention.ServerPropertyNameToClient(nameVal);
+      var dpName = NamingConvention.ServerPropertyNameToClient(nameVal, parentType);
       var dp = GetDataProperty(parentType, dpName);
 
       dp.Check(dp.DataType, dataType, "DataType");
@@ -182,7 +182,7 @@ namespace Breeze.Sharp {
       var complexTypeName = GetClientTypeNameFromClrTypeName((String)csdlProperty["type"]);
       // can't set the name until we go thru namingConventions and these need the dp.
       var nameOnServer = (String)csdlProperty["name"];
-      var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
+      var name = NamingConvention.ServerPropertyNameToClient(nameOnServer, parentType);
       var dp = GetDataProperty(parentType, name);
 
       if (!dp.IsComplexProperty) {
@@ -233,7 +233,7 @@ namespace Breeze.Sharp {
         // }
       }
       
-      var name = NamingConvention.ServerPropertyNameToClient(nameOnServer);
+      var name = NamingConvention.ServerPropertyNameToClient(nameOnServer, parentType);
       var np = GetNavigationProperty(parentType, name);
 
       np.Check(np.EntityType.Name, dataEtName, "EntityTypeName");
@@ -246,7 +246,7 @@ namespace Breeze.Sharp {
 
       var propRefs = ToEnumerable(dependent["propertyRef"]);
       var fkNamesOnServer = propRefs.Select(pr => (String)pr["name"]).ToSafeList();
-      var fkNames = fkNamesOnServer.Select(NamingConvention.ServerPropertyNameToClient);
+      var fkNames = fkNamesOnServer.Select(fkn => NamingConvention.ServerPropertyNameToClient(fkn, parentType));
       if (fromRoleVal == (String)principal["role"]) {
         np.SetInvFkNames(fkNames);
       } else {

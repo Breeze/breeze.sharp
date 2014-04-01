@@ -159,7 +159,7 @@ namespace Breeze.Sharp {
       var structuralType = nodeContext.StructuralType;
       var nc = MetadataStore.Instance.NamingConvention;
       dict.ForEach(kvp => {
-        var key = nc.ServerPropertyNameToClient(kvp.Key);
+        var key = nc.ServerPropertyNameToClient(kvp.Key, structuralType);
         var prop = structuralType.GetProperty(key);
         if (prop != null) {         
           if (prop.IsDataProperty) {
