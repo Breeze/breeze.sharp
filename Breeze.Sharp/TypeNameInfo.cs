@@ -67,11 +67,15 @@ namespace Breeze.Sharp {
     }
 
     public static String QualifyTypeName(String shortName, String ns) {
-      return shortName + ":#" + ns;
+      if (String.IsNullOrEmpty(ns)) {
+        return shortName;
+      } else {
+        return shortName + ":#" + ns;
+      }
     }
 
     public static bool IsQualifiedTypeName(String typeName) {
-      return typeName.IndexOf(":#") >= 0;
+      return typeName.IndexOf(":#", StringComparison.Ordinal) >= 0;
     }
 
   }

@@ -245,11 +245,12 @@ namespace Breeze.Sharp {
       var dependent = constraintVal["dependent"];
 
       var propRefs = ToEnumerable(dependent["propertyRef"]);
-      var fkNames = propRefs.Select(pr => (String)pr["name"]).ToSafeList();
+      var fkNamesOnServer = propRefs.Select(pr => (String)pr["name"]).ToSafeList();
+      var fkNames = fkNamesOnServer.Select(NamingConvention.ServerPropertyNameToClient);
       if (fromRoleVal == (String)principal["role"]) {
-        np.SetInvFkNames(fkNames, true);
+        np.SetInvFkNames(fkNames);
       } else {
-        np.SetFkNames(fkNames, true);
+        np.SetFkNames(fkNames);
       }
 
       return np;

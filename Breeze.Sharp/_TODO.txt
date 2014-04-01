@@ -3,7 +3,7 @@
 - Add good message for structuralType not found messages and how to call ProbeAssemblies
 - ProbeAssemblies should default to not searching Breeze.Sharp.
 - ComplexType inheritance. ( missing in Breeze.js as well )
-
+- Think about NamingConvention per DataService instead of one global one.
 - implement JsonResultsAdapter
 
 

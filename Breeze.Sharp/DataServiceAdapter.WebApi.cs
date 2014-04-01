@@ -91,14 +91,14 @@ namespace Breeze.Sharp {
     }
 
     private JNode BuildOriginalValuesMapNode(StructuralAspect aspect, NamingConvention nc) {
-      var ovMap = aspect.OriginalValuesMap.ToDictionary(kvp => nc.ClientPropertyNameToServer(kvp.Key), kvp => kvp.Value);
-      var cps = aspect is EntityAspect 
-        ? ((EntityAspect) aspect).EntityType.ComplexProperties 
-        : ((ComplexAspect) aspect).ComplexType.ComplexProperties;
-        
+      var stType = aspect.StructuralType;
+      var ovMap = aspect.OriginalValuesMap.ToDictionary(
+        kvp => stType.GetProperty(kvp.Key).NameOnServer, 
+        kvp => kvp.Value);      
+      var cps = stType.ComplexProperties;        
       cps.ForEach(cp => {
         var co = aspect.GetValue(cp.Name);
-        var serverName = nc.ClientPropertyNameToServer(cp.Name);
+        var serverName = cp.NameOnServer;
         if (cp.IsScalar) {
           var ovmNode = BuildOriginalValuesMapNode( ((IComplexObject) co).ComplexAspect, nc);
           ovMap[serverName] = ovmNode;

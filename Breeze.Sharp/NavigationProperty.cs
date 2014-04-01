@@ -45,8 +45,8 @@ namespace Breeze.Sharp {
       IsScalar = jNode.Get<bool>("isScalar", true);
       AssociationName = jNode.Get<String>("associationName");
       _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
-      SetFkNames(jNode.GetArray<String>("foreignKeyNames"), false);
-      SetInvFkNames(jNode.GetArray<String>("invForeignKeyNames"), false);
+      SetFkNames(jNode.GetArray<String>("foreignKeyNames"));
+      SetInvFkNames(jNode.GetArray<String>("invForeignKeyNames"));
       // custom
     }
 
@@ -110,20 +110,6 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// /// <summary>
-    /// The server side names of the foreign key DataProperties associated with this NavigationProperty. 
-    /// There will usually only be a single DataProperty associated with a Navigation property
-    /// except in the case of entities with multipart keys.
-    /// </summary>
-    /// </summary>
-    public IList<String> ForeignKeyNamesOnServer {
-      get {
-        var nc = MetadataStore.Instance.NamingConvention;
-        return _fkNames.Select(nc.ClientPropertyNameToServer).ToList();
-      }
-    }
-
-    /// <summary>
     /// 
     /// </summary>
     public ReadOnlyCollection<String> InvForeignKeyNames {
@@ -156,26 +142,11 @@ namespace Breeze.Sharp {
       }
     }
 
-    public IList<String> InvForeignKeyNamesOnServer {
-      get {
-        var nc = MetadataStore.Instance.NamingConvention;
-        return _invFkNames.Select(nc.ClientPropertyNameToServer).ToList();
-      }
-    }
-
-    internal void SetFkNames(IEnumerable<String> fkNames, bool onServer) {
-      if (onServer) {
-        var nc = MetadataStore.Instance.NamingConvention;
-        fkNames = fkNames.Select(nc.ServerPropertyNameToClient);
-      }
+    internal void SetFkNames(IEnumerable<String> fkNames) {
       _fkNames.AddRange(fkNames);
     }
 
-    internal void SetInvFkNames(IEnumerable<String> invFkNames, bool onServer) {
-      if (onServer) {
-        var nc = MetadataStore.Instance.NamingConvention;
-        invFkNames = invFkNames.Select(nc.ServerPropertyNameToClient);
-      }
+    internal void SetInvFkNames(IEnumerable<String> invFkNames) {
       _invFkNames.AddRange(invFkNames);
     }
 

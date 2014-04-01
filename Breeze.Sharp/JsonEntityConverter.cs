@@ -109,7 +109,7 @@ namespace Breeze.Sharp {
       // an entity type
       nodeContext.StructuralType = entityType;
       var keyValues = entityType.KeyProperties
-        .Select(p => node[p.Name].ToObject(p.ClrType))
+        .Select(p => node[p.NameOnServer].ToObject(p.ClrType))
         .ToArray();
       var entityKey = EntityKey.Create(entityType, keyValues);
       var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
@@ -157,8 +157,9 @@ namespace Breeze.Sharp {
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
       var dict = (IDictionary<String, JToken>) nodeContext.Node;
       var structuralType = nodeContext.StructuralType;
+      var nc = MetadataStore.Instance.NamingConvention;
       dict.ForEach(kvp => {
-        var key = kvp.Key;
+        var key = nc.ServerPropertyNameToClient(kvp.Key);
         var prop = structuralType.GetProperty(key);
         if (prop != null) {         
           if (prop.IsDataProperty) {

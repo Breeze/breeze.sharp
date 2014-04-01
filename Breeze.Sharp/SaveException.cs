@@ -66,13 +66,17 @@ namespace Breeze.Sharp {
           Entity = em.GetEntityByKey(ek);
         }
 
-        if (PropertyName != null) {
-          PropertyName = MetadataStore.Instance.NamingConvention.ServerPropertyNameToClient(PropertyName);
-        }
-        if (Entity != null) {
-          Property = entityType.GetProperty(PropertyName);
+        
+        if (entityType != null) {
+          if (PropertyName != null) {
+            Property = entityType.Properties.FirstOrDefault(p => p.NameOnServer == PropertyName);
+            if (Property != null) {
+              PropertyName = Property.Name;
+            }
+          }
+          
           var vc = new ValidationContext(this.Entity);
-          vc.Property = this.Property;
+          vc.Property = Property;
           var veKey = (ErrorName ?? ErrorMessage) + (PropertyName ?? "");
           var ve = new ValidationError(null, vc, ErrorMessage, veKey);
           ve.IsServerError = true;

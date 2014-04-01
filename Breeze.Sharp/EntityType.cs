@@ -64,8 +64,6 @@ namespace Breeze.Sharp {
       return jo;
     }
 
-
-
     internal void Check(Object v1, Object v2, String name) {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
