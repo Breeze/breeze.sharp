@@ -56,6 +56,14 @@ namespace Breeze.Sharp {
     }
 
     private void InitializeValues(Object[] values, bool shouldCoerce = true) {
+      if (!EntityType.KeyProperties.Any()) {
+        var msg = String.Format("There are no KeyProperties yet defined on EntityType: '{0}'.  "
+                                + "Please insure that the metadata for this type is complete either by calling FetchMetadata or "
+                                + "by explicitly updating the KeyProperties before creating an EntityKey for this type.",
+          EntityType.Name);
+        throw new Exception(msg);
+      }
+
       if (values.Length == 1 && values[0] is Array) {
         Values = ((IEnumerable)values[0]).Cast<Object>().ToArray();
       } else {

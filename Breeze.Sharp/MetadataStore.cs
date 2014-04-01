@@ -286,7 +286,8 @@ namespace Breeze.Sharp {
         }
 
         if (okIfNotFound) return null;
-        throw new Exception("Unable to find a matching EntityType or ComplexType for " + clrType.Name);
+        var msg = String.Format("Unable to find a matching EntityType or ComplexType for type: '{0}'",clrType.Name);
+        throw new Exception(msg);
       }
     }
 
