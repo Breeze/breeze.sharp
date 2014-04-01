@@ -419,6 +419,8 @@ namespace Breeze.Sharp {
       get { return DataServiceQuery; }
     }
     internal DataServiceQuery DataServiceQuery { get; set; }
+
+    public IJsonResultsAdapter JsonResultsAdapter { get; protected internal set; }
   }
 
 
@@ -427,6 +429,7 @@ namespace Breeze.Sharp {
     EntityManager EntityManager { get;  }
     QueryOptions QueryOptions { get;  }
     String ResourceName { get;   }
+    IJsonResultsAdapter JsonResultsAdapter { get; }      
     Object Clone();
   }
 

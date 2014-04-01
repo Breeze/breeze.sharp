@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Breeze.Sharp.Core;
+using Newtonsoft.Json.Linq;
 
 namespace Model.Edmunds {
 
@@ -20,6 +22,67 @@ namespace Model.Edmunds {
       modelBuilder.NavigationProperty(model => model.Make)
         .HasForeignKey(model => model.MakeId)
         .HasInverse(make => make.Models);
+    }
+  }
+
+  public class EdmundsJsonResultsAdapter : IJsonResultsAdapter {
+
+    public string Name {
+      get { return "Edmunds"; }
+    }
+
+    public JToken ExtractResults(JToken node) {
+      JToken token;
+      var rootNode = (JObject) node;
+      if (rootNode.TryGetValue("makeHolder", out token)) {
+        return token;
+      }
+
+      if (rootNode.TryGetValue("modelHolder", out token)) {
+        return token;
+      }
+      return node;
+    }
+
+    public JsonNodeInfo VisitNode(JObject node, MappingContext mappingContext, NodeContext nodeContext) {
+      var result = new JsonNodeInfo();
+      var idProp = node.Property("id");
+      var modelsProp = node.Property("models");
+      if (idProp != null && modelsProp != null) {
+        node.Add("modelLinks", modelsProp.Value);
+        modelsProp.Value = new JArray();
+        result.ServerTypeNameInfo = new TypeNameInfo("Make", "");
+        return result;
+      }
+
+      var makeProp = node.Property("make");
+      if (idProp != null && makeProp != null) {
+        node.Add("makeLink", makeProp.Value);
+        makeProp.Value = null;
+        var catsProp = node.Property("categories");
+        if (catsProp != null) {
+          var styleProps = catsProp["Vehicle Style"];
+          var styles = styleProps.Select(t => t.Value<String>()).ToAggregateString(", ");
+          node.Add("vehicleStyles", new JValue(styles));
+        }
+        result.ServerTypeNameInfo = new TypeNameInfo("Model", "");
+        return result;
+      }
+      return result;
+      //// Model parser
+      //else if (node.id && node.makeId) {
+      //    // move 'node.make' link so 'make' can be null reference
+      //    node.makeLink = node.make;
+      //    node.make = null;
+
+      //    // flatten styles and sizes as comma-separated strings
+      //    var styles = node.categories && node.categories["Vehicle Style"];
+      //    node.vehicleStyles = styles && styles.join(", ");
+      //    var sizes = node.categories && node.categories["Vehicle Size"];
+      //    node.vehicleSizes = sizes && sizes.join(", ");
+
+      //    return { entityType: "Model" };
+      //}
     }
   }
 

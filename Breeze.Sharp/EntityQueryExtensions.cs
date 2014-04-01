@@ -144,6 +144,15 @@ namespace Breeze.Sharp {
       return newQuery;
     }
 
+    public static TQuery With<TQuery>(this TQuery query, IJsonResultsAdapter jsonResultsAdapter) where TQuery : EntityQuery {
+      if (query.JsonResultsAdapter == jsonResultsAdapter) {
+        return query;
+      }
+      TQuery newQuery = (TQuery)query.Clone();
+      newQuery.JsonResultsAdapter = jsonResultsAdapter;
+      return newQuery;
+    }
+
     #endregion
   }
 }

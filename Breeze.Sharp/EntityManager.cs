@@ -242,10 +242,12 @@ namespace Breeze.Sharp {
         EntityManager = this,
         MergeStrategy = mergeStrategy.Value,
         LoadingOperation = LoadingOperation.Query,
-        JsonResultsAdapter = dataService.JsonResultsAdapter
+        JsonResultsAdapter = query.JsonResultsAdapter ?? dataService.JsonResultsAdapter
       };
       // cannot reuse a jsonConverter - internal mappingContext is one instance/query
       var jsonConverter = new JsonEntityConverter(mappingContext);
+      var serializer = new JsonSerializer();
+      serializer.Converters.Add(jsonConverter);
       
       Type rType;
       if (resourcePath.Contains("inlinecount")) {
@@ -255,17 +257,10 @@ namespace Breeze.Sharp {
       }
       using (NewIsLoadingBlock()) {
         var jt = JToken.Parse(result);
-        jt = ExtractResults(jt);
-        var serializer = new JsonSerializer();
-        serializer.Converters.Add(jsonConverter);
-        return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
-        // return (IEnumerable)JsonConvert.DeserializeObject(result, rType, jsonConverter);
-      }
-    }
+        jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
 
-    private JToken ExtractResults(JToken jt) {
-      return jt;
-      // return jt["makeHolder"];
+        return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+      }
     }
 
     /// <summary>
@@ -896,18 +891,18 @@ namespace Breeze.Sharp {
     /// <param name="entityKey"></param>
     /// <returns></returns>
     public IEntity GetEntityByKey(EntityKey entityKey) {
+      var eg = this.GetEntityGroup(entityKey.ClrType);
+      var ea = (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
+      if (ea != null) return ea.Entity;
 
       var subtypes = entityKey.EntityType.SubEntityTypes;
-      EntityAspect ea;
       if (subtypes.Count > 0) {
         ea = subtypes.Select(st => {
-          var eg = this.GetEntityGroup(st.ClrType);
+          eg = this.GetEntityGroup(st.ClrType);
           return (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
         }).FirstOrDefault(a => a != null);
-      } else {
-        var eg = this.GetEntityGroup(entityKey.ClrType);
-        ea = (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
       }
+      
       return ea == null ? null : ea.Entity;
     }
 

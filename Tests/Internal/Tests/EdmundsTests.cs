@@ -40,11 +40,11 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SimpleCall() {
-      return;
+      //return;
       var em1 = await TestFns.NewEm(_dataService);
       var initParameters = InitialParameters();
       var q = new EntityQuery<Make>().From("vehicle/makerepository/findall")
-          .WithParameters(initParameters);
+        .WithParameters(initParameters).With(new EdmundsJsonResultsAdapter());
       var r = await em1.ExecuteQuery(q);
       Assert.IsTrue(r.Any());
 
