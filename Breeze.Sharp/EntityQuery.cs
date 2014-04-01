@@ -27,7 +27,7 @@ namespace Breeze.Sharp {
     /// </summary>
     public EntityQuery( ) : base() {
       var context = new DataServiceContext(new Uri(__placeholderServiceName), DataServiceProtocolVersion.V3);
-      DataServiceQuery = (DataServiceQuery<T>)context.CreateQuery<T>(__placeholderResourceName);
+      DataServiceQuery = (DataServiceQuery<T>) context.CreateQuery<T>(__placeholderResourceName).Where(x => true);
       QueryableType = typeof(T);
     }
 
@@ -175,30 +175,29 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public override String GetResourcePath() {
       var dsq = this.DataServiceQuery;
-      
+
       var requestUri = dsq.RequestUri.AbsoluteUri;
-      // TODO: Hack to avoid DataServiceQuery from inferring the entity key
-      var hasEntityKeyUrl = !(requestUri.Contains(__placeholderResourceName + "()") || requestUri.EndsWith(__placeholderResourceName));
-      if (hasEntityKeyUrl) {
-        dsq = (DataServiceQuery<T>) dsq.Where( x => true);
-        requestUri = dsq.RequestUri.AbsoluteUri;
-      }
+
+
       var s2 = requestUri.Replace(__placeholderServiceName, "");
-      
-      var resourceName = (String.IsNullOrEmpty(ResourceName)) 
+
+      var resourceName = (String.IsNullOrEmpty(ResourceName))
         ? MetadataStore.Instance.GetDefaultResourceName(this.QueryableType)
         : ResourceName;
-      
+
       // if any filter conditions
       var queryResource = s2.Replace(__placeholderResourceName + "()", resourceName);
       // if no filter conditions
       queryResource = queryResource.Replace(__placeholderResourceName, resourceName);
+      
       // TODO: Hack to avoid DataServiceQuery from inferring the entity key
-      if (hasEntityKeyUrl) {
-        queryResource = queryResource.Replace("%20and%20true", "");
-      }
+      queryResource = queryResource.Replace("$filter=true%20and%20", "$filter=");
+      queryResource = queryResource.Replace("$filter=true", "");
+
       return queryResource;
     }
+
+
 
     #region IQueryable impl 
 

@@ -54,7 +54,8 @@ namespace Breeze.Sharp.Tests {
       var results = await em1.ExecuteQuery(q);
 
       Assert.IsTrue(results.Cast<Object>().Count() > 0);
-      
+      var r1 = await em1.ExecuteQuery(q.Take(2));
+      Assert.IsTrue(r1.Count() == 2);
     }
 
     [TestMethod]
