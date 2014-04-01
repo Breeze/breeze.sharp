@@ -25,6 +25,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
+      MetadataStore.Instance.NamingConvention = new AltNamingConvention();
       MetadataStore.Instance.ProbeAssemblies(typeof(Make).Assembly);
       
       var serviceName = "http://api.edmunds.com/v1/api/"; // edmunds

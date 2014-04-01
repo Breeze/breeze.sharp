@@ -20,7 +20,7 @@ namespace Breeze.Sharp {
   public abstract class StructuralProperty  {
     protected StructuralProperty(String name) {
       Name = name;
-      UpdateClientServerNames();
+    
     }
 
     protected StructuralProperty(StructuralProperty prop) {
@@ -74,7 +74,7 @@ namespace Breeze.Sharp {
       return String.Format("{0}: '{1}' on the {2}: '{3}'", propLabel, this.Name, typeLabel, this.ParentType.Name);
     }
 
-    private void UpdateClientServerNames() {
+    internal void UpdateClientServerNames() {
       var nc = MetadataStore.Instance.NamingConvention;
       if (!String.IsNullOrEmpty(Name)) {
         NameOnServer = nc.TestPropertyName(Name, ParentType, true);

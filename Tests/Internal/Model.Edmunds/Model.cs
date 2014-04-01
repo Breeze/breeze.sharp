@@ -12,6 +12,8 @@ namespace Model.Edmunds {
 
   public static class Config {
     public static void Initialize() {
+      
+
       var makeBuilder = new EntityTypeBuilder<Make>();
       makeBuilder.DataProperty(make => make.Id).IsPartOfKey();
       makeBuilder.DataProperty(make => make.Name).MaxLength(40);
@@ -22,7 +24,27 @@ namespace Model.Edmunds {
       modelBuilder.NavigationProperty(model => model.Make)
         .HasForeignKey(model => model.MakeId)
         .HasInverse(make => make.Models);
+       
+      
     }
+  }
+
+  public class AltNamingConvention : NamingConvention {
+    public override string ClientPropertyNameToServer(string serverName, StructuralType parentType) {
+      if (parentType.Namespace == "Model.Edmunds") {
+        return serverName.Substring(0, 1).ToLower() + serverName.Substring(1);
+      } else {
+        return base.ClientPropertyNameToServer(serverName, parentType);
+      }
+    }
+
+    public override String ServerPropertyNameToClient(String serverName, StructuralType parentType) {
+      if (parentType.Namespace == "Model.Edmunds") {
+        return serverName.Substring(0, 1).ToUpper() + serverName.Substring(1);
+      } else {
+        return base.ServerPropertyNameToClient(serverName, parentType);
+      }}
+    
   }
 
   public class EdmundsJsonResultsAdapter : IJsonResultsAdapter {

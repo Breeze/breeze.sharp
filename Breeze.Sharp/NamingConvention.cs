@@ -11,14 +11,27 @@ namespace Breeze.Sharp {
 
     public static List<NamingConvention> __namingConventions = new List<NamingConvention>();
 
-    public NamingConvention(String name) {
-      Name = name;
-      lock (__namingConventions) {
-        __namingConventions.Add(this);
-      }
+    public NamingConvention() {
+      Name = this.GetType().Name;
     }
 
-    public String Name { get; protected set; }
+    public NamingConvention(String name) {
+      Name = name;
+    }
+
+    public String Name { 
+      get { return _name; }
+      set {
+        if (_name == value) return;
+        if (_name != null) {
+          throw new Exception("A NamingConvention's 'Name' cannot be changed once set");
+        }
+        _name = value;
+        lock (__namingConventions) {
+          __namingConventions.Add(this);
+        }
+      }
+    }
 
     public virtual TypeNameInfo ServerTypeNameToClient(TypeNameInfo serverNameInfo) {
       
@@ -53,6 +66,7 @@ namespace Breeze.Sharp {
       _serverTypeNamespaceMap[serverNamespace] = clientNamespace;
     }
 
+    private String _name;
     private Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
     private Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
 

@@ -104,6 +104,7 @@ namespace Breeze.Sharp {
     internal virtual DataProperty AddDataProperty(DataProperty dp) {
       dp.ParentType = this;
       _dataProperties.Add(dp);
+      dp.UpdateClientServerNames();
       return dp;
     } 
 

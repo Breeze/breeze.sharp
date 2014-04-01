@@ -246,6 +246,7 @@ namespace Breeze.Sharp {
     internal NavigationProperty AddNavigationProperty(NavigationProperty np) {
       np.ParentType = this;
       _navigationProperties.Add(np);
+      np.UpdateClientServerNames();
       return np;
     }
 
