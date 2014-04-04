@@ -257,8 +257,9 @@ namespace Breeze.Sharp.Tests {
       var q2 = q.Where(c => c.Freight > 500);
       var q3 = q2.Select(c => new { c.Customer, c.Freight });
       var results = await q3.Execute(em1);
-
-      Assert.IsTrue(results.Count() > 0);
+      // get rid of orders with null customers
+      results = results.Where(r => r.Customer != null);
+      Assert.IsTrue(results.Any());
       var ok = results.All(r1 => r1.Freight > 500);
       Assert.IsTrue(ok, "anon type should the right freight");
       ok = results.All(r1 => r1.Customer.GetType() == typeof(Foo.Customer));
@@ -311,8 +312,9 @@ namespace Breeze.Sharp.Tests {
       var q2 = q.Where(o => o.Freight > 500);
       var q3 = q2.Expand(o => o.Customer);
       var results = await q3.Execute(em1);
-
-      Assert.IsTrue(results.Count() > 0);
+      // get rid of orders with null customers
+      results = results.Where(r => r.Customer != null);
+      Assert.IsTrue(results.Any());
       var ok = results.All(r1 =>
         r1.GetType() == typeof(Foo.Order) &&
         r1.Customer.GetType() == typeof(Foo.Customer));

@@ -162,24 +162,23 @@ namespace Breeze.Sharp {
       if (ds != null) return dataService;
 
       await _asyncSemaphore.WaitAsync();
-
+      String metadata;
       try {
         ds = GetDataService(serviceName);
         if (ds != null) return dataService;
 
-        var metadata = await dataService.GetAsync("Metadata");
-        dataService.ServerMetadata = metadata;
-        AddDataService(dataService);
+        metadata = await dataService.GetAsync("Metadata");
 
-        var metadataProcessor = new CsdlMetadataProcessor();
-        metadataProcessor.ProcessMetadata(this, metadata);
-
-        return dataService;
       } catch (Exception e) {
         throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
       } finally {
         _asyncSemaphore.Release();
       }
+      var metadataProcessor = new CsdlMetadataProcessor();
+      metadataProcessor.ProcessMetadata(this, metadata);
+      dataService.ServerMetadata = metadata;
+      AddDataService(dataService);
+      return dataService;
 
     }
 
@@ -534,9 +533,17 @@ namespace Breeze.Sharp {
         }  else if (okIfNotFound) {
           return (T)null;
         } else {
-          throw new Exception("Unable to locate Type: " + typeName);
+          throw MissingTypeException(typeName);
         }
       }
+    }
+
+    internal static Exception MissingTypeException(String typeName) {
+      return new Exception("Unable to locate a CLR type corresponding to: " + typeName
+          + ".  Consider calling MetadataStore.Instance.ProbeAssemblies with the assembly containing this " +
+          "type when your application starts up.  In addition, if your namespaces are different between server and client " +
+          "then you may need to call MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping to " +
+          "tell Breeze how to map between the two.");
     }
 
     internal EntityType AddEntityType(EntityType entityType) {

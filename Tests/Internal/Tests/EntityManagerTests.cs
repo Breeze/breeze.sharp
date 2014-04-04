@@ -30,6 +30,26 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task BadURL() {
+
+      var serviceName = "http://localhost:7150/breeze/xxxFoo";
+      var ds = new DataService(serviceName);
+      try {
+        await MetadataStore.Instance.FetchMetadata(ds);
+      } catch (Exception e) {
+        Assert.IsTrue(e.Message.Contains("metadata resource"));
+      }
+
+      try {
+        var em = new EntityManager(ds);
+        await em.FetchMetadata();
+      } catch (Exception e) {
+        Assert.IsTrue(e.Message.Contains("metadata resource"));
+      }
+    }
+
+
+    [TestMethod]
     public async Task GetChanges() {
       var em1 = await TestFns.NewEm(_serviceName);
 

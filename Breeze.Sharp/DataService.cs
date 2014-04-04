@@ -65,7 +65,15 @@ namespace Breeze.Sharp {
       return new WebApiDataServiceAdapter();
     }
 
-    public String ServiceName {get; private set; }
+    public String ServiceName {
+      get { return _serviceName; }
+      set {
+        _serviceName = value.Trim();
+        if (!_serviceName.EndsWith("/")) {
+          _serviceName += "/";
+        }
+      }
+    }
 
     public bool UseJsonP { get; set; }
 
@@ -131,6 +139,7 @@ namespace Breeze.Sharp {
 
  
     private HttpClient _client;
+    private String _serviceName;
 
 
   }
