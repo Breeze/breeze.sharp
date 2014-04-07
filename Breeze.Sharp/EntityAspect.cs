@@ -666,11 +666,11 @@ namespace Breeze.Sharp {
           // order.internationalOrder <- internationalOrder || null
           //    ==> (oldInternationalOrder.order = null)
           //    ==> internationalOrder.order = order
-          if (oldValue != null) {
+          if (oldAspect != null) {
             // TODO: null -> NullEntity later
             oldAspect.SetNpValue(inverseProp, null);
           }
-          if (newValue != null) {
+          if (newAspect != null) {
             newAspect.SetNpValue(inverseProp, this.Entity);
           }
         } else {
@@ -678,11 +678,11 @@ namespace Breeze.Sharp {
           // orderDetail.order <- newOrder || null
           //    ==> (oldOrder).orderDetails.remove(orderDetail)
           //    ==> order.orderDetails.push(newOrder)
-          if (oldValue != null) {
+          if (oldAspect != null) {
             var oldSiblings = oldAspect.GetValue<INavigationSet>(inverseProp.Name);
             oldSiblings.Remove(this.Entity);
           }
-          if (newValue != null) {
+          if (newAspect != null) {
             var siblings = newAspect.GetValue<INavigationSet>(inverseProp.Name);
             // recursion check if already in the collection is performed by the relationArray
             siblings.Add(this.Entity);
@@ -691,7 +691,7 @@ namespace Breeze.Sharp {
       } else if (property.InvForeignKeyProperties.Count > 0 && this.IsAttached) { // && !EntityManager._inKeyFixup) {
         // var invForeignKeyNames = property.InvForeignKeyNames;
         var invForeignKeyProps = property.InvForeignKeyProperties;
-        if (newValue != null) {
+        if (newAspect != null) {
           // Example: unidirectional navProperty: 1->1: order -> internationalOrder
           // order.InternationalOrder <- internationalOrder
           //    ==> internationalOrder.orderId = orderId
@@ -710,7 +710,7 @@ namespace Breeze.Sharp {
           // Example: unidirectional navProperty: 1->n: order -> orderDetails
           // orderDetail.order <-xxx newOrder
           //    ==> CAN'T HAPPEN because if unidirectional because orderDetail will not have an order prop
-          if (oldValue != null) {
+          if (oldAspect != null) {
             invForeignKeyProps.ForEach(fkProp => {
               if (!fkProp.IsPartOfKey) {
                 // don't update with null if fk is part of the key
@@ -731,8 +731,8 @@ namespace Breeze.Sharp {
           inverseKeyProps.ForEach((keyProp, i) => {
             var relatedDataProp = property.RelatedDataProperties[i];
             // Do not trash related property if it is part of that entity's key
-            if (newValue != null || !relatedDataProp.IsPartOfKey) {
-              var relatedValue = newValue != null ? newAspect.GetValue(keyProp) : relatedDataProp.DefaultValue;
+            if (newAspect != null || !relatedDataProp.IsPartOfKey) {
+              var relatedValue = newAspect != null ? newAspect.GetValue(keyProp) : relatedDataProp.DefaultValue;
               SetDpValue(relatedDataProp, relatedValue);
             }
           });

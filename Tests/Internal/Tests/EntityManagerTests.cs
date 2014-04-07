@@ -10,6 +10,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Foo;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Breeze.Sharp.Tests {
 
@@ -28,6 +30,29 @@ namespace Breeze.Sharp.Tests {
     public void TearDown() {
       
     }
+
+      
+    
+    [TestMethod]
+    public async Task MetadataWithEmbeddedQuotes() {
+
+      var serviceName = "http://sampleservice.breezejs.com/api/todos/";
+      var ds = new DataService(serviceName);
+
+      var metadata = await ds.GetAsync("Metadata");
+
+      var metadata2 = System.Text.RegularExpressions.Regex.Unescape(metadata).Trim('"');
+      var jo = (JObject)JsonConvert.DeserializeObject(metadata2);
+      var em = new EntityManager(ds);
+      try {
+        var x = await em.FetchMetadata();
+        Assert.Fail("should not get here - CLR types for this metadata are not available");
+      } catch (Exception e) {
+        Assert.IsTrue(e.Message.Contains("CLR type"));
+      }
+
+    }
+
 
     [TestMethod]
     public async Task BadURL() {

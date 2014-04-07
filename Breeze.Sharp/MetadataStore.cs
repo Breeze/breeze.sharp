@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
@@ -173,6 +174,10 @@ namespace Breeze.Sharp {
         throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
       } finally {
         _asyncSemaphore.Release();
+      }
+      metadata = metadata.Trim();
+      if (metadata.Substring(0, 1) == "\"" && metadata.Substring(metadata.Length - 1, 1) == "\"") {
+        metadata = Regex.Unescape(metadata.Substring(1, metadata.Length - 2));
       }
       var metadataProcessor = new CsdlMetadataProcessor();
       metadataProcessor.ProcessMetadata(this, metadata);

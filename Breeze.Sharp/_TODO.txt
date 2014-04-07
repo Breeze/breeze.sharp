@@ -1,9 +1,18 @@
 ﻿
-- Add good message for AuthorizedThreadId check and how to turn it off for unit tests
-- Add good message for structuralType not found messages and how to call ProbeAssemblies
+- Add good message for AuthorizedThreadId check and how to turn it off for unit tests - Only partially implemented currently.
 - ProbeAssemblies should default to not searching Breeze.Sharp.
 - ComplexType inheritance. ( missing in Breeze.js as well )
 - Think about NamingConvention per DataService instead of one global one.
-- implement JsonResultsAdapter
+
+
+Metadata mapping - Handle these cases:
+--------------------------------------
+1.	Metadata type with no matching CLR type – log it and ignore it.
+2.	Metadata data or navigation property where CLR type does not have a matching property – log it and ignore it. 
+3.	Metadata data or navigation property mismatch ( any fundamental constraint mismatch – i.e. datatype, isScalar) – log and throw after metadata is complete
+
+4.	CLR entity type not found in metadata – do nothing – it may appear later. 
+5.	CLR property not found in metadata – becomes an unmapped property
+
 
 
