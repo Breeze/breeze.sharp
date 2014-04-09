@@ -6,13 +6,10 @@ using System.Runtime.CompilerServices;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Default base class implementation of IComplexObject. 
+  /// 
   /// </summary>
   public abstract class BaseComplexObject : IComplexObject {
 
-    /// <summary>
-    /// 
-    /// </summary>
     protected BaseComplexObject() {
       ComplexAspect = new ComplexAspect(this, null);
     }
@@ -31,20 +28,12 @@ namespace Breeze.Sharp {
       ComplexAspect.SetValue(propertyName, value);
     }
 
-    /// <summary>
-    /// Compares this ComplexObject with another and determines if they represent the same data.
-    /// </summary>
-    /// <param name="other"></param>
-    /// <returns></returns>
     public bool StructuralEquals(BaseComplexObject other) {
       return this.ComplexAspect.StructuralEquals(other.ComplexAspect);
     }
 
     #endregion
 
-    /// <summary>
-    /// Returns the ComplexAspect associated with this ComplexObject.
-    /// </summary>
     public ComplexAspect ComplexAspect {
       get;
       set;

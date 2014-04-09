@@ -14,11 +14,6 @@ namespace Breeze.Sharp {
   /// </summary>
   public abstract class StructuralTypeBuilder {
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="clrType"></param>
-    /// <returns></returns>
     public static StructuralType GetStructuralType(Type clrType) {
       if (typeof (IEntity).IsAssignableFrom(clrType)) {
         return GetEntityType(clrType);
@@ -27,11 +22,6 @@ namespace Breeze.Sharp {
       }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="clrType"></param>
-    /// <returns></returns>
     public static EntityType GetEntityType(Type clrType) {
       var entityType = MetadataStore.Instance.GetEntityType(clrType, true);
       return entityType ?? CreateEntityType(clrType);

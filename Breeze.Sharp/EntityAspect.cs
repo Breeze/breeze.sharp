@@ -21,7 +21,7 @@ namespace Breeze.Sharp {
   /// One instance of the EntityAspect class is associated with each persistable entity within a domain model.
   /// </remarks>
   [DebuggerDisplay("{EntityKey} - {EntityState}")]
-  public sealed class EntityAspect : StructuralAspect, IEditableObject, IChangeTracking, IRevertibleChangeTracking, INotifyPropertyChanged,
+  public class EntityAspect : StructuralAspect, IEditableObject, IChangeTracking, IRevertibleChangeTracking, INotifyPropertyChanged,
     INotifyDataErrorInfo, IComparable {
     // what about IDataErrorInfo
 

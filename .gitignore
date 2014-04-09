@@ -7,7 +7,7 @@
 *.testsettings
 *.old
 *.suo
-apidocs.sc
+
 node_modules
 bin
 obj
