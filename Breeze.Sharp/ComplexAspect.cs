@@ -17,7 +17,7 @@ namespace Breeze.Sharp {
   /// <remarks>
   /// The <b>ComplexAspect</b> provides verification and change tracking capaibilities to the ComplexObject.
   /// </remarks>
-  public class ComplexAspect : StructuralAspect, INotifyDataErrorInfo  {
+  public sealed class ComplexAspect : StructuralAspect, INotifyDataErrorInfo  {
 
     #region Ctors
 

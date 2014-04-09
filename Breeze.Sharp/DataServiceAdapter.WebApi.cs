@@ -11,12 +11,18 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// WebApi implementation of IDataServiceAdapter.  Used to communicate with an Breeze WebApi DataService.
+  /// </summary>
   public class WebApiDataServiceAdapter : IDataServiceAdapter {
 
+    
+    /// <inheritDoc />
     public String Name {
       get { return "WebApi"; }
     }
 
+    /// <inheritDoc />
     public IJsonResultsAdapter JsonResultsAdapter {
       get { return WebApiJsonResultsAdapter.Instance; }
     }
