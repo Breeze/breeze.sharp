@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Breeze.Sharp</id>
+        <version>0.5.1.0</version>
+        <title>Breeze Sharp</title>
+        <authors>Jay Traband</authors>
+        <owners>IdeaBlade</owners>
+        <licenseUrl>http://www.breezejs.com/license</licenseUrl>
+        <projectUrl>http://www.breezejs.com</projectUrl>
+        <iconUrl>http://www.breezejs.com/sites/all/images/breezepkg.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>The files and references that are essential for a Breeze Sharp client</description>
+        <summary>Breeze Sharp. This package is the .NET client for any Breeze server.</summary>
+        <copyright>Copyright IdeaBlade 2012, 2013, 2014</copyright>
+        <language>en-US</language>
+        <releaseNotes>Please review the BreezeSharp release notes at http://www.breezejs.com/documentation/download</releaseNotes>        
+        <tags>javascript WebApi Breeze SPA</tags>
+		<dependencies>
+        <dependency id="Microsoft.AspNet.WebApi.Client" version="5.1.1" />
+        <dependency id="Microsoft.Bcl" version="1.1.6"  />
+        <dependency id="Newtonsoft.Json" version="6.0.2" />
+		</dependencies>
+    </metadata>
+    <files>
+        <file src="lib\portable-net45+wp80+win\Breeze.Sharp.dll" target="lib\portable-net45+wp80+win\Breeze.Sharp.dll" />       
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" />
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" />
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" />
+        <file src="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" target="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" /> 
+        <file src="readme.txt" target="readme.txt" />
+    </files>       
+        
+</package>
