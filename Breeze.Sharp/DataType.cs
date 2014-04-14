@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-
-using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Used to classify a data type.
   /// </summary>
   [Flags]
   public enum DataTypeInfo {
@@ -21,7 +17,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// Subtype of DataType for all numeric datatypes.
   /// </summary>
   public class NumericDataType : DataType {
     public NumericDataType(Type clrType, String fmtSuffix, bool isInteger)
@@ -34,7 +30,8 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// Metadata about any primitive data type. Each Breeze DataProperty for a primitive type (i.e. does not 
+  /// describe a ComplexObject) will have a DataType property.
   /// </summary>
   public class DataType {
     protected DataType(Type clrType) {

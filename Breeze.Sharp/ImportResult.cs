@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Strategy to control how Entities are merged into an EntityManager's cache.
+  /// Information about the result of an EntityManager.ImportEntities operation.
   /// </summary>
   public class ImportResult {
 

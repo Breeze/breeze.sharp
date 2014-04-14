@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
-using System.Reflection;
-using Breeze.Sharp.Core;
-using System.Diagnostics;
 
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Class used to describe, parse and convert between EntityType names and CLR type names.
   /// </summary>
   public class TypeNameInfo {
 

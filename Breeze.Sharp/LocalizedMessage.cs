@@ -6,7 +6,10 @@ using System.Resources;
 
 namespace Breeze.Sharp {
 
-  // Immutable object
+  
+  /// <summary>
+  /// Describes a localized message. Each localized message instance is immutable. 
+  /// </summary>
   public class LocalizedMessage {
 
     public LocalizedMessage(String message) {

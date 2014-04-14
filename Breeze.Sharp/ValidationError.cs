@@ -5,7 +5,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// A collection of ValidationErrors.
   /// </summary>
   public class ValidationErrorCollection : MapCollection<String, ValidationError> {
     public ValidationErrorCollection(EntityAspect entityAspect) {
@@ -56,7 +56,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// The result of a failed validation operation
   /// </summary>
   public class ValidationError {
 

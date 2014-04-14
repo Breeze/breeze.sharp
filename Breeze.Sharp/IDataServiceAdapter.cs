@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Client side interface that describes the interaction between a DataService and a remote data service.
   /// </summary>
   public interface IDataServiceAdapter {
     String Name { get; }

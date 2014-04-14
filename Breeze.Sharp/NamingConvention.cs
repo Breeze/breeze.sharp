@@ -99,6 +99,12 @@ namespace Breeze.Sharp {
     }
   }
 
+  /// <summary>
+  /// The "camelCase" naming convention - This implementation only lowercases the first character
+  ///  of the server property name but leaves the rest of the property name intact. 
+  /// If a more complicated version is needed then another type should be created that 
+  /// inherits from NamingConvention.
+  /// </summary>
   public class CamelCaseNamingConvention : NamingConvention  {
     public CamelCaseNamingConvention()
       : base("CamelCase") {

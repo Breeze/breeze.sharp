@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Breeze.Sharp.Core;
+﻿using Breeze.Sharp.Core;
+using System;
 using System.Collections;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Interface for the backing information for any IEntity or IComplexObject.  
+  /// Implemented via an explicit interface.
   /// </summary>
   public interface IHasBackingStore {
     IDictionary<String, Object> BackingStore { get; set; }
   }
 
   /// <summary>
-  /// 
+  /// Base class for both EntityAspect and ComplexAspect.
   /// </summary>
   public abstract class StructuralAspect {
 

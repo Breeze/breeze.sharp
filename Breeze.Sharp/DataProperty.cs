@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Unique collection of DataProperties.
+  /// For internal use only. Unique collection of DataProperties.
   /// </summary>
   public class DataPropertyCollection : MapCollection<String, DataProperty> {
     protected override String GetKeyForItem(DataProperty item) {

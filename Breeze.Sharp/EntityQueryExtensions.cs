@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
+
+  /// <summary>
+  /// Extension methods for any EntityQuery.
+  /// </summary>
   public static class EntityQueryExtensions {
 
     #region Linq extensions 

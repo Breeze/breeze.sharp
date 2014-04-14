@@ -12,6 +12,10 @@ using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// Used by the <see cref="JsonResultsAdapter"/> to provide information regarding the overall context 
+  /// of the currently executing operation.
+  /// </summary>
   public class MappingContext {
     public MappingContext() {
       RefMap = new Dictionary<string, object>();
@@ -31,6 +35,9 @@ namespace Breeze.Sharp {
     }
   }
 
+  /// <summary>
+  // Used by the <see cref="JsonResultsAdapter"/> to provide information about the current node being processed. 
+  /// </summary>
   public class NodeContext {
     public JObject Node;
     public Type ObjectType;
@@ -38,6 +45,10 @@ namespace Breeze.Sharp {
     public StructuralProperty StructuralProperty;
   }
 
+  /// <summary>
+  /// Enum that is used to describe the current operation being performed while
+  /// a JsonResultsAdapter is executing.  Referenced by <see cref="MappingContext"/>
+  /// </summary>
   public enum LoadingOperation {
     Query,
     Save
@@ -46,7 +57,9 @@ namespace Breeze.Sharp {
   }
 
   
-
+  /// <summary>
+  /// For internal use only.
+  /// </summary>
   public class JsonEntityConverter : JsonConverter {
   
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 

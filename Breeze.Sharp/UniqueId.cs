@@ -9,7 +9,7 @@ using Breeze.Sharp.Core;
 namespace Breeze.Sharp {
   /// <summary>
   /// Represents the combination of a specific <see cref="StructuralProperty"/> and value.
-  /// <seealso cref="IIdGenerator"/>
+  /// <seealso cref="IKeyGenerator"/>
   /// <seealso cref="UniqueIdCollection"/>
   /// </summary>
   /// <remarks><b>UniqueIds</b> are used when implementing the <see cref="IIdGenerator"/> interface.

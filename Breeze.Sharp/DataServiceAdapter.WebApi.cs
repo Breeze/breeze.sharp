@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// IDataServiceAdapter implementation that supports Microsoft's WebApi.
+  /// </summary>
   public class WebApiDataServiceAdapter : IDataServiceAdapter {
 
     public String Name {

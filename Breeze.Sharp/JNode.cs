@@ -13,10 +13,16 @@ using Newtonsoft.Json.Serialization;
 
 namespace Breeze.Sharp {
 
+  /// <summary>
+  /// For internal use only.
+  /// </summary>
   public interface IJsonSerializable {
     JNode ToJNode(Object config);
   }
 
+  /// <summary>
+  /// For internal use only. Wrapper over simple json object to provide serialization/deserialization services.
+  /// </summary>
   public class JNode {
     public JNode() {
       _jo = new JObject();

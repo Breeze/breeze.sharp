@@ -8,7 +8,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// For internal use only.
   /// </summary>
   public class NavigationPropertyCollection : MapCollection<String, NavigationProperty> {
     protected override String GetKeyForItem(NavigationProperty item) {
@@ -17,7 +17,10 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// A NavigationProperty describes the metadata for a single property of an 
+  /// EntityType that return instances of other EntityTypes.
+  /// Instances of the NavigationProperty class are constructed automatically during Metadata retrieval. 
+  /// However it is also possible to construct them directly via the constructor.
   /// </summary>
   [DebuggerDisplay("{Name} - {ParentType.Name}")]
   public class NavigationProperty : StructuralProperty, IJsonSerializable {

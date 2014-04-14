@@ -4,7 +4,8 @@ namespace Breeze.Sharp {
   // TODO: make immutable later
 
   /// <summary>
-  /// 
+  /// A ValidationOptions instance is used to specify the conditions under which validation will be executed.
+  /// This may be set via the <see cref="EntityManager.ValidationOptions"/> property.
   /// </summary>
   public class ValidationOptions {
     public ValidationOptions() {
@@ -17,6 +18,10 @@ namespace Breeze.Sharp {
 
   }
 
+  /// <summary>
+  /// An enum used to describe the conditions under which validation should occur.
+  /// This value is set via the <see cref="ValidationOptions.ValidationApplicability"/>.
+  /// </summary>
   [Flags]
   public enum ValidationApplicability {
     OnPropertyChange = 1,

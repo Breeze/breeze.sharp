@@ -3,7 +3,7 @@
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// A SaveOptions instance is used to specify the 'options' under which a save will occur.
   /// </summary>
   public class SaveOptions : IJsonSerializable {
 

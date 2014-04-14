@@ -6,7 +6,8 @@ using System.Runtime.CompilerServices;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Default base class implementation of IComplexObject. 
+  /// All complex objects should inherit from this class either directly or indirectly.
   /// </summary>
   public abstract class BaseComplexObject : IComplexObject {
 

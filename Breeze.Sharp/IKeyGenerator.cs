@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Interface that generates, describes and keeps track of all of the temporary keys associated 
+  /// with a single EntityManager.
   /// </summary>
   public interface IKeyGenerator {
 

@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// For internal use only.
   /// </summary>
   public class StructuralTypeCollection : MapCollection<String, StructuralType> {
     protected override String GetKeyForItem(StructuralType item) {
@@ -19,7 +19,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// Base class for both EntityType and ComplexType classes.
   /// </summary>
   [DebuggerDisplay("{Name}")]
   public abstract class StructuralType {

@@ -2,7 +2,7 @@
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// A QueryOptions instance is used to specify the 'options' under which a query will occur.
   /// </summary>
   public class QueryOptions : IJsonSerializable {
 

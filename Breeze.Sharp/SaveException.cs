@@ -7,7 +7,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// SaveExceptions are thrown whenever a save fails for any reason.
   /// </summary>
   public class SaveException : Exception {
     public static SaveException Parse(EntityManager em, String json) {

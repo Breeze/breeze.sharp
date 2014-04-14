@@ -3,7 +3,9 @@
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// The context under which a validation operation will occur. 
+  /// This includes the Entity or ComplexObject being validated, as well as the 
+  /// specific property, if this is a property validation.
   /// </summary>
   public class ValidationContext {
 

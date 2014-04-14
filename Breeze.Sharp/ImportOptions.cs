@@ -2,7 +2,7 @@
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Options that mediate how imported entities should be merged into an EntityManager.
   /// </summary>
   public class ImportOptions {
 

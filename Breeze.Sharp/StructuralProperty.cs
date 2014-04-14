@@ -6,7 +6,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// For internal use only.
   /// </summary>
   public class PropertyCollection : KeyedCollection<String, StructuralProperty> {
     protected override String GetKeyForItem(StructuralProperty item) {
@@ -15,7 +15,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// 
+  /// Base class for both the <see cref="DataProperty"/> and the <see cref="NavigationProperty"/> classes.
   /// </summary>
   public abstract class StructuralProperty  {
     protected StructuralProperty(String name) {

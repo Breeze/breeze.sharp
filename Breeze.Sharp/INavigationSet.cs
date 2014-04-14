@@ -12,7 +12,9 @@ using System.Collections.ObjectModel;
 
 namespace Breeze.Sharp {
 
-
+  /// <summary>
+  /// The interface that describes the type for any nonscalar navigation property on an Entity.
+  /// </summary>
   public interface INavigationSet : IEnumerable, INotifyPropertyChanged, INotifyCollectionChanged {
     IEntity ParentEntity { get; set; }
     NavigationProperty NavigationProperty { get; set; }
@@ -23,6 +25,11 @@ namespace Breeze.Sharp {
     int Count { get; }
   }
 
+  /// <summary>
+  /// Concrete strongly typed implementation of the INavigationSet interface.  Used, by default, for
+  /// as the return type for all nonscalar navigation properties.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public class NavigationSet<T> : NotifiableCollection<T>, INavigationSet where T:IEntity {
 
     public NavigationSet() {

@@ -7,7 +7,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// Metadata information about a complex type.
   /// </summary>
   [DebuggerDisplay("{Name}")]
   public class ComplexType: StructuralType, IJsonSerializable {
