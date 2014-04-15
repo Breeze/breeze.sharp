@@ -80,7 +80,7 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task CompanyNamesAndIds2() {
       var em1 = await TestFns.NewEm(_serviceName);
-      var q = EntityQuery.From("CompanyNamesAndIds", new { CompanyName = "", CustomerID = new Guid() });
+      var q = EntityQuery.From("CompanyNamesAndIds", new { CompanyName = "fsdfsfd", CustomerID = new Guid() });
       var rp = q.GetResourcePath();
       var companyNamesAndIds = await q.Execute(em1);
       Assert.IsTrue(companyNamesAndIds.Count() > 0, "should be some results");

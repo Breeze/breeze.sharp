@@ -916,10 +916,22 @@ namespace Breeze.Sharp {
     /// is also added to the EntityManager.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <param name="entityState"></param>
+    /// <returns></returns>
+    public T CreateEntity<T>(EntityState entityState) {
+      return (T)CreateEntity(typeof(T), null, entityState);
+    }
+
+    /// <summary>
+    /// Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+    /// is also added to the EntityManager.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="initialValues"></param>
     /// <param name="entityState">Default is 'Added'</param>
     /// <returns></returns>
-    public T CreateEntity<T>(EntityState entityState = EntityState.Added) {
-      return (T)CreateEntity(typeof(T), entityState);
+    public T CreateEntity<T>(Object initialValues=null, EntityState entityState = EntityState.Added) {
+      return (T)CreateEntity(typeof(T), initialValues, entityState);
     }
 
     /// <summary>
@@ -927,10 +939,11 @@ namespace Breeze.Sharp {
     /// is also added to the EntityManager.
     /// </summary>
     /// <param name="entityType"></param>
+    /// <param name="initialValues"></param>
     /// <param name="entityState"></param>
     /// <returns></returns>
-    public IEntity CreateEntity(EntityType entityType, EntityState entityState = EntityState.Added) {
-      return CreateEntity(entityType.ClrType, entityState);
+    public IEntity CreateEntity(EntityType entityType, Object initialValues=null, EntityState entityState = EntityState.Added) {
+      return CreateEntity(entityType.ClrType, initialValues, entityState);
     }
 
     /// <summary>
@@ -938,16 +951,45 @@ namespace Breeze.Sharp {
     /// is also added to the EntityManager.
     /// </summary>
     /// <param name="clrType"></param>
+    /// <param name="initialValues"></param>
     /// <param name="entityState"></param>
     /// <returns></returns>
-    public IEntity CreateEntity(Type clrType, EntityState entityState = EntityState.Added) {
-      var entity = (IEntity) Activator.CreateInstance(clrType);
+    public IEntity CreateEntity(Type clrType, Object initialValues = null, EntityState entityState = EntityState.Added) {
+      var entity = (IEntity)Activator.CreateInstance(clrType);
+      var et = MetadataStore.Instance.GetEntityType(clrType);
+      InitializeEntity(entity, initialValues, et);
       if (entityState == EntityState.Detached) {
         PrepareForAttach(entity);
       } else {
         AttachEntity(entity, entityState);
       }
       return entity;
+    }
+
+    private static void InitializeEntity(IEntity entity, object initialValues, EntityType et) {
+      if (initialValues == null) return;
+      initialValues.GetType().GetTypeInfo().DeclaredProperties.ForEach(pi => {
+        try {
+          var prop = et.GetProperty(pi.Name);
+          var val = pi.GetValue(initialValues);
+
+          if (prop.IsDataProperty) {
+            var type = TypeFns.GetNonNullableType(prop.ClrType);
+            var cvtVal = TypeFns.ConvertType(val, type, true);
+            entity.EntityAspect.SetValue(prop, cvtVal);
+          } else {
+            if (prop.IsScalar) {
+              entity.EntityAspect.SetValue(prop, val);
+            } else {
+              var navSet = (INavigationSet) entity.EntityAspect.GetValue(prop);
+              (val as IEnumerable).Cast<IEntity>().ForEach(e => navSet.Add(e));
+            }
+          }
+        } catch(Exception e) {
+          var msg = "Unable to create entity of type '{0}'.  Initialization failed on property: '{1}'";
+          throw new Exception(String.Format(msg, et.Name, pi.Name), e);
+        }
+      });
     }
 
     /// <summary>
