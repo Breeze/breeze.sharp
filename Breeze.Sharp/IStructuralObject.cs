@@ -13,6 +13,9 @@ namespace Breeze.Sharp {
   /// </summary>
   public interface IEntity : IStructuralObject, INotifyDataErrorInfo, INotifyPropertyChanged, IEditableObject, 
     IChangeTracking, IRevertibleChangeTracking, IComparable {
+    /// <summary>
+    /// Returns the <see cref="EntityAspect"/> associated with this IEntity.
+    /// </summary>
     EntityAspect EntityAspect { get; set; }
   }
 
@@ -20,24 +23,27 @@ namespace Breeze.Sharp {
   /// Interface that describes a ComplexObject
   /// </summary>
   public interface IComplexObject : IStructuralObject, INotifyDataErrorInfo, IComparable {
+    /// <summary>
+    /// Returns the <see cref="ComplexAspect"/> associated with this IComplexObject.
+    /// </summary>
     ComplexAspect ComplexAspect { get; set; }
   }
 
   /// <summary>
-  /// Interface implemented by by IEntity and IComplexObject. 
+  /// Interface implemented by by <see cref="IEntity"/> and <see cref="IComplexObject"/>. 
   /// </summary>
   public interface IStructuralObject {
     /// <summary>
     ///  Method that is automatically called after the materialization of any 
-    /// IEntity or IComplexObject after being retrieved from a remote data service.
+    /// <see cref="IEntity"/> or <see cref="IComplexObject"/> after being retrieved from a remote data service.
     /// </summary>
     void Initialize();
   }
 
   /// <summary>
-  /// Extension methods for any IStructuralObject.
+  /// Extension methods for any <see cref="IStructuralObject"/>.
   /// </summary>
-  public static class IStructuralObjectExtns {
+  public static class StructuralObjectExtensions {
 
     /// <summary>
     /// Returns either a EntityAspect or ComplexAspect for the associated IStructuralObject.

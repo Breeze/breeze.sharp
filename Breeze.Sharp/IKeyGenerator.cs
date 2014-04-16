@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
@@ -51,12 +47,19 @@ namespace Breeze.Sharp {
 
   }
 
+  /// <summary>
+  /// Default implementation of IKeyGenerator that automatically generates temporary ids for most common datatypes.
+  /// </summary>
   public class DefaultKeyGenerator : IKeyGenerator {
 
+    /// <summary>
+    /// Ctor.
+    /// </summary>
     public DefaultKeyGenerator() {
       TempIds = new UniqueIdCollection();
     }
 
+    /// <inheritdoc />
     public virtual object GetNextTempId(DataProperty property) {
       var nextValue = property.DataType.GetNextTempValue();
       if (nextValue == null) {
@@ -66,14 +69,17 @@ namespace Breeze.Sharp {
       return nextValue;
     }
 
+    /// <inheritdoc />
     public bool IsTempId(UniqueId uniqueId) {
       return TempIds.Contains(uniqueId);
     }
 
+    /// <inheritdoc />
     public UniqueIdCollection TempIds {
       get; private set; 
     }
 
+    /// <inheritdoc />
     public void Reset() {
       TempIds.Clear();
     }

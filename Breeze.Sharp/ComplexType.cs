@@ -10,7 +10,7 @@ namespace Breeze.Sharp {
   /// Metadata information about a complex type.
   /// </summary>
   [DebuggerDisplay("{Name}")]
-  public class ComplexType: StructuralType, IJsonSerializable {
+  public sealed class ComplexType: StructuralType, IJsonSerializable {
 
     public ComplexType() :base() {
 
@@ -52,7 +52,10 @@ namespace Breeze.Sharp {
    
   }
 
-  public class ComplexTypeCollection : KeyedCollection<String, ComplexType> {
+  /// <summary>
+  /// For internal use only.
+  /// </summary>
+  internal class ComplexTypeCollection : KeyedCollection<String, ComplexType> {
     protected override String GetKeyForItem(ComplexType item) {
       return item.ShortName + ":#" + item.Namespace;
     }

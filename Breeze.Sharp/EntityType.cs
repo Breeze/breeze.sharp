@@ -11,7 +11,7 @@ namespace Breeze.Sharp {
   /// Container for all of the metadata about a specific type of Entity.
   /// </summary>
   [DebuggerDisplay("{Name}")]
-  public class EntityType : StructuralType, IJsonSerializable {
+  public sealed class EntityType : StructuralType, IJsonSerializable {
 
     internal EntityType() {
     }
@@ -344,7 +344,7 @@ namespace Breeze.Sharp {
   /// <summary>
   /// Unique collection of <see cref="EntityType"/>s.
   /// </summary>
-  public class EntityTypeCollection : MapCollection<String, EntityType> {
+  internal class EntityTypeCollection : MapCollection<String, EntityType> {
     protected override String GetKeyForItem(EntityType item) {
       return item.ShortName + ":#" + item.Namespace;
     }

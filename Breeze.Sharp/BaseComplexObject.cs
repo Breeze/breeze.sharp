@@ -11,12 +11,16 @@ namespace Breeze.Sharp {
   /// </summary>
   public abstract class BaseComplexObject : IComplexObject {
 
+    /// <summary>
+    /// Protected ctor.
+    /// </summary>
     protected BaseComplexObject() {
       ComplexAspect = new ComplexAspect(this, null);
     }
 
+    /// <inheritdoc />
     public virtual void Initialize() {
-      // nnop;
+      // noop;
     }
 
     #region syntactic sugar helper methods 
@@ -35,6 +39,7 @@ namespace Breeze.Sharp {
 
     #endregion
 
+    /// <inheritdoc />
     public ComplexAspect ComplexAspect {
       get;
       set;

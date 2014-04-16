@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
   /// <summary>
   /// Options that allow queries that will be run against cache to share the same semantics as the corresponding
-  /// query against the Entity Framework and the backend database.  Linq To Objects (CLR) and Linq To Entities do
-  /// not share the same semantics.  This class allows IdeaBlade Entity queries against the Entity cache (Linq to Objects queries)
-  /// to be interpreted like they will be against the Entity Framework.
+  /// query against the Entity Framework and the backend database.  Linq To Objects (CLR) and remote service queries do
+  /// not automatically share the same semantics.  This class allows Breeze queries against the EntityManager's cache (Linq to Objects queries)
+  /// to be interpreted like they will be against the remote service.
   /// </summary>
   public class CacheQueryOptions {
 

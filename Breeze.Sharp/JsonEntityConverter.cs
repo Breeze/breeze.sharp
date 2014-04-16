@@ -36,7 +36,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  // Used by the <see cref="JsonResultsAdapter"/> to provide information about the current node being processed. 
+  /// Used by the <see cref="IJsonResultsAdapter"/> to provide information about the current node being processed. 
   /// </summary>
   public class NodeContext {
     public JObject Node;

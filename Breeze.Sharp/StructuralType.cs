@@ -12,14 +12,14 @@ namespace Breeze.Sharp {
   /// <summary>
   /// For internal use only.
   /// </summary>
-  public class StructuralTypeCollection : MapCollection<String, StructuralType> {
+  internal class StructuralTypeCollection : MapCollection<String, StructuralType> {
     protected override String GetKeyForItem(StructuralType item) {
       return item.ShortName + ":#" + item.Namespace;
     }
   }
 
   /// <summary>
-  /// Base class for both EntityType and ComplexType classes.
+  /// Base class for both <see cref="EntityType"/> and <see cref="ComplexType"/> classes.
   /// </summary>
   [DebuggerDisplay("{Name}")]
   public abstract class StructuralType {
@@ -147,10 +147,10 @@ namespace Breeze.Sharp {
     }
 
     private String _nameOnServer;
-    protected readonly DataPropertyCollection _dataProperties = new DataPropertyCollection();
+    internal readonly DataPropertyCollection _dataProperties = new DataPropertyCollection();
     protected readonly SafeList<DataProperty> _complexProperties = new SafeList<DataProperty>();
     protected readonly SafeList<DataProperty> _unmappedProperties = new SafeList<DataProperty>();
-    protected  ValidatorCollection _validators = new ValidatorCollection();
+    internal  ValidatorCollection _validators = new ValidatorCollection();
 
   }
 

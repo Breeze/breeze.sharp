@@ -11,10 +11,23 @@ namespace Breeze.Sharp {
   // TODO: need to figure out how to correctly serialize/deserialize any changes to the default LocalizedMessage
   // right now these changes will be lost thru serialization.
 
+
   /// <summary>
-  /// Validators are by convention immutable - if this convention is violated your app WILL break.
-  /// You can use 'With' methods to change the message.  i.e. new RequiredValidator().With(new LocalizedMessage("foo"));
+  /// Subclassed instances of the Validator class provide the logic to validate another object 
+  /// and provide a description of any errors encountered during the validation process. 
+  /// They are typically associated with a 'validators' property on the following types: 
+  /// EntityType, DataProperty or NavigationProperty.
+  /// A number of property level validators are registered automatically, i.e added to each DataProperty.Validators 
+  /// property based on DataProperty metadata. For example,
+  ///     DataProperty.MaxLength -> MaxLengthValidator
+  ///     DataProperty.IsNullable -> RequiredValidator (if not nullable)
   /// </summary>
+  /// <remarks>
+  /// Validators are by convention immutable - if this convention is violated your app WILL break.
+  /// You can use 'With' methods to create new Validators based on an existing validator.  For example,
+  /// to change the message you might do the following: 
+  ///     var newValidator = new RequiredValidator().With(new LocalizedMessage("foo"));
+  /// </remarks>
   public abstract class Validator : IJsonSerializable {
 
     static Validator() {
@@ -166,7 +179,11 @@ namespace Breeze.Sharp {
     #endregion
   }
 
-  public static class ValidatorExtns {
+  /// <summary>
+  /// Collection of extension methods for use with any <seealso cref="Validator"/>.
+  /// </summary>
+  public static class ValidatorExtensions {
+
     public static T WithMessage<T>(this T validator, String message) where T: Validator {
       return WithMessage(validator, new LocalizedMessage(message));
     }
@@ -192,7 +209,7 @@ namespace Breeze.Sharp {
     }
   }
 
-  public class ValidatorCollection : SetCollection<Validator> {
+  internal class ValidatorCollection : SetCollection<Validator> {
 
     public ValidatorCollection() : base() { }
     public ValidatorCollection(IEnumerable<Validator> validators) : base(validators) { }

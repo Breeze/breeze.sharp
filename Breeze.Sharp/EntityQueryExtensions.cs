@@ -113,7 +113,6 @@ namespace Breeze.Sharp {
     /// <param name="query"></param>
     /// <param name="em"></param>
     /// <returns></returns>
-    /// <include file='EntityQueryExtensions.Examples.xml' path='//Class[@name="EntityQueryExtensions"]/method[@name="With1"]/*' />
     public static TQuery With<TQuery>(this TQuery query, EntityManager em) where TQuery : EntityQuery {
       if (query.EntityManager == em) {
         return query;

@@ -10,7 +10,7 @@ namespace Breeze.Sharp {
   /// <summary>
   /// For internal use only. Unique collection of DataProperties.
   /// </summary>
-  public class DataPropertyCollection : MapCollection<String, DataProperty> {
+  internal class DataPropertyCollection : MapCollection<String, DataProperty> {
     protected override String GetKeyForItem(DataProperty item) {
       return item.Name;
     }

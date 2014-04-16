@@ -13,10 +13,14 @@ namespace Breeze.Sharp {
   [DebuggerDisplay("{EntityAspect.EntityKey} - {EntityAspect.EntityState}")]
   public abstract class BaseEntity : IEntity {
 
+    /// <summary>
+    /// Protected empty ctor.
+    /// </summary>
     protected BaseEntity() {
       EntityAspect = new EntityAspect(this, null);
     }
 
+    /// <inheritdoc />
     public virtual void Initialize() {
       // noop
     }
@@ -35,6 +39,7 @@ namespace Breeze.Sharp {
 
     #endregion
 
+    /// <inheritdoc />
     public EntityAspect EntityAspect {
       get;
       set;

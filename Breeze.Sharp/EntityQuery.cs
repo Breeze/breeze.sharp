@@ -72,7 +72,7 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Executes this query, against an optionally specified EntityManager. If no EntityManager
     /// is specified then the query is run on the EntityManager specified by the EntityManager 
-    /// property on this instance. ( <see cref="EntityQueryExtensions.With(TQuery, EntityManager)"/> )
+    /// property on this instance. ( <see cref="EntityQueryExtensions.With{TQuery}(TQuery, EntityManager)"/> )
     /// If this value is null an exception will be thrown.
     /// </summary>
     /// <param name="entityManager"></param>
@@ -86,7 +86,7 @@ namespace Breeze.Sharp {
     /// Executes this query against the EntityManager's local cache, with an optionally specfied EntityManager.
     /// If no EntityManager
     /// is specified then the query is run on the EntityManager specified by the EntityManager 
-    /// property on this instance. ( <see cref="EntityQueryExtensions.With(TQuery, EntityManager)"/> )
+    /// property on this instance. ( <see cref="EntityQueryExtensions.With{TQuery}(TQuery, EntityManager)"/> )
     /// If this value is null an exception will be thrown.
     /// </summary>
     /// <param name="entityManager"></param>
@@ -340,7 +340,10 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// 
+    /// Executes this query against a remote service. 
+    /// This method requires that an EntityManager has been previously specified via the 
+    /// <see cref="EntityQueryExtensions.With(EntityManager)"/> method.
+    /// <see cref="Breeze.Sharp.EntityManager.ExecuteQuery{T}(EntityQuery{T})"/>
     /// </summary>
     /// <param name="entityManager"></param>
     /// <returns></returns>
@@ -349,6 +352,14 @@ namespace Breeze.Sharp {
       return entityManager.ExecuteQuery(this);
     }
 
+    /// <summary>
+    /// Executes this query against the local cache. 
+    /// This method requires that an EntityManager has been previously specified via the 
+    /// <see cref="EntityQueryExtensions.With(EntityManager)"/> method. 
+    /// <seealso cref="EntityManager.ExecuteQueryLocally(EntityQuery)"/>
+    /// </summary>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
     public IEnumerable ExecuteLocally(EntityManager entityManager = null) {
       entityManager = CheckEm(entityManager);
       var lambda = CacheQueryExpressionVisitor.Visit(this, entityManager.CacheQueryOptions);
@@ -422,7 +433,9 @@ namespace Breeze.Sharp {
     public IJsonResultsAdapter JsonResultsAdapter { get; protected internal set; }
   }
 
-
+  /// <summary>
+  /// Interface for all Entity queries.
+  /// </summary>
   public interface IEntityQuery {
     DataService DataService { get;  }
     EntityManager EntityManager { get;  }

@@ -16,7 +16,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// Base class for both EntityAspect and ComplexAspect.
+  /// Base class for both <see cref="EntityAspect"/> and <see cref="ComplexAspect"/>.
   /// </summary>
   public abstract class StructuralAspect {
 

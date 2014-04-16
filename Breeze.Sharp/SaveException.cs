@@ -7,7 +7,7 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// SaveExceptions are thrown whenever a save fails for any reason.
+  /// SaveExceptions are thrown whenever an <see cref="EntityManager.SaveChanges(SaveOptions)"/> call fails for any reason.
   /// </summary>
   public class SaveException : Exception {
     public static SaveException Parse(EntityManager em, String json) {
@@ -42,6 +42,11 @@ namespace Breeze.Sharp {
     private IEnumerable<ValidationError> _validationErrors;
   }
 
+  /// <summary>
+  /// Information about any errors encountered on a specific entity during the course of a 
+  /// EntityManager.SaveChanges operation.  A collection of EntityError instances is part
+  /// of every <see cref="SaveException"/>
+  /// </summary>
   public class EntityError {
 
     public String ErrorName;

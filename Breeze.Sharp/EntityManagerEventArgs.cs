@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Breeze.Sharp {
   /// <summary>
-  /// Arguments to the <see cref="E:Breeze.Sharp.EntityManager.EntityManagerCreated"/> event.
+  /// Arguments to the <see cref="EntityManager.EntityManagerCreated"/> event.
   /// </summary>
   public class EntityManagerCreatedEventArgs : System.EventArgs {
 
@@ -14,22 +9,22 @@ namespace Breeze.Sharp {
     /// Initialize a new instance of this class.
     /// </summary>
     public EntityManagerCreatedEventArgs(EntityManager pEntityManager) {
-      mEntityManager = pEntityManager;
+      _entityManager = pEntityManager;
     }
 
     /// <summary>
     /// The EntityManager involved in this event.
     /// </summary>
     public EntityManager EntityManager {
-      get { return mEntityManager; }
+      get { return _entityManager; }
     }
 
-    private EntityManager mEntityManager;
+    private readonly EntityManager _entityManager;
 
   }
 
   /// <summary>
-  /// Arguments to the <see cref="E:Breeze.Sharp.EntityManager.EntityManagerCreated"/> event.
+  /// Arguments to the EntityManager's <see cref="EntityManager.HasChangesChanged"/> event.
   /// </summary>
   public class EntityManagerHasChangesChangedEventArgs : System.EventArgs {
 

@@ -6,7 +6,7 @@ using System.Xml;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Used to classify a data type.
+  /// Used to classify whether a data type is a number, an integer or a date.
   /// </summary>
   [Flags]
   public enum DataTypeInfo {

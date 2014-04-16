@@ -16,12 +16,36 @@ namespace Breeze.Sharp {
   /// The interface that describes the type for any nonscalar navigation property on an Entity.
   /// </summary>
   public interface INavigationSet : IEnumerable, INotifyPropertyChanged, INotifyCollectionChanged {
+    /// <summary>
+    /// The parent <see cref="IEntity"/> associated with this collection.
+    /// </summary>
     IEntity ParentEntity { get; set; }
+    /// <summary>
+    /// The <see cref="NavigationProperty"/> associated with this collection;
+    /// </summary>
     NavigationProperty NavigationProperty { get; set; }
+    /// <summary>
+    /// Adds an IEntity to this collection - if an entity is added that is already in the collection, the add is ignored.
+    /// </summary>
+    /// <param name="entity"></param>
     void Add(IEntity entity);
+    /// <summary>
+    /// Removes an IEntity from this collection.
+    /// </summary>
+    /// <param name="entity"></param>
     void Remove(IEntity entity);
+    /// <summary>
+    /// Returns whether an IEntity is part of this collection.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     bool Contains(IEntity entity);
+    /// <summary>
+    /// Clears this collection.
+    /// </summary>
     void Clear();
+
+    /// <inheritdoc />
     int Count { get; }
   }
 

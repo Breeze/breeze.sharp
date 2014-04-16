@@ -166,7 +166,7 @@ namespace Breeze.Sharp {
     #endregion
   }
 
-  public class KeyMapping {
+  internal class KeyMapping {
     public String EntityTypeName;
     public Object TempValue;
     public Object RealValue;

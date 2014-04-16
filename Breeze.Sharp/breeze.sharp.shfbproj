@@ -15,7 +15,7 @@
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Portable Library 4.5</FrameworkVersion>
     <OutputPath>..\ApiDocs.sc\</OutputPath>
-    <HtmlHelpName>Documentation</HtmlHelpName>
+    <HtmlHelpName>Breeze.sharp.apidocs</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
       <DocumentationSource sourceFile="bin\Debug\Breeze.Sharp.dll" xmlns="" />
@@ -54,6 +54,12 @@
     <FeedbackEMailAddress>breeze%40ideablade.com</FeedbackEMailAddress>
     <CopyrightHref>Copyright 2014 IdeaBlade</CopyrightHref>
     <MissingTags>Summary, AutoDocumentCtors, Namespace, AutoDocumentDispose</MissingTags>
+    <ProjectSummary>Welcome to the Breeze API documentation. If this is your first time browsing the API, you might want to start with the EntityManager as this is the core class in Breeze.
+Sample applications, videos, and additional documentation are also available.
+Support
+
+Ask questions in our community forum and get answers from support engineers, MVPs, and developers just like you. If you prefer to use email, please contact us at breeze%40ideablade.com.</ProjectSummary>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected</VisibleItems>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

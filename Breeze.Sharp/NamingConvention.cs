@@ -5,7 +5,9 @@ using System.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// 
+  /// A NamingConvention instance is used to specify the naming conventions under 
+  /// which the MetadataStore will translate type and property names between the server and the .NET client.
+  /// The default NamingConvention does not perform any translation, it simply passes property names thru unchanged.
   /// </summary>
   public class NamingConvention {
 
@@ -19,6 +21,10 @@ namespace Breeze.Sharp {
       Name = name;
     }
 
+    /// <summary>
+    /// The name of this NamingConvention. This name will be used when serializing and deserializing metadata
+    /// to insure that the correct NamingConvention is set for any exported metadata.
+    /// </summary>
     public String Name { 
       get { return _name; }
       set {
@@ -33,6 +39,11 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Translates a server <see cref="TypeNameInfo"/> into a client TypeNameInfo.
+    /// </summary>
+    /// <param name="serverNameInfo"></param>
+    /// <returns></returns>
     public virtual TypeNameInfo ServerTypeNameToClient(TypeNameInfo serverNameInfo) {
       
       String clientNs;
@@ -43,10 +54,21 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Translates a server property name into a client property name. 
+    /// </summary>
+    /// <param name="clientName"></param>
+    /// <param name="parentType"></param>
+    /// <returns></returns>
     public virtual String ServerPropertyNameToClient(String clientName, StructuralType parentType) {
       return clientName;
     }
 
+    /// <summary>
+    ///  Translates a client <see cref="TypeNameInfo"/> into a server TypeNameInfo.
+    /// </summary>
+    /// <param name="clientNameInfo"></param>
+    /// <returns></returns>
     public virtual TypeNameInfo ClientTypeNameToServer(TypeNameInfo clientNameInfo) {
       
       String serverNs;
@@ -57,6 +79,12 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Translates a server property name into a client property name. 
+    /// </summary>
+    /// <param name="serverName"></param>
+    /// <param name="parentType"></param>
+    /// <returns></returns>
     public virtual String ClientPropertyNameToServer(String serverName, StructuralType parentType) {
       return serverName;
     }
@@ -67,13 +95,23 @@ namespace Breeze.Sharp {
     }
 
     private String _name;
-    private Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
-    private Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
+    private readonly Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
+    private readonly Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
 
-
+    /// <summary>
+    /// The 'Default' NamingConvention. - Basically does nothing to either type or property names.
+    /// </summary>
     public static NamingConvention Default = new NamingConvention("Default");
-    public static NamingConvention CamelCase = new CamelCaseNamingConvention();
+    /// <summary>
+    /// A NamingConvention that causes properties to be camelCased on the client.
+    /// </summary>
+    public static NamingConvention CamelCaseProperties = new CamelCasePropertiesNamingConvention();
 
+    /// <summary>
+    /// Returns any NamingConvention based on its 'Name'.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public static NamingConvention FromName(String name) {
       lock (__namingConventions) {
         return __namingConventions.FirstOrDefault(nc => nc.Name == name);
@@ -105,8 +143,8 @@ namespace Breeze.Sharp {
   /// If a more complicated version is needed then another type should be created that 
   /// inherits from NamingConvention.
   /// </summary>
-  public class CamelCaseNamingConvention : NamingConvention  {
-    public CamelCaseNamingConvention()
+  public class CamelCasePropertiesNamingConvention : NamingConvention  {
+    public CamelCasePropertiesNamingConvention()
       : base("CamelCase") {
     }
     

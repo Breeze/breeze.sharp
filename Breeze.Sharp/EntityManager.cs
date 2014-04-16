@@ -13,7 +13,8 @@ using Newtonsoft.Json.Linq;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Instances of the EntityManager contain and manage collections of entities, either retrieved from a backend datastore or created on the client. 
+  /// Instances of the EntityManager contain and manage collections of entities, 
+  /// either retrieved from a backend datastore or created on the client. 
   /// </summary>
   public class EntityManager  {
 
@@ -1434,38 +1435,7 @@ namespace Breeze.Sharp {
     #endregion
   }
 
-  // JsonObject attribute is needed so this is NOT deserialized as an Enumerable
-  [JsonObject]
-  public class QueryResult<T> : IEnumerable<T>, IHasInlineCount {
-    public IEnumerable<T> Results { get; set; }
-    public Int64? InlineCount { get; set; }
-    public IEnumerator<T> GetEnumerator() {
-      return Results.GetEnumerator();
-    }
-
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-      return Results.GetEnumerator();
-    }
-
-  }
-
-  [JsonObject]
-  public class QueryResult : IEnumerable, IHasInlineCount {
-    public IEnumerable Results { get; set; }
-    public Int64? InlineCount { get; set; }
-    public IEnumerator GetEnumerator() {
-      return Results.GetEnumerator();
-    }
-
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-      return Results.GetEnumerator();
-    }
-
-  }
-
-  public interface IHasInlineCount {
-    Int64? InlineCount { get; }
-  }
+  
 
 
 }

@@ -46,9 +46,11 @@
     <Compile Include="Core\PredicateBuilder.cs" />
     <Compile Include="Core\SafeDictionary.cs" />
     <Compile Include="DataServiceAdapter.WebApi.cs" />
+    <Compile Include="QueryResult.cs" />
     <Compile Include="EntityQueryBuilder.cs" />
     <Compile Include="IDataServiceAdapter.cs" />
     <Compile Include="EntityTypeBuilder.cs" />
+    <Compile Include="NamespaceDoc.cs" />
     <Compile Include="SaveOptions.cs" />
     <Compile Include="SaveException.cs" />
     <Compile Include="SaveResult.cs" />

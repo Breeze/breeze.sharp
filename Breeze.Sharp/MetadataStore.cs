@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// An instance of the MetadataStore contains all of the metadata about a collection of EntityTypes and ComplexTypes. 
+  /// An instance of the MetadataStore contains all of the metadata about a collection of <see cref="EntityType"/>s 
+  /// and <see cref="ComplexType"/>s.
   /// The MetadataStore.Instance property returns a singleton MetadataStore that is shared by all EntityManagers.
   /// This class is threadsafe meaning that single MetadataStore.Instance value may be shared across multiple threads. 
   /// This is NOT true of most other instances of classes within Breeze.

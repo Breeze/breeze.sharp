@@ -8,10 +8,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
-
-
+  
   /// <summary>
-  /// Provides entity services for all persistable business objects used within DevForce.  
+  /// Provides entity services to a <see cref="IEntity"/>.  
   /// <seealso cref="T:Breeze.Sharp.EntityManager"/>
   /// <seealso cref="EntityQuery"/>
   /// <seealso cref="IEntity"/>
@@ -21,7 +20,7 @@ namespace Breeze.Sharp {
   /// One instance of the EntityAspect class is associated with each persistable entity within a domain model.
   /// </remarks>
   [DebuggerDisplay("{EntityKey} - {EntityState}")]
-  public class EntityAspect : StructuralAspect, IEditableObject, IChangeTracking, IRevertibleChangeTracking, INotifyPropertyChanged,
+  public sealed class EntityAspect : StructuralAspect, IEditableObject, IChangeTracking, IRevertibleChangeTracking, INotifyPropertyChanged,
     INotifyDataErrorInfo, IComparable {
     // what about IDataErrorInfo
 

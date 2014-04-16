@@ -10,7 +10,7 @@ namespace Breeze.Sharp {
   /// <summary>
   /// For internal use only.
   /// </summary>
-  public class NavigationPropertyCollection : MapCollection<String, NavigationProperty> {
+  internal class NavigationPropertyCollection : MapCollection<String, NavigationProperty> {
     protected override String GetKeyForItem(NavigationProperty item) {
       return item.Name;
     }
