@@ -1,15 +1,15 @@
 ﻿
 namespace Breeze.Sharp {
   /// <summary>
-  /// Arguments to the <see cref="EntityManager.EntityManagerCreated"/> event.
+  /// Arguments to the <see cref="E:EntityManager.EntityManagerCreated"/> event.
   /// </summary>
   public class EntityManagerCreatedEventArgs : System.EventArgs {
 
     /// <summary>
     /// Initialize a new instance of this class.
     /// </summary>
-    public EntityManagerCreatedEventArgs(EntityManager pEntityManager) {
-      _entityManager = pEntityManager;
+    public EntityManagerCreatedEventArgs(EntityManager entityManager) {
+      _entityManager = entityManager;
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// Arguments to the EntityManager's <see cref="EntityManager.HasChangesChanged"/> event.
+  /// Arguments to the EntityManager's <see cref="E:EntityManager.HasChangesChanged"/> event.
   /// </summary>
   public class EntityManagerHasChangesChangedEventArgs : System.EventArgs {
 

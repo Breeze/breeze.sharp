@@ -17,7 +17,7 @@ namespace Breeze.Sharp {
   }
 
   /// <summary>
-  /// A DataProperty describes the metadata for a single property of an EntityType that contains simple data.
+  /// A DataProperty describes the metadata for a single property of an <see cref="EntityType"/> that contains simple data.
   /// Instances of the DataProperty class are constructed automatically during assembly probing and 
   /// and then updated via Metadata retrieval from an entity server. Itt is also possible to 
   /// update/extend them directly on the client.

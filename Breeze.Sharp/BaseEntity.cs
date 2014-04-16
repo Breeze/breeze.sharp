@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Default base class implementation of IEntity.  
+  /// Default base class implementation of <see cref="IEntity"/>.
   /// All entities should inherit from this class either directly or indirectly.
   /// </summary>
   [DebuggerDisplay("{EntityAspect.EntityKey} - {EntityAspect.EntityState}")]
