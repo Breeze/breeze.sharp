@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Breeze.Sharp</id>
-        <version>0.5.2.0</version>
+        <version>0.5.2.4</version>
         <title>Breeze Sharp</title>
         <authors>Jay Traband</authors>
         <owners>IdeaBlade</owners>
@@ -23,11 +23,12 @@
 		</dependencies>
     </metadata>
     <files>
-        <file src="lib\portable-net45+wp80+win\Breeze.Sharp.dll" target="lib\portable-net45+wp80+win\Breeze.Sharp.dll" />       
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" />
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" />
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" target="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" />
-        <file src="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" target="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" /> 
+        <file src="lib\portable-net45+wp80+win\*.pdb" target="lib\portable-net45+wp80+win\" />
+        <file src="lib\portable-net45+wp80+win\Breeze.Sharp.dll" target="lib\portable-net45+wp80+win" />       
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" target="lib\portable-net45+wp80+win\" />
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" target="lib\portable-net45+wp80+win\" />
+        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" target="lib\portable-net45+wp80+win\" />
+        <file src="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" target="lib\portable-net45+wp80+win\" /> 
         <file src="readme.txt" target="readme.txt" />
     </files>       
         

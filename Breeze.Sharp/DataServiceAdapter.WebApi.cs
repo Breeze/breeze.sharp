@@ -68,7 +68,7 @@ namespace Breeze.Sharp {
         if (dp.IsComplexProperty) {
           jn.AddJNode(dp.NameOnServer, DataToJNode(((IComplexObject)val).ComplexAspect));
         } else {
-          jn.AddPrimitive(dp.NameOnServer, val, dp.DefaultValue);
+          jn.AddPrimitive(dp.NameOnServer, val, TypeFns.GetDefaultValue(dp.DataType.ClrType));
         }
       });
       return jn;

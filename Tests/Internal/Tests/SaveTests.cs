@@ -35,6 +35,19 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task SaveDefaultEmptyDateTime() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var user = new User() {UserName = "Test1", FirstName = "John", 
+        LastName = "Smith", Email="xxx", CreatedBy = "JJT"};
+      
+      // user.CreatedDate is not set - so value will be DateTime.Min which is out of range of 
+      em1.AddEntity(user);
+      var sr1 = await em1.SaveChanges();
+      Assert.IsTrue(sr1.Entities.Count == 1);
+    }
+
+    [TestMethod]
     public async Task SaveNoChanges() {
       var em1 = await TestFns.NewEm(_serviceName);
 

@@ -67,7 +67,7 @@ module.exports = function(grunt) {
       
       // copy breeze.sharp dll files to each of the nuget sources
       nugetLibs: {
-        src: [ sourceDir + 'bin/release/Breeze.sharp.dll' ],
+        src: [ sourceDir + 'bin/release/Breeze.sharp.dll', sourceDir + 'bin/release/Breeze.sharp.pdb' ],
         destFolders: [ nugetDir]
       }
     },
@@ -165,8 +165,7 @@ module.exports = function(grunt) {
    ['newer:msBuild:source' ]);
   grunt.registerTask('packageNuget',   
    [ 'clean:nupkgs', 'newer:updateFiles', 'buildNupkg', 'copy:testNupkg']);
-  grunt.registerTask('packageNuget2',   
-   [ 'clean:nupkgs',  'buildNupkg', 'copy:testNupkg']);
+  
   grunt.registerTask('default', ['build', 'packageNuget']);
   
   // ------------------- local functions ----------------------

@@ -750,7 +750,7 @@ namespace Breeze.Sharp {
     /// the EntityManager will have no pending changes.
     /// </summary>
     public void AcceptChanges() {
-      var entities = this.GetChanges();
+      var entities = this.GetChanges().ToList();
       using (NewIsLoadingBlock(false)) {
         entities.ForEach(e => e.AcceptChanges());
       }
@@ -762,7 +762,7 @@ namespace Breeze.Sharp {
     /// the EntityManager will have no pending changes.
     /// </summary>
     public void RejectChanges() {
-      var entities = this.GetChanges();
+      var entities = this.GetChanges().ToList();
       using (NewIsLoadingBlock(false)) {
         entities.ForEach(e => e.RejectChanges());
       }

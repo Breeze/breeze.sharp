@@ -72,6 +72,20 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task RejectChanges2() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+
+      var prod1 = new Product();
+      prod1.Discontinued = true;
+      em1.AddEntity(prod1);
+      em1.RejectChanges();
+
+
+      Assert.IsTrue(prod1.EntityAspect.EntityState.IsDetached());
+    }
+
+    [TestMethod]
     public async Task RejectChangesFkFixup() {
       var em1 = await TestFns.NewEm(_serviceName);
 

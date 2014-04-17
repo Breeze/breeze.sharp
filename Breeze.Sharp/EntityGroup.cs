@@ -157,14 +157,14 @@ namespace Breeze.Sharp {
     /// Calls <see cref="EntityAspect.AcceptChanges"/> on all entities in this group.
     /// </summary>
     public void AcceptChanges() {
-      ChangedAspects.ForEach(ea => ea.AcceptChanges());
+      ChangedAspects.ToList().ForEach(ea => ea.AcceptChanges());
     }
 
     /// <summary>
     /// Calls <see cref="EntityAspect.RejectChanges"/> on all entities in this group.
     /// </summary>
     public void RejectChanges() {
-      ChangedAspects.ForEach(ea => ea.RejectChanges());
+      ChangedAspects.ToList().ForEach(ea => ea.RejectChanges());
     }
 
     /// <summary>
