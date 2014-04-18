@@ -65,7 +65,7 @@ namespace Breeze.Sharp {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
       var msg = "Metadata mismatch - values do not match between server and client for " + FormatName() + " Metadata property: " + name;
-      MetadataStore.Instance.AddMessage(msg, MessageType.Error);
+      MetadataStore.Instance.AddMessage(msg, MessageType.Error, true);
     }
 
     internal String FormatName() {

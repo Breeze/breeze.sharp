@@ -86,24 +86,57 @@ namespace Breeze.Sharp {
       } 
     }
 
-    internal void AddMessage(String message, MessageType messageType) {
-      lock (_lock) {
-        _messages.Add(new Message() { Text = message, MessageType = messageType });
-        if (messageType == MessageType.Error) {
-          throw new Exception(message);
+    /// <summary>
+    /// Allowed types of metadata mismatches.
+    /// </summary>
+    public MetadataMismatchType AllowedMetadataMismatchTypes {
+      get; set;
+    }
+
+    /// <summary>
+    /// Fired whenever an entity's state is changing in any significant manner.
+    /// </summary>
+    public event EventHandler<MetadataMismatchEventArgs> MetadataMismatch;
+
+    internal Message OnMetadataMismatch(String entityTypeName, String propertyName, MetadataMismatchType mmType, String detail = null) {
+      EventHandler<MetadataMismatchEventArgs> handler = MetadataMismatch;
+      var allow = (AllowedMetadataMismatchTypes & mmType) > 0;
+      var args = new MetadataMismatchEventArgs() {
+        EntityTypeName = entityTypeName,
+        PropertyName = propertyName,
+        MetadataMismatchType = mmType,
+        Detail = detail,
+        Allow = allow
+      };
+      if (handler != null) {
+        try {
+          handler(this, args);
+          allow = args.Allow;
+        }
+        catch {
+          // Eat any handler exceptions but throw later. 
+          allow = false;
         }
       }
+      // don't allow NotAllowable thru no matter what the dev says.
+      allow = allow && (MetadataMismatchType.NotAllowable & mmType) == 0;
+      return AddMessage(args.Message, allow ? MessageType.Message : MessageType.Error, false);
     }
 
-    public IEnumerable<String> GetWarnings() {
+    internal Message AddMessage(String message, MessageType messageType, bool throwOnError = false) {
       lock (_lock) {
-        return _messages.ToList().Where(m => m.MessageType == MessageType.Error).Select(m => m.Text);
+        var msg = new Message() { Text = message, MessageType = messageType };
+        _messages.Add(msg);
+        if (messageType == MessageType.Error && throwOnError) {
+          throw new Exception(message);
+        }
+        return msg;
       }
     }
 
-    public IEnumerable<String> GetErrors() {
+    public IEnumerable<String> GetMessages(MessageType messageType = MessageType.All) {
       lock (_lock) {
-        return _messages.ToList().Where(m => m.MessageType == MessageType.Error).Select(m => m.Text);
+        return _messages.ToList().Where(m => (m.MessageType & messageType) > 0).Select(m => m.Text);
       }
     }
 
@@ -694,13 +727,17 @@ namespace Breeze.Sharp {
   internal class Message {
     public MessageType MessageType { get; set; }
     public String Text { get; set; }
+    public bool IsError {
+      get { return MessageType == MessageType.Error; }
+    }
   }
 
-
-  internal enum MessageType {
-    Message = 0,
-    Warning = 1,
-    Error = 2
+  [Flags]
+  public enum MessageType {
+    Message = 1,
+    Warning = 2,
+    Error = 4,
+    All = Message | Warning | Error
   }
 
 
