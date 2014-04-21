@@ -8,7 +8,7 @@
         <owners>IdeaBlade</owners>
         <licenseUrl>http://www.breezejs.com/license</licenseUrl>
         <projectUrl>http://www.breezejs.com</projectUrl>
-        <iconUrl>http://www.breezejs.com/sites/all/images/breezepkg.png</iconUrl>
+        <iconUrl>http://www.breezejs.com/sites/all/images/breezesharpb.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>The files and references that are essential for a Breeze Sharp client</description>
         <summary>Breeze Sharp. This package is the .NET client for any Breeze server.</summary>
