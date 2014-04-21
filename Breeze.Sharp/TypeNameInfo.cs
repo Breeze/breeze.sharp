@@ -48,9 +48,9 @@ namespace Breeze.Sharp {
       return new TypeNameInfo(shortName, ns);
     }
 
-    public String Name { get; private set; }
-    public String ShortName { get; private set; }
-    public String Namespace { get; private set; }
+    public String Name { get;  private set; }
+    public String ShortName { get; set; }
+    public String Namespace { get; set; }
     public bool IsAnonymous { get; private set; }
 
     public TypeNameInfo ToClient() {

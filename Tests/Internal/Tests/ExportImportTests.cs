@@ -258,7 +258,7 @@ namespace Breeze.Sharp.Tests {
       var suppliers = await q.Execute(em1);
 
       Assert.IsTrue(suppliers.Count() > 0, "should be some suppliers");
-      var orderIdProp = MetadataStore.Instance.GetEntityType("Order").KeyProperties[0];
+      var orderIdProp = MetadataStore.Instance.GetEntityType(typeof(Order)).KeyProperties[0];
       em1.KeyGenerator.GetNextTempId(orderIdProp);
 
       var order1 = new Order();
