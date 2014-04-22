@@ -51,6 +51,9 @@ namespace Breeze.Sharp {
       return (EntityQuery<TSource>)Queryable.OrderBy(source, keySelector);
     }
 
+    public static EntityQuery<TSource> ThenBy<TSource, TKey>(this EntityQuery<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+      return (EntityQuery<TSource>)Queryable.ThenBy(source, keySelector);
+    }
 
     /// <summary>
     /// Sorts the elements of a sequence in descending order.
@@ -63,6 +66,10 @@ namespace Breeze.Sharp {
     /// <include file='EntityQueryExtensions.Examples.xml' path='//Class[@name="EntityQueryExtensions"]/method[@name="OrderByDescending"]/*' />
     public static EntityQuery<TSource> OrderByDescending<TSource, TKey>(this EntityQuery<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
       return (EntityQuery<TSource>)Queryable.OrderByDescending(source, keySelector);
+    }
+
+    public static EntityQuery<TSource> ThenByDescending<TSource, TKey>(this EntityQuery<TSource> source, Expression<Func<TSource, TKey>> keySelector) {
+      return (EntityQuery<TSource>)Queryable.ThenByDescending(source, keySelector);
     }
 
     /// <summary>

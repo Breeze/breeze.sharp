@@ -42,7 +42,22 @@ namespace Breeze.Sharp.Tests {
     public class FooEntity : BaseEntity {
       
     }
-    
+
+    [TestMethod]
+    public async Task PropertyPath() {
+      var em = await TestFns.NewEm(_serviceName);
+      
+      // Products in a Category whose name starts with "S"
+      var query1 = EntityQuery.From<Product>()
+        .Where(product => product.Category.CategoryName.StartsWith("S"));
+      var r1 = await em.ExecuteQuery(query1);
+      Assert.IsTrue(r1.Any());
+      // Orders sold to a Customer located in California
+      var query2 = new EntityQuery<Order>()
+        .Where(order => order.Customer.Region == "CA");
+      var r2 = await em.ExecuteQuery(query2);
+      Assert.IsTrue(r2.Any());
+    }
 
     [TestMethod]
     public async Task RequerySameEntity() {
@@ -74,6 +89,20 @@ namespace Breeze.Sharp.Tests {
       var r1 = await em1.ExecuteQuery(q.Take(2));
       Assert.IsTrue(r1.Count() == 2);
     }
+
+    [TestMethod]
+    public async Task SimpleQueryContains() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var q = new EntityQuery<Customer>()
+        .Where(c => c.CompanyName.Contains("market"));
+
+      var results = await em1.ExecuteQuery(q);
+
+      Assert.IsTrue(results.Any());
+      
+    }
+
 
     [TestMethod]
     public async Task SimpleEntitySelect() {
@@ -162,6 +191,57 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task WhereOrderByMulti() {
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q0 = new EntityQuery<Customer>()
+        .OrderBy(c => c.Country).ThenBy(c => c.CompanyName);
+      var r0 = await q0.Execute(em1);
+
+      Assert.IsTrue(r0.Any());
+    }
+
+    [TestMethod]
+    public async Task WhereOrderByPropertyPath() {
+      var em1 = await TestFns.NewEm(_serviceName);
+     
+      // Products sorted by their Category names (in descending order)
+      var query1 = EntityQuery.From<Product>()
+        .OrderByDescending(p => p.Category.CategoryName);
+      var r1 = await query1.Execute(em1);
+      Assert.IsTrue(r1.Any());
+
+      // Products sorted by their Category names, then by Product name (in descending order)
+      var query2 = EntityQuery.From<Product>()
+        .OrderBy(p => p.Category.CategoryName)
+        .ThenByDescending(p => p.ProductName);
+      var r2 = await query2.Execute(em1);
+      Assert.IsTrue(r2.Any());
+    }
+
+    [TestMethod]
+    public async Task WhereAny() {
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q = new EntityQuery<Employee>()
+        .Where(emp => emp.Orders.Any(order => order.Freight > 10));
+      var results = await q.Execute(em1);
+      Assert.IsTrue(results.Any());
+
+    }
+
+    [TestMethod]
+    public async Task WhereAnyNested() {
+      var em1 = await TestFns.NewEm(_serviceName);
+      var query1 = new EntityQuery<Customer>()
+        .Where(c => c.Orders.Any(o => o.OrderDetails.All(od => od.UnitPrice > 200)));
+      
+      var results = await query1.Execute(em1);
+      Assert.IsTrue(results.Any());
+
+    }
+
+    
+
+    [TestMethod]
     public async Task WhereAnyOrderBy() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Foo.Customer>();
@@ -220,6 +300,39 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(results.Count() == 2);
       Assert.IsTrue(results.All(r1 => r1.GetType() == typeof(Foo.Customer)), "should all get customers");
     }
+
+    [TestMethod]
+    public async Task SelectAnonSingleDp() {
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q = new EntityQuery<Customer>("Customers")
+        .Where(c => c.CompanyName.StartsWith("C"))
+        .Select(c => new { c.CompanyName });
+      
+      var results = await q.Execute(em1);
+
+      Assert.IsTrue(results.Any());
+
+    }
+
+    [TestMethod]
+    public async Task SelectAnonWithOrderBy() {
+      Assert.Inconclusive("doesn't yet work properly because of MS OData bug");
+      // The current code runs but returns a collection of anon objects 
+      // each with an empty "CompanyName"
+      var em1 = await TestFns.NewEm(_serviceName);
+      var query = new EntityQuery<Order>()
+        .Where(o => o.Customer.CompanyName.StartsWith("C"))
+        .OrderBy(o => o.Customer.CompanyName)
+        .Select(o => new { o.Customer.CompanyName});
+       
+
+      var results = await query.Execute(em1);
+
+      Assert.IsTrue(results.Any());
+
+    }
+
+    
 
     [TestMethod]
     public async Task SelectAnonWithEntityCollection() {
@@ -401,6 +514,21 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(r0.Count() == 3);
       Assert.IsTrue(r0.All(r => r.InternationalOrder != null));
       
+    }
+
+    [TestMethod]
+    public async Task QueryWithStringFns() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var q0 = new EntityQuery<Customer>().Where(c => c.CompanyName.ToLower().StartsWith("c"));
+      var r0 = await q0.Execute(em1);
+      Assert.IsTrue(r0.Any());
+      Assert.IsTrue(r0.All(c => c.CompanyName.ToLower().StartsWith("c")));
+
+      var q1 = EntityQuery.From<Customer>().Where(c => c.CompanyName.Substring(1,2).ToUpper() == "OM");
+      var r1 = await q1.Execute(em1);
+      Assert.IsTrue(r1.Any());
+      Assert.IsTrue(r1.All(c => c.CompanyName.Substring(1,2).ToUpper() == "OM"));
     }
 
     [TestMethod]

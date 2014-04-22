@@ -62,6 +62,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="PartialMetadataTests.cs" />
+    <Compile Include="PredicateQueryTests.cs" />
     <Compile Include="StandaloneTests.cs" />
     <Compile Include="EdmundsTests.cs" />
     <Compile Include="MetadataByHandTests.cs" />
