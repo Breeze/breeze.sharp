@@ -27,24 +27,10 @@ namespace Breeze.Sharp.Tests {
       
     }
 
-    [TestMethod]
-    public async Task EntityKeyNoMetadata() {
-      
-      try {
-        var ek = new EntityKey(typeof (FooEntity), 7);
-        Assert.Fail("should not get here");
-      } catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("FooEntity") && e.Message.Contains("FetchMetadata"));
-      }
-
-    }
-
-    public class FooEntity : BaseEntity {
-      
-    }
+  
 
     [TestMethod]
-    public async Task PropertyPath() {
+    public async Task WherePropertyPath() {
       var em = await TestFns.NewEm(_serviceName);
       
       // Products in a Category whose name starts with "S"
@@ -78,7 +64,7 @@ namespace Breeze.Sharp.Tests {
 
 
     [TestMethod]
-    public async Task SimpleQuery() {
+    public async Task NoWhere() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q = new EntityQuery<Customer>();
@@ -91,7 +77,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task SimpleQueryContains() {
+    public async Task WhereContains() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q = new EntityQuery<Customer>()
@@ -105,7 +91,7 @@ namespace Breeze.Sharp.Tests {
 
 
     [TestMethod]
-    public async Task SimpleEntitySelect() {
+    public async Task SelectScalarNpNoAnon() {
       Assert.Inconclusive("Known issue with OData - use an anon projection instead");
       var em1 = await TestFns.NewEm(_serviceName);
       
@@ -119,7 +105,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task SimpleAnonEntitySelect() {
+    public async Task SelectSimpleAnonEntity() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q1 = new EntityQuery<Order>().Select(o => new { o.Customer }).Take(5);
@@ -132,7 +118,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task SimpleAnonEntityCollectionSelect() {
+    public async Task SelectSimpleAnonEntityCollection() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q1 = new EntityQuery<Customer>().Where(c => c.CompanyName.StartsWith("C")).Select(c => new { c.Orders });
@@ -460,7 +446,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task GuidQuery() {
+    public async Task WhereGuid() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Customer>().Where(c => c.CustomerID.Equals(Guid.NewGuid())); // && true);
       var rp = q.GetResourcePath();
@@ -470,7 +456,7 @@ namespace Breeze.Sharp.Tests {
     }
     
     [TestMethod]
-    public async Task GuidQuery2() {
+    public async Task WhereGuid2() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Order>().Where(o => o.CustomerID == Guid.NewGuid()); // && true);
       var rp = q.GetResourcePath();
@@ -480,7 +466,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task EntityKeyQuery() {
+    public async Task WhereEntityKey() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Customer>().Take(1);
 
@@ -496,7 +482,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task QuerySameFieldTwice() {
+    public async Task WhereSameFieldTwice() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = EntityQuery.From<Order>().Where(o => o.Freight > 100 && o.Freight < 200);
@@ -506,7 +492,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task OneToOne() {
+    public async Task ExpandWhereOneToOne() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Order>().Where(o => o.InternationalOrder != null).Take(3).Expand("InternationalOrder");
@@ -517,7 +503,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task QueryWithStringFns() {
+    public async Task WhereFnStringFns() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Customer>().Where(c => c.CompanyName.ToLower().StartsWith("c"));
@@ -532,7 +518,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task QueryWithYearFn() {
+    public async Task WhereFnYear() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Employee>().Where(e => e.HireDate.Value.Year > 1993);
@@ -544,7 +530,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task QueryWithMonthFn() {
+    public async Task WhereFnMonth() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Employee>().Where(e => e.HireDate.Value.Month > 6 && e.HireDate.Value.Month < 11);
@@ -556,7 +542,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task QueryWithAddFn() {
+    public async Task WhereFnAdd() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Employee>().Where(e => e.EmployeeID + e.ReportsToEmployeeID.Value > 3);
@@ -605,7 +591,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task NestedExpand() {
+    public async Task ExpandNested() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<OrderDetail>().Take(5).Expand(od => od.Order.Customer);
@@ -617,7 +603,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task NestedExpand3Levels() {
+    public async Task ExpandNested3Levels() {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var q0 = new EntityQuery<Order>().Take(5).Expand("OrderDetails.Product.Category");

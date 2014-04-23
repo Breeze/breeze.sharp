@@ -48,6 +48,67 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task LookupsSimple() {
+      var entityManager = await TestFns.NewEm(_serviceName);
+      var query = EntityQuery.From("Lookup1Array", new {
+        regions = new List<Region>()
+      });
+
+      var r0 = await query.Execute(entityManager);
+      Assert.IsTrue(r0.Any());
+    }
+
+    [TestMethod]
+    public async Task LookupsScalar() {
+      
+      var entityManager = await TestFns.NewEm(_serviceName);
+
+      //var query = EntityQuery.From("Lookups", new
+      //{
+      //    Regions = Enumerable.Empty<Region>(),
+      //    Territories = Enumerable.Empty<Territory>(),
+      //    Categories = Enumerable.Empty<Category>(),
+      //});
+      var query = EntityQuery.From("Lookups", new {
+        regions = new List<Region>(),
+        territories = new List<Territory>(),
+        categories = new List<Category>()
+      });
+
+      var data = await query.Execute(entityManager);
+      Assert.IsTrue(data.Count() == 1, "Lookups query should return single item");
+      var lookups = data.First();
+
+    }
+
+
+
+    [TestMethod]
+    public async Task LookupsEnumerableAnon() {
+      // Not yet reviewed - JJT
+
+      var entityManager = await TestFns.NewEm(_serviceName);
+
+      //var query = EntityQuery.From("Lookups", new
+      //{
+      //    Regions = Enumerable.Empty<Region>(),
+      //    Territories = Enumerable.Empty<Territory>(),
+      //    Categories = Enumerable.Empty<Category>(),
+      //});
+      var query = EntityQuery.From("LookupsEnumerableAnon", new {
+        regions = new List<Region>(),
+        territories = new List<Territory>(),
+        categories = new List<Category>()
+      });
+
+      var data = await query.Execute(entityManager);
+      Assert.IsTrue(data.Count() == 1, "Lookups query should return single item");
+      var lookups = data.First();
+
+    }
+
+
+    [TestMethod]
     public async Task CompanyNames() {
       var em1 = await TestFns.NewEm(_serviceName);
 

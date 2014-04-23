@@ -31,6 +31,22 @@ namespace Breeze.Sharp.Tests {
       
     }
 
+    [TestMethod]
+    public async Task EntityKeyNoMetadata() {
+
+      try {
+        var ek = new EntityKey(typeof(FooEntity), 7);
+        Assert.Fail("should not get here");
+      } catch (Exception e) {
+        Assert.IsTrue(e.Message.Contains("FooEntity") && e.Message.Contains("FetchMetadata"));
+      }
+
+    }
+
+    public class FooEntity : BaseEntity {
+
+    }
+
 
     [TestMethod]
     public async Task BadURL() {

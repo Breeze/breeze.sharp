@@ -251,16 +251,24 @@ namespace Breeze.Sharp {
       serializer.Converters.Add(jsonConverter);
       
       Type rType;
-      if (resourcePath.Contains("inlinecount")) {
-        rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
-      } else {
-        rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
-      }
+      
       using (NewIsLoadingBlock()) {
         var jt = JToken.Parse(result);
         jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
-
-        return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+        if (resourcePath.Contains("inlinecount")) {
+          rType = typeof (QueryResult<>).MakeGenericType(query.ElementType);
+          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+        } else if (jt is JArray) {
+          rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
+          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+        } else {
+          rType = query.ElementType;
+          var list= (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(query.ElementType));
+          var item = serializer.Deserialize(new JTokenReader(jt), rType);
+          list.Add(item);
+          return list;
+        }
+        
       }
     }
 
