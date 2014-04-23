@@ -1,1 +1,1 @@
-﻿- Allow a 2nd parameter to EntityManager.CreateEntity that is an anon type instance with prop names that match property names in the entity.
+﻿

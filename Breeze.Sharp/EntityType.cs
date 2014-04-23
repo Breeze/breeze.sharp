@@ -14,6 +14,7 @@ namespace Breeze.Sharp {
   public sealed class EntityType : StructuralType, IJsonSerializable {
 
     internal EntityType() {
+      _selfAndSubEntityTypes.Add(this);
     }
 
     
@@ -123,8 +124,8 @@ namespace Breeze.Sharp {
     /// <summary>
     /// All EntityTypes that are subtypes of this EntityType.
     /// </summary>
-    public ReadOnlyCollection<EntityType> SubEntityTypes {
-      get { return _subEntityTypes.ReadOnlyValues; }
+    public ReadOnlyCollection<EntityType> SelfAndSubEntityTypes {
+      get { return _selfAndSubEntityTypes.ReadOnlyValues; }
     }
 
     /// <summary>
@@ -222,7 +223,7 @@ namespace Breeze.Sharp {
     #region protected/internal
 
     private void AddSubEntityType(EntityType entityType) {
-      _subEntityTypes.Add(entityType);
+      _selfAndSubEntityTypes.Add(entityType);
       if (this.BaseEntityType != null) {
         this.BaseEntityType.AddSubEntityType(entityType);
       }
@@ -335,7 +336,7 @@ namespace Breeze.Sharp {
     private readonly SafeList<DataProperty> _concurrencyProperties = new SafeList<DataProperty>();
 
     private EntityType _baseEntityType = null;
-    private readonly SafeList<EntityType> _subEntityTypes = new SafeList<EntityType>();
+    private readonly SafeList<EntityType> _selfAndSubEntityTypes = new SafeList<EntityType>();
 
     #endregion
 

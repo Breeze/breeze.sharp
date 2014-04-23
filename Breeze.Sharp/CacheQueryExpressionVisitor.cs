@@ -289,9 +289,10 @@ namespace Breeze.Sharp {
 
     private Expression GetEntitiesAsParameterExpr(Type entityType) {
       
-      var getEntitiesMi = MethodReflector.Get<EntityManager, Type>((em, t) => em.GetEntities(t));
+      var getEntitiesMi = MethodReflector.Get<EntityManager, Type, EntityState>((em, t, es) => em.GetEntities(t, es));
       var entityTypeExpr = Expression.Constant(entityType, typeof(Type));
-      var egExpr = Expression.Call(_entityManagerParameterExpr, getEntitiesMi, entityTypeExpr);
+      var entityStateExpr = Expression.Constant(EntityState.AllButDetached, typeof (EntityState));
+      var egExpr = Expression.Call(_entityManagerParameterExpr, getEntitiesMi, entityTypeExpr, entityStateExpr);
 
       var methExpr = Expression.Call(typeof(Enumerable), "Cast", new Type[] { entityType }, egExpr);
       return methExpr;

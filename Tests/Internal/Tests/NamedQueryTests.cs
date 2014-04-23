@@ -63,17 +63,16 @@ namespace Breeze.Sharp.Tests {
       
       var entityManager = await TestFns.NewEm(_serviceName);
 
-      //var query = EntityQuery.From("Lookups", new
-      //{
-      //    Regions = Enumerable.Empty<Region>(),
-      //    Territories = Enumerable.Empty<Territory>(),
-      //    Categories = Enumerable.Empty<Category>(),
-      //});
       var query = EntityQuery.From("Lookups", new {
-        regions = new List<Region>(),
-        territories = new List<Territory>(),
-        categories = new List<Category>()
+        Regions = Enumerable.Empty<Region>(),
+        Territories = Enumerable.Empty<Territory>(),
+        Categories = Enumerable.Empty<Category>(),
       });
+      //var query = EntityQuery.From("Lookups", new {
+      //  regions = new List<Region>(),
+      //  territories = new List<Territory>(),
+      //  categories = new List<Category>()
+      //});
 
       var data = await query.Execute(entityManager);
       Assert.IsTrue(data.Count() == 1, "Lookups query should return single item");
@@ -203,6 +202,40 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(results.All(c => c.CompanyName.StartsWith("A")));
 
     }
+
+    [TestMethod]
+    public async Task SearchEmployees() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+
+      var q = EntityQuery.From<Employee>("SearchEmployees")
+        .WithParameter("employeeIds", new int[] {1, 4});
+        // .WithParameter("employeeIds", 1)
+        // .WithParameter("employeeIds", 4);
+      var rp = q.GetResourcePath();
+      var results = await q.Execute(em1);
+      Assert.IsTrue(results.Any());
+      Assert.IsTrue(results.All(r => r.EmployeeID == 1 || r.EmployeeID == 4));
+
+    }
+
+    [TestMethod]
+    public async Task EmployeesFilteredByCountryAndBirthDate() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var q = new EntityQuery<Employee>().From("EmployeesFilteredByCountryAndBirthdate")
+        .WithParameter("birthDate", "1/1/1960")
+        .WithParameter("country", "USA");
+      
+      var rp = q.GetResourcePath();
+      var results = await q.Execute(em1);
+      Assert.IsTrue(results.Any());
+      
+
+    }
+
+      
+
 
     [TestMethod]
     public async Task SearchCustomers() {

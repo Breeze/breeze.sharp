@@ -15,6 +15,10 @@ namespace Breeze.Sharp.Core {
     public SafeList() : base() { 
      _values = new ReadOnlyCollection<T>(this);
     }
+
+    public SafeList(params T[] items) {
+      _values = new ReadOnlyCollection<T>(items);
+    }
     public SafeList(IEnumerable<T> enumerable) : base(enumerable) {
      _values = new ReadOnlyCollection<T>(this);
     }

@@ -25,20 +25,24 @@ ChangeNotificationEnabled flag at both EntityManager & EntityType levels
 Validation and INotifyDataErrorInfo - EntityAspect.ValidationErrors is a live list that can be mutated by the dev.
 EntityInitializers ( every entity/complex object has a virtual Initialize() method that is called on query result materialization).
 Inheritance
-UnmappedProperties - ( partial) 
+UnmappedProperties ( needs more testing)
+MetadataMapping
+Enhanced namingConvention - support for type name mappings
+Fluent interface for metadata ( needs more testing)
 
 ToDo
 ---------------------------
-
-Native OData and Mongo DB adapters.
-Raw OData queries
-NoTracking queries
-IsNavigationPropertyLoaded
-CodeGeneration - 
-Metadata by hand 
-CustomMetadata
-More tests - 
-   Concurrency tests
+Near term
+  - Native OData and Mongo DB adapters.
+  - Raw OData queries
+  - NoTracking queries
+  - IsNavigationPropertyLoaded
+  - AuthorizedThreadId checking - partially implemented now
+  - Think about NamingConvention per DataService instead of one global one.
+Longer term
+  - CodeGeneration - 
+  - CustomMetadata
+  - ComplexType inheritance. ( missing in Breeze.js as well )
 
 Extensions for later 
 --------------------------------------------
@@ -54,7 +58,7 @@ Silverlight 5 ( ??? )
 Enhanced validation
 Enhanced offline
 Linq verbs not natively supported by OData (hard)
-MEF???
+Dependency injection or MEF???
 
 
 

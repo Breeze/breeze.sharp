@@ -44,7 +44,7 @@ namespace Breeze.Sharp {
       DefaultQueryOptions = QueryOptions.Default;
       CacheQueryOptions = CacheQueryOptions.Default;
       ValidationOptions = ValidationOptions.Default;
-      MetadataStore = MetadataStore.Instance;
+      
       KeyGenerator = new DefaultKeyGenerator();
       Initialize();
     }
@@ -58,7 +58,6 @@ namespace Breeze.Sharp {
       DefaultQueryOptions = em.DefaultQueryOptions;
       CacheQueryOptions = em.CacheQueryOptions;
       ValidationOptions = em.ValidationOptions;
-      MetadataStore = em.MetadataStore;
       KeyGenerator = em.KeyGenerator; // TODO: review whether we should clone instead.
       Initialize();
     }
@@ -121,8 +120,7 @@ namespace Breeze.Sharp {
     #region Public props
 
     public MetadataStore MetadataStore {
-      get;
-      private set;
+      get { return MetadataStore.Instance; }
     }
 
     /// <summary>
@@ -815,19 +813,30 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// Retrieves all entities of a specified type with the specified entity state(s) from cache.
+    /// Retrieves all entities of the specified types from cache.
     /// </summary>
-    /// <param name="type"></param>
+    /// <param name="entityTypes"></param>
     /// <returns></returns>
-    public IEnumerable<IEntity> GetEntities(Type type) {
-      return GetEntities(type, EntityState.AllButDetached);
+    public IEnumerable<IEntity> GetEntities(params Type[] entityTypes) {
+      return GetEntities((IEnumerable<Type>)entityTypes);
+    }
+
+
+    /// <summary>
+    /// Retrieves all entities of the specified types with the specified entity state(s) from cache.
+    /// </summary>
+    /// <param name="types"></param>
+    /// <param name="entityState">defaults to AllButDetached</param>
+    /// <returns></returns>
+    public IEnumerable<IEntity> GetEntities(IEnumerable<Type> types, EntityState entityState = EntityState.AllButDetached) {
+      return types.SelectMany(t => GetEntities(t, entityState));
     }
 
     /// <summary>
     /// Retrieves all entities of a specified type with the specified entity state(s) from cache.
     /// </summary>
     /// <param name="type">The type of Entity to retrieve</param>
-    /// <param name="entityState">EntityState(s) of entities to return</param>
+    /// <param name="entityState">EntityState(s) of entities to return - defaults to AllButDetached</param>
     /// <returns>A collection of Entities</returns>
     /// <remarks>
     /// As the <see cref="EntityState"/> is a flags enumeration, you can supply multiple 
@@ -904,9 +913,9 @@ namespace Breeze.Sharp {
       var ea = (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
       if (ea != null) return ea.Entity;
 
-      var subtypes = entityKey.EntityType.SubEntityTypes;
-      if (subtypes.Count > 0) {
-        ea = subtypes.Select(st => {
+      var subtypes = entityKey.EntityType.SelfAndSubEntityTypes;
+      if (subtypes.Count > 1) {
+        ea = subtypes.Skip(1).Select(st => {
           eg = this.GetEntityGroup(st.ClrType);
           return (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
         }).FirstOrDefault(a => a != null);

@@ -30,6 +30,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
+      MetadataStore.__Reset();
       MetadataStore.Instance.NamingConvention = new MorphedClassNamingConvention();
       MetadataStore.Instance.ProbeAssemblies(typeof(PartialFoo.Customer).Assembly);
       

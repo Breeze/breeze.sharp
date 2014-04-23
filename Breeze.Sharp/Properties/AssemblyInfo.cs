@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("IdeaBlade")]
 [assembly: AssemblyProduct("Breeze.Sharp")]
-[assembly: AssemblyCopyright("Copyright © IdeaBlade 20132014")]
+[assembly: AssemblyCopyright("Copyright © IdeaBlade 2013, 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
@@ -26,5 +26,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("0.5.2.5")]
-[assembly: AssemblyFileVersion("0.5.2.5")]
+[assembly: AssemblyVersion("0.5.3.1")]
+[assembly: AssemblyFileVersion("0.5.3.1")]
