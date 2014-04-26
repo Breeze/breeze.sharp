@@ -43,7 +43,7 @@ namespace Breeze.Sharp.Tests {
       var orderEntityType = MetadataStore.Instance.GetEntityType(typeof (Order));
       var allOrders2 = em.GetEntities(orderEntityType.SelfAndSubEntityTypes.Select(et => et.ClrType));
       Assert.IsTrue(allOrders.Count() == allOrders2.Count());
-
+      
     }
 
     

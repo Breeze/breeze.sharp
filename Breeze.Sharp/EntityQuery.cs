@@ -323,14 +323,46 @@ namespace Breeze.Sharp {
       return (EntityQuery)Activator.CreateInstance(queryType);
     }
 
+    /// <summary>
+    /// The same as calling "new EntityQuery{T}.(resourceName)".
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static EntityQuery<T> From<T>() {
       return new EntityQuery<T>();
     }
 
+    /// <summary>
+    /// The same as calling "new EntityQuery{T}.(resourceName)".
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="resourceName"></param>
+    /// <returns></returns>
     public static EntityQuery<T> From<T>(string resourceName) {
       return new EntityQuery<T>(resourceName); 
     }
 
+    // TODO: think about whether this would ever be useful.
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    ///// <param name="resourceName"></param>
+    ///// <returns></returns>
+    //public static EntityQuery From(string resourceName) {
+    //  var et = MetadataStore.Instance.GetEntityTypeForResourceName(resourceName);
+    //  return EntityQuery.Create(et.ClrType);
+    //}
+
+    /// <summary>
+    /// This signature is intended to be use for queries that will return 
+    /// an anonymous type. An example instance of the anonymous type you want
+    /// returned may be passed as the 2nd argument and will be used to 
+    /// materialize the result of the query. 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="resourceName"></param>
+    /// <param name="dummy"></param>
+    /// <returns></returns>
     public static EntityQuery<T> From<T>(string resourceName, T dummy) {
       return new EntityQuery<T>(resourceName);
     }

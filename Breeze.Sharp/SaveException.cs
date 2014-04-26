@@ -23,6 +23,10 @@ namespace Breeze.Sharp {
       IsServerError = true;
     }
 
+    public SaveException(String message, Exception innerException) : base(message, innerException) {
+      
+    }
+
     public SaveException(IEnumerable<ValidationError> validationErrors) : base("ValidationErrors encountered - see the ValidationErrors property") {
       _validationErrors = validationErrors;
       IsServerError = false;

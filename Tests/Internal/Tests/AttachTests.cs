@@ -629,6 +629,7 @@ namespace Breeze.Sharp.Tests {
         propChangedList.Add(e);
       };
       supp0.EntityAspect.PropertyChanged += (s, e) => {
+        
         aspectPropChangedList.Add(e);
       };
 

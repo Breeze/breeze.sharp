@@ -51,7 +51,7 @@ namespace Breeze.Sharp {
           var entityType = _metadataStore.GetEntityType(clientEtName, true);
           if (entityType != null) {
             var resourceName = (String) es["name"];
-            _metadataStore.AddResourceName(resourceName, entityType, true);
+            _metadataStore.SetResourceName(resourceName, entityType, true);
           }
         });
       }

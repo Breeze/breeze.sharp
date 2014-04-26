@@ -205,6 +205,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SearchEmployees() {
+      Assert.Fail("Known failure - MS OData lib doesn't serialize arrays properly for WebApi");
       var em1 = await TestFns.NewEm(_serviceName);
 
 
@@ -287,10 +288,13 @@ namespace Breeze.Sharp.Tests {
       try {
         var results = await q.Execute(em1);
         Assert.Fail("shouldn't get here");
-      } catch (HttpRequestException e) {
-        Assert.IsTrue(e.Message.Contains("Custom error message"));
-        
-
+      }
+      catch (DataServiceRequestException e) {
+        Assert.IsTrue(e.ResponseContent.Contains("Custom error message"));
+        Assert.IsTrue(e.Message.ToLower().Contains("custom reason"));
+      } 
+      catch (HttpRequestException) {
+        Assert.Fail("should not get here");
       }
       
     }

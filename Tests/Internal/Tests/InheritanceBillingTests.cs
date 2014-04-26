@@ -126,7 +126,7 @@ namespace Breeze.Sharp.Tests {
       //    // because these resource names are not in metadata
       //    // because there are no corresponding DbSets in the DbContext
       //    // and that's how Breeze generates resource names
-      MetadataStore.Instance.AddResourceName(typeName + "s", typeof(T));
+      MetadataStore.Instance.SetResourceName(typeName + "s", typeof(T));
       var q0 = new EntityQuery<T>(typeName + "s").With(em).Take(1);
       if (expandPropName != null) {
         q0 = q0.Expand(expandPropName);

@@ -52,7 +52,7 @@ namespace Breeze.Sharp.Tests {
       var em1 = await TestFns.NewEm(_serviceName);
       var rn = MetadataStore.Instance.GetDefaultResourceName(typeof(Fruit));
       Assert.IsTrue(rn != "Fruits");
-      MetadataStore.Instance.AddResourceName("Fruits", typeof(Fruit), true);
+      MetadataStore.Instance.SetResourceName("Fruits", typeof(Fruit), true);
       var rn2 = MetadataStore.Instance.GetDefaultResourceName(typeof(Fruit));
       Assert.IsTrue(rn2 == "Fruits");
       var q = new EntityQuery<Fruit>();

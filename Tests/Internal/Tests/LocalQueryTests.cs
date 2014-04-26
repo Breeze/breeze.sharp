@@ -297,7 +297,21 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(r2.Cast<Customer>().First() == customer);
       var r2Local = em1.ExecuteQueryLocally((EntityQuery<Customer>)q2);
       Assert.IsTrue(r2Local.First() == customer);
+      
     }
+
+    [TestMethod]
+    public async Task AltResourceName() {
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q = new EntityQuery<Customer>("AltCustomers").Take(1);
+
+      var r = await em1.ExecuteQuery(q);
+      Assert.IsTrue(r.Any());
+      
+    }
+
+    
+
     
   }
 }

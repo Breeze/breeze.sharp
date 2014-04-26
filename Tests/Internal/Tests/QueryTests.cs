@@ -562,7 +562,7 @@ namespace Breeze.Sharp.Tests {
         var r0 = await q0.Execute(em1);
         Assert.Fail("shouldn't get here");
       } catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("found"), "should be the right message");
+        Assert.IsTrue(e.Message.ToLower().Contains("not found"), "should be the right message");
       }
       
     }

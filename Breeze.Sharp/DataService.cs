@@ -43,21 +43,31 @@ namespace Breeze.Sharp {
     public DataService(JNode jNode) {
       ServiceName = jNode.Get<String>("serviceName");
       HasServerMetadata = jNode.Get<bool>("hasServerMetadata");
-      
+
       UseJsonP = jNode.Get<bool>("useJsonp");
       Adapter = GetAdapter(jNode.Get<String>("adapterName"));
       // TODO: need to do the same as above with JsonResultsAdapter.
       JsonResultsAdapter = Adapter.JsonResultsAdapter;
       InitializeHttpClient();
+
+    }
+
+    /// <summary>
+    /// Returns the HttpClient used by this data service.  This reference may be 
+    /// used to customize  headers, buffer sizes and timeouts.  
+    /// </summary>
+    public HttpClient HttpClient {
+      get { return _httpClient; }
     }
 
     private void InitializeHttpClient() {
-      _client = new HttpClient();
-      _client.BaseAddress = new Uri(ServiceName);
+      _httpClient = new HttpClient();
+      _httpClient.BaseAddress = new Uri(ServiceName);
 
       // Add an Accept header for JSON format.
-      _client.DefaultRequestHeaders.Accept.Add(
-          new MediaTypeWithQualityHeaderValue("application/json"));
+      _httpClient.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json"));
+
     }
 
     private IDataServiceAdapter GetAdapter(string adapterName) {
@@ -88,43 +98,40 @@ namespace Breeze.Sharp {
 
     public async Task<String> GetAsync(String resourcePath) {
       try {
-
-        var response = await _client.GetAsync(resourcePath);
-
-        var result = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-          throw new HttpRequestException(result);
-        }
-        return result;
-      } catch (HttpRequestException ex) {
-        Debug.WriteLine(ex.Message);
-        throw;
+        var response = await _httpClient.GetAsync(resourcePath);
+        return await ReadResult(response);
       } catch (Exception e) {
-        Debug.WriteLine(e.Message);
+        Debug.WriteLine(e);
         throw;
-      } finally {
-
       }
     }
 
     public async Task<String> PostAsync(String resourcePath, String json) {
 
-      var content = new StringContent(json, Encoding.UTF8, "application/json");
-      // example of how to use FormUrl instead.
-      //var content = new FormUrlEncodedContent(new[] 
-      //    {
-      //        new KeyValuePair<string, string>("", "login")
-      //    });
+      try {
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        // example of how to use FormUrl instead.
+        //var content = new FormUrlEncodedContent(new[] 
+        //    {
+        //        new KeyValuePair<string, string>("", "login")
+        //    });
 
-      var response = await _client.PostAsync(resourcePath, content);
+        var response = await _httpClient.PostAsync(resourcePath, content);
+        return await ReadResult(response);
+      }
+      catch (Exception e) {
+        Debug.WriteLine(e);
+        throw;
+      }
+    }
+
+    private static async Task<string> ReadResult(HttpResponseMessage response) {
 
       var result = await response.Content.ReadAsStringAsync();
-        
       if (!response.IsSuccessStatusCode) {
-        throw new HttpRequestException(result);
+        throw new DataServiceRequestException(response, result);
       }
       return result;
-
     }
 
     JNode IJsonSerializable.ToJNode(Object config) {
@@ -137,10 +144,30 @@ namespace Breeze.Sharp {
       return jo;
     }
 
- 
-    private HttpClient _client;
+
+    private HttpClient _httpClient;
     private String _serviceName;
 
 
   }
+
+  /// <summary>
+  /// Exception thrown when a DataService request fails.
+  /// See the HttpResponse property for detailed information on the failed request.
+  /// </summary>
+  public class DataServiceRequestException : HttpRequestException {
+    public DataServiceRequestException(String msg) : base(msg) {
+
+    }
+
+    public DataServiceRequestException(HttpResponseMessage httpResponse, String responseContent) : base(httpResponse.ReasonPhrase) {
+      HttpResponse = httpResponse;
+      ResponseContent = responseContent;
+    }
+
+    public String ResponseContent { get; private set; }
+    public HttpResponseMessage HttpResponse { get; private set; }
+    
+  }
+
 }

@@ -51,7 +51,7 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Returns a list of all of the <see cref="EntityType"/>s within this store.
     /// </summary>
-    public List<EntityType> EntityTypes {
+    public ICollection<EntityType> EntityTypes {
       get {
         lock (_structuralTypes) {
           return _structuralTypes.OfType<EntityType>().ToList();
@@ -62,7 +62,7 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Returns a list of all of the <see cref="ComplexType"/>s within this store.
     /// </summary>
-    public List<ComplexType> ComplexTypes {
+    public ICollection<ComplexType> ComplexTypes {
       get {
         lock (_structuralTypes) {
           return _structuralTypes.OfType<ComplexType>().ToList();
@@ -148,7 +148,7 @@ namespace Breeze.Sharp {
       lock (__lock) {
         var x = __instance._probedAssemblies;
         __instance = new MetadataStore();
-        __instance.ProbeAssemblies(x.ToArray());
+        // __instance.ProbeAssemblies(x.ToArray());
       }
     }
 
@@ -329,25 +329,48 @@ namespace Breeze.Sharp {
       }
     }
 
-    // TODO: think about name
+    
     /// <summary>
-    /// 
+    /// Sets a resourceName for a specified clrType.
     /// </summary>
     /// <param name="resourceName"></param>
     /// <param name="clrType"></param>
     /// <param name="isDefault"></param>
-    public void AddResourceName(String resourceName, Type clrType, bool isDefault = false) {
+    public void SetResourceName(String resourceName, Type clrType, bool isDefault = false) {
       var entityType = GetEntityType(clrType);
-      AddResourceName(resourceName, entityType, isDefault);
+      SetResourceName(resourceName, entityType, isDefault);
     }
 
 
-    internal void AddResourceName(String resourceName, EntityType entityType, bool isDefault = false) {
+    internal void SetResourceName(String resourceName, EntityType entityType, bool isDefault = false) {
       lock (_defaultResourceNameMap) {
         _resourceNameEntityTypeMap[resourceName] = entityType;
         if (isDefault) {
           _defaultResourceNameMap[entityType] = resourceName;
+        } else if (!_defaultResourceNameMap.ContainsKey(entityType)) {
+          // isDefault ( by default) if no other resourceName is set for this entityType
+          _defaultResourceNameMap[entityType] = resourceName;
         }
+      }
+    }
+
+    /// <summary>
+    /// Returns the EntityType for a specified resourceName.
+    /// </summary>
+    /// <param name="resourceName"></param>
+    /// <param name="okIfNotFound"></param>
+    /// <returns></returns>
+    public EntityType GetEntityTypeForResourceName(String resourceName, bool okIfNotFound) {
+      // by convention locking the _defaultResourceMap is a surrogate for also locking the _resourceNameEntityTypeMap;
+      EntityType et;
+      lock (_defaultResourceNameMap) {
+        if (_resourceNameEntityTypeMap.TryGetValue(resourceName, out et)) {
+          return et;
+        } else if (okIfNotFound) {
+          return null;
+        } else {
+          throw new Exception("Unable to locate a resource named: " + resourceName);
+        } 
       }
     }
 
@@ -467,7 +490,7 @@ namespace Breeze.Sharp {
 
       jNode.GetMap<String>("resourceEntityTypeMap").ForEach(kvp => {
         var et = GetEntityType(kvp.Value);
-        AddResourceName(kvp.Key, et);
+        SetResourceName(kvp.Key, et);
       });
     }
 

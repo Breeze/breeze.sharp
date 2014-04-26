@@ -28,10 +28,13 @@ namespace Breeze.Sharp {
       var entityManager = entitiesToSave.First().EntityAspect.EntityManager;
       var saveBundleNode = PrepareSaveBundle(entitiesToSave, saveOptions);
       try {
-        var saveResultJson = await saveOptions.DataService.PostAsync(saveOptions.ResourceName, saveBundleNode.Serialize());
+        var saveResultJson =
+          await saveOptions.DataService.PostAsync(saveOptions.ResourceName, saveBundleNode.Serialize());
         return ProcessSaveResult(entityManager, saveOptions, saveResultJson);
+      } catch (DataServiceRequestException dsre) {
+        throw SaveException.Parse(entityManager, dsre.ResponseContent);
       } catch (HttpRequestException e) {
-        throw SaveException.Parse(entityManager, e.Message);
+        throw new SaveException(e.Message, e);
       }
     }
 
