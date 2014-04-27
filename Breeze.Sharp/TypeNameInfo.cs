@@ -17,7 +17,7 @@ namespace Breeze.Sharp {
       IsAnonymous = isAnonymous;
     }
 
-    public static TypeNameInfo FromEntityTypeName(String name) {
+    public static TypeNameInfo FromStructuralTypeName(String name) {
       String shortName, ns;
       var ix = name.IndexOf(":#");
       if (ix == -1) {

@@ -7,7 +7,12 @@ using System.Text;
 namespace Breeze.Sharp {
 
   public class MetadataMismatchEventArgs {
-    public String EntityTypeName { get; internal set; }
+    public String StructuralTypeName { get; internal set; }
+
+    public TypeNameInfo StructuralTypeInfo {
+      get { return TypeNameInfo.FromStructuralTypeName(StructuralTypeName); } 
+    }
+
     public String PropertyName { get; internal set; }
     public MetadataMismatchType MetadataMismatchType { get; set; }
     public String Detail { get; internal set; }
@@ -16,11 +21,11 @@ namespace Breeze.Sharp {
       get {
         var mismatchDescr = UtilFns.SplitCamelCase(MetadataMismatchType.ToString()).Replace("C L R", "CLR");
         if (String.IsNullOrEmpty(PropertyName)) {
-          return String.Format("Metadata mismatch classification: '{0}' - for EntityType: '{1}'.  {2}",
-            mismatchDescr, EntityTypeName, Detail);
+          return String.Format("Metadata mismatch classification: '{0}' - for StructuralType: '{1}'.  {2}",
+            mismatchDescr, StructuralTypeName, Detail);
         } else {
-          return String.Format("Metadata mismatch classification: '{0}' - for EntityType: '{1}' Property: '{2}'.  {3}",
-            mismatchDescr, EntityTypeName, PropertyName, Detail);
+          return String.Format("Metadata mismatch classification: '{0}' - for StructuralType: '{1}' Property: '{2}'.  {3}",
+            mismatchDescr, StructuralTypeName, PropertyName, Detail);
         }
       }
     }

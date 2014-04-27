@@ -102,7 +102,7 @@ namespace Breeze.Sharp {
       EventHandler<MetadataMismatchEventArgs> handler = MetadataMismatch;
       var allow = (AllowedMetadataMismatchTypes & mmType) > 0;
       var args = new MetadataMismatchEventArgs() {
-        EntityTypeName = entityTypeName,
+        StructuralTypeName = entityTypeName,
         PropertyName = propertyName,
         MetadataMismatchType = mmType,
         Detail = detail,

@@ -38,7 +38,7 @@ namespace Breeze.Sharp {
     public String Name { 
       get { return TypeNameInfo.QualifyTypeName(ShortName, Namespace); }
       internal set {
-        var parts = TypeNameInfo.FromEntityTypeName(value);
+        var parts = TypeNameInfo.FromStructuralTypeName(value);
         ShortName = parts.ShortName;
         Namespace = parts.Namespace;
         _nameOnServer = parts.ToServer().Name;
@@ -51,7 +51,7 @@ namespace Breeze.Sharp {
       }
       internal set {
         _nameOnServer = value;
-        Name = TypeNameInfo.FromEntityTypeName(value).ToClient().Name;
+        Name = TypeNameInfo.FromStructuralTypeName(value).ToClient().Name;
       }
     }
 

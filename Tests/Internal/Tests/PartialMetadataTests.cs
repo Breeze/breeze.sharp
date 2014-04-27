@@ -89,7 +89,7 @@ namespace Breeze.Sharp.Tests {
         var mmargs = new List<MetadataMismatchEventArgs>();
         MetadataStore.Instance.MetadataMismatch += (s, e) => {
           mmargs.Add(e);
-          Assert.IsTrue(e.EntityTypeName.ToUpper().Contains("TODO"), "entityTypeName should be TODO");
+          Assert.IsTrue(e.StructuralTypeName.ToUpper().Contains("TODO"), "entityTypeName should be TODO");
           Assert.IsTrue(e.PropertyName == null, "propertyName should be null");
           Assert.IsTrue(e.Allow == false, "allow should be false");
           e.Allow = (e.MetadataMismatchType == MetadataMismatchType.MissingCLREntityType);
