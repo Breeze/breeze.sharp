@@ -689,7 +689,7 @@ namespace Breeze.Sharp {
 
     #region Private vars
 
-    private NamingConvention _namingConvention = NamingConvention.Default;
+    private NamingConvention _namingConvention = new NamingConvention();
 
     private static MetadataStore __instance = new MetadataStore();
     private static readonly Object __lock = new Object();

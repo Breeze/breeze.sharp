@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Val_email" xml:space="preserve">
+    <value>'{0}' must be a valid email address.</value>
+  </data>
   <data name="Val_int32Range" xml:space="preserve">
     <value>'{0}' must be {1} {2} and {3} {4}.</value>
     <comment>0=DisplayName, 1='&gt;' or '&gt;=', 2=Min, 3='&lt;' or '&lt;=', 4=Max</comment>
@@ -125,6 +128,17 @@
     <value>'{0}' must be {1} character(s) or less.</value>
     <comment>0=DisplayName, 1=MaxLength</comment>
   </data>
+  <data name="Val_phoneNumber" xml:space="preserve">
+    <value>'{0}' must be a valid phone number.</value>
+  </data>
+  <data name="Val_regex" xml:space="preserve">
+    <value>'{0}' must match this pattern {1}.</value>
+    <comment>0 = DisplayName, 1 = RegExp pattern toString()</comment>
+  </data>
+  <data name="Val_regexNamed" xml:space="preserve">
+    <value>'{0}' must be a valid {1}.</value>
+    <comment>0 = DisplayName, 1=Name of RegExp pattern ( i.e. 'ZipCode')</comment>
+  </data>
   <data name="Val_required" xml:space="preserve">
     <value>'{0}' is a required field.</value>
     <comment>0=DisplayName</comment>
@@ -132,5 +146,8 @@
   <data name="Val_stringLength" xml:space="preserve">
     <value>'{0}' must be betwee {1} and {2} character(s).</value>
     <comment>0 = DisplayName, 1=MinLength, 2=MaxLength</comment>
+  </data>
+  <data name="Val_url" xml:space="preserve">
+    <value>'{0}' must be a valid url.</value>
   </data>
 </root>

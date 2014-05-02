@@ -58,6 +58,9 @@ namespace Breeze.Sharp {
             // if rm isNull _message will have been set
             if (rm != null) {
               _message = rm.GetString(this.Key);
+              if (_message == null) {
+                _message = "Unable to locate a localized key named: " + this.Key;
+              }
               _isLocalized = _message != null;
             }
           } catch {
@@ -68,7 +71,7 @@ namespace Breeze.Sharp {
             }
           }
         }
-        return _message;
+        return _message ?? "";
       }
       private set {
         _message = value;

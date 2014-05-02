@@ -46,7 +46,12 @@ namespace Breeze.Sharp {
 
     [JsonIgnore]
     public String LocalizedKey {
-      get { return "Val_" + Name; }
+      get {
+        return _localizedKey ?? "Val_" + Name;
+      }
+      set {
+        _localizedKey = value;
+      }
     }
 
     [JsonIgnore]
@@ -125,6 +130,7 @@ namespace Breeze.Sharp {
 
     private JNode _jNode;
     private int _hashCode;
+    private string _localizedKey;
     
 
     private static Object __lock = new Object();

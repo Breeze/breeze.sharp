@@ -46,8 +46,37 @@ namespace Breeze.Sharp.Tests {
       
     }
 
-    
+    // Creates a convention that removes underscores from server property names
+    // Remembers them in a private dictionary so it can restore them
+    // when going from client to server
+    // Warning: use only with metadata loaded directly from server
+    public class UnderscoreRemovallNamingConvention : NamingConvention {
+
+      private Dictionary<String, String> _clientServerPropNameMap = new Dictionary<string, string>();
+
+      public override String ServerPropertyNameToClient(String serverPropertyName, StructuralType parentType) {
+        if (serverPropertyName.IndexOf("_", StringComparison.InvariantCulture) != -1) {
+          var clientPropertyName = serverPropertyName.Replace("_", "");
+          _clientServerPropNameMap[clientPropertyName] = serverPropertyName;
+          return clientPropertyName;
+        } else {
+          return base.ServerPropertyNameToClient(serverPropertyName, parentType);
+        }
+      }
+
+      public override string ClientPropertyNameToServer(string clientPropertyName, StructuralType parentType) {
+        String serverPropertyName;
+        if (_clientServerPropNameMap.TryGetValue(clientPropertyName, out serverPropertyName)) {
+          serverPropertyName = clientPropertyName;
+        }
+        return serverPropertyName;
+
+      }
+    }
   }
+
+   
+  
 
 
 }

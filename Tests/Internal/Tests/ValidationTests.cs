@@ -17,17 +17,17 @@ namespace Breeze.Sharp.Tests {
   public class ValidationTests {
 
     private string _serviceName;
-   
+
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      MetadataStore.Instance.ProbeAssemblies(typeof (Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
     [TestCleanup]
     public void TearDown() {
-      
+
     }
 
 
@@ -36,25 +36,26 @@ namespace Breeze.Sharp.Tests {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var emp = new Employee();
-      var inde = (INotifyDataErrorInfo)emp;
+      var inde = (INotifyDataErrorInfo) emp;
       Assert.IsTrue(!inde.HasErrors);
       var eventArgsList = new List<DataErrorsChangedEventArgs>();
       inde.ErrorsChanged += (s, e) => {
         eventArgsList.Add(e);
       };
-      
+
       em1.AttachEntity(emp);
       Assert.IsTrue(eventArgsList.Count == 2); // firstName, lastName
       // magicString
       var fnErrors = inde.GetErrors(EntityAspect.AllErrors).Cast<ValidationError>();
       Assert.IsTrue(fnErrors.Count() == 2);
-      Assert.IsTrue(fnErrors.All(err => err.Context.PropertyPath == "LastName" || err.Context.PropertyPath == "FirstName"));
+      Assert.IsTrue(
+        fnErrors.All(err => err.Context.PropertyPath == "LastName" || err.Context.PropertyPath == "FirstName"));
       fnErrors = inde.GetErrors("FirstName").Cast<ValidationError>();
       Assert.IsTrue(fnErrors.Count() == 1);
       Assert.IsTrue(inde.HasErrors);
-      
+
       emp.FirstName = "test";
-      Assert.IsTrue(eventArgsList.Count == 3); 
+      Assert.IsTrue(eventArgsList.Count == 3);
       fnErrors = inde.GetErrors(EntityAspect.AllErrors).Cast<ValidationError>();
       Assert.IsTrue(fnErrors.Count() == 1);
       fnErrors = inde.GetErrors("FirstName").Cast<ValidationError>();
@@ -68,7 +69,7 @@ namespace Breeze.Sharp.Tests {
       fnErrors = inde.GetErrors("FirstName").Cast<ValidationError>();
       Assert.IsTrue(fnErrors.Count() == 1);
       Assert.IsTrue(inde.HasErrors);
-      
+
       emp.FirstName = "xxx";
       emp.LastName = "yyy";
       Assert.IsTrue(eventArgsList.Count == 6);
@@ -90,11 +91,11 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(vr2 == vr3);
 
       var mlVr = new MaxLengthValidator(17);
-      var mlVrNode = ((IJsonSerializable)mlVr).ToJNode(null);
+      var mlVrNode = ((IJsonSerializable) mlVr).ToJNode(null);
       var mlVr2 = Validator.FindOrCreate(mlVrNode);
       var mlVr3 = Validator.FindOrCreate(mlVrNode);
       Assert.IsTrue(mlVr2 == mlVr3);
-      
+
     }
 
     [TestMethod]
@@ -131,7 +132,7 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task RequiredProperty() {
       var em1 = await TestFns.NewEm(_serviceName);
-      
+
       var emp = new Employee();
       var vr = new RequiredValidator();
       var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
@@ -169,10 +170,11 @@ namespace Breeze.Sharp.Tests {
       var ves = emp.EntityAspect.Validate();
 
       Assert.IsTrue(ves.Count() > 0);
-      
+
       Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
       Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
-      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()), "validator should a requiredValdator");
+      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
+        "validator should a requiredValdator");
       Assert.IsTrue(ves.All(ve => ve.Key != null));
     }
 
@@ -189,7 +191,8 @@ namespace Breeze.Sharp.Tests {
 
       Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
       Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
-      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()), "validator should a requiredValdator");
+      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
+        "validator should a requiredValdator");
       Assert.IsTrue(ves.All(ve => ve.Key != null));
     }
 
@@ -214,12 +217,13 @@ namespace Breeze.Sharp.Tests {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var emp = new Employee();
-      var vr = new RequiredValidator().WithMessage(typeof(Model.NorthwindIB.CustomMessages1));
+      var vr = new RequiredValidator().WithMessage(typeof (Model.NorthwindIB.CustomMessages1));
       var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
       var vc = new ValidationContext(emp, dp, null);
       var ve = vr.Validate(vc);
       Assert.IsTrue(ve != null);
-      Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required") && ve.Message.Contains("CUSTOM 1"));
+      Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required") &&
+                    ve.Message.Contains("CUSTOM 1"));
       Assert.IsTrue(ve.Context.Entity == emp);
       Assert.IsTrue(ve.Validator == vr);
       Assert.IsTrue(ve.Key != null);
@@ -230,12 +234,13 @@ namespace Breeze.Sharp.Tests {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var emp = new Employee();
-      var vr = new RequiredValidator().WithMessage("Model.NorthwindIB.CustomMessages2", typeof(Employee).Assembly);
+      var vr = new RequiredValidator().WithMessage("Model.NorthwindIB.CustomMessages2", typeof (Employee).Assembly);
       var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
       var vc = new ValidationContext(emp, dp, null);
       var ve = vr.Validate(vc);
       Assert.IsTrue(ve != null);
-      Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required") && ve.Message.Contains("CUSTOM 2"));
+      Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required") &&
+                    ve.Message.Contains("CUSTOM 2"));
       Assert.IsTrue(ve.Context.Entity == emp);
       Assert.IsTrue(ve.Validator == vr);
       Assert.IsTrue(ve.Key != null);
@@ -245,7 +250,7 @@ namespace Breeze.Sharp.Tests {
     public async Task CustomPropertyValidator() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
       var countryProp = custType.GetDataProperty("Country");
       try {
         countryProp.Validators.Add(new CountryIsUsValidator());
@@ -257,7 +262,8 @@ namespace Breeze.Sharp.Tests {
         em1.AttachEntity(cust);
         Assert.IsTrue(valErrors.Count == 1);
         Assert.IsTrue(valErrors.First().Message.Contains("must start with"));
-      } finally {
+      }
+      finally {
         countryProp.Validators.Remove(new CountryIsUsValidator());
       }
     }
@@ -269,7 +275,7 @@ namespace Breeze.Sharp.Tests {
       }
 
       protected override bool ValidateCore(ValidationContext context) {
-        var value = (String)context.PropertyValue;
+        var value = (String) context.PropertyValue;
         if (value == null) return true;
         return value.StartsWith("US");
       }
@@ -279,6 +285,155 @@ namespace Breeze.Sharp.Tests {
       }
     }
 
+    private void CustPropValAssert(Customer cust, String propValue, int count) {
+      var valErrors = cust.EntityAspect.ValidationErrors;
+      cust.Address = propValue;
+      if (valErrors.Count > 0) {
+        var msg = valErrors.First().Message;
+        Assert.IsTrue(msg.Contains("Address"));
+      }
+      Assert.IsTrue(valErrors.Count == count, "expected " + count + " but got: " + valErrors.Count);
+
+    }
+
+    [TestMethod]
+    public async Task EmailValidator() {
+       var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
+      var validator = new EmailValidator();
+      var validators = custType.GetDataProperty("Address").Validators;
+      try {
+        validators.Add(validator);
+        custType.GetDataProperty("Address").Validators.Add(validator);
+        var cust = new Customer() {CompanyName = "Foo"};
+        em1.AddEntity(cust);
+        var valErrors = cust.EntityAspect.ValidationErrors;
+        CustPropValAssert(cust, "asdf", 1);
+        CustPropValAssert(cust, "1234567", 1);
+        CustPropValAssert(cust, "john.doe@abc", 1); // missing '.com'
+
+        CustPropValAssert(cust, null, 0);
+        CustPropValAssert(cust, "john.doe@abc.com", 0);
+      }
+      finally {
+        validators.Remove(validator);
+      }
+    }
+
+    [TestMethod]
+    public async Task EmailValidator2() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var validator = new EmailValidator("special email type");
+      var validators = custType.GetDataProperty("Address").Validators;
+      try {
+        validators.Add(validator);
+        var cust = new Customer() { CompanyName = "Foo" };
+        em1.AddEntity(cust);
+        var valErrors = cust.EntityAspect.ValidationErrors;
+        CustPropValAssert(cust, "asdf", 1);
+        Assert.IsTrue(valErrors.First().Message.Contains("special email type"));
+        CustPropValAssert(cust, "1234567", 1);
+        CustPropValAssert(cust, "john.doe@abc", 1); // missing '.com'
+
+        CustPropValAssert(cust, null, 0);
+        CustPropValAssert(cust, "john.doe@abc.com", 0);
+      } finally {
+        validators.Remove(validator);
+      }
+    }
+
+    [TestMethod]
+    public async Task PhoneValidator() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var validator = new PhoneNumberValidator();
+      var validators = custType.GetDataProperty("Address").Validators;
+      try {
+        validators.Add(validator);
+        var cust = new Customer() { CompanyName = "Foo" };
+        em1.AddEntity(cust);
+        var valErrors = cust.EntityAspect.ValidationErrors;
+        CustPropValAssert(cust, "asdf", 1);
+        Assert.IsTrue(valErrors.First().Message.Contains("phone number"));
+        CustPropValAssert(cust, "Pennsylvania 6500", 1);
+        CustPropValAssert(cust, "5", 1); // missing '.com'
+
+        CustPropValAssert(cust, null, 0);
+        CustPropValAssert(cust, "(510) 686-8275", 0);
+        CustPropValAssert(cust, "01 510 686-8275", 0);
+        CustPropValAssert(cust, "+1 510 686-8275", 0);
+        //    // these pass too. You might not expect that
+        CustPropValAssert(cust, "51", 0);
+        CustPropValAssert(cust, "1234567", 0);
+        CustPropValAssert(cust, "12345678901234567890123456789", 0);
+      } finally {
+        validators.Remove(validator);
+      }
+    }
+    
+    [TestMethod]
+    public async Task CustomRegexValidator() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var validator = new RegexValidator("^[A-Z]{2}$", "US State");
+      var validators = custType.GetDataProperty("Address").Validators;
+      try {
+        validators.Add(validator);
+        var cust = new Customer() { CompanyName = "Foo" };
+        em1.AddEntity(cust);
+        var valErrors = cust.EntityAspect.ValidationErrors;
+        CustPropValAssert(cust, "asdf", 1);
+        Assert.IsTrue(valErrors.First().Message.Contains("US State"));
+        CustPropValAssert(cust, "Pennsylvania 6500", 1);
+        CustPropValAssert(cust, "5", 1); // missing '.com'
+        CustPropValAssert(cust, "Ab", 1); // b is lowercase
+
+        CustPropValAssert(cust, null, 0);
+        CustPropValAssert(cust, "CA", 0);
+        CustPropValAssert(cust, "AZ", 0);
+        CustPropValAssert(cust, "WY", 0);
+        
+      } finally {
+        validators.Remove(validator);
+      }
+    }
+
+    [TestMethod]
+    public async Task UrlValidator() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var validator = new UrlValidator(null, UrlOptions.RequireProtocol);
+      var validators = custType.GetDataProperty("Address").Validators;
+      try {
+        validators.Add(validator);
+        var cust = new Customer() { CompanyName = "Foo" };
+        em1.AddEntity(cust);
+        var valErrors = cust.EntityAspect.ValidationErrors;
+        CustPropValAssert(cust, "asdf", 1);
+        Assert.IsTrue(valErrors.First().Message.Contains("url"));
+        CustPropValAssert(cust, "Pennsylvania 6500", 1);
+        CustPropValAssert(cust, "1234567", 1); 
+        CustPropValAssert(cust, "traband.contuso.com", 1); // protocol missing
+        
+        CustPropValAssert(cust, null, 0);
+        CustPropValAssert(cust, "http://traband", 0); 
+        CustPropValAssert(cust, "http://traband.contoso.com", 0);
+        CustPropValAssert(cust, "https://traband.contoso.com", 0);
+        CustPropValAssert(cust, "ftp://traband.contoso.com", 0);
+        CustPropValAssert(cust, "http://traband.contoso.commiepinko", 0);
+        
+
+      } finally {
+        validators.Remove(validator);
+      }
+    }
+    
     
     //test("custom entity validation - register validator", function () {
     //    var ms = MetadataStore.importMetadata(testFns.metadataStore.exportMetadata());

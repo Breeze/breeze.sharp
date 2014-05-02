@@ -57,11 +57,11 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Translates a server property name into a client property name. 
     /// </summary>
-    /// <param name="clientName"></param>
+    /// <param name="serverName"></param>
     /// <param name="parentType"></param>
     /// <returns></returns>
-    public virtual String ServerPropertyNameToClient(String clientName, StructuralType parentType) {
-      return clientName;
+    public virtual String ServerPropertyNameToClient(String serverName, StructuralType parentType) {
+      return serverName;
     }
 
     /// <summary>
@@ -82,11 +82,11 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Translates a server property name into a client property name. 
     /// </summary>
-    /// <param name="serverName"></param>
+    /// <param name="clientName"></param>
     /// <param name="parentType"></param>
     /// <returns></returns>
-    public virtual String ClientPropertyNameToServer(String serverName, StructuralType parentType) {
-      return serverName;
+    public virtual String ClientPropertyNameToServer(String clientName, StructuralType parentType) {
+      return clientName;
     }
 
     public void AddClientServerNamespaceMapping(String clientNamespace, String serverNamespace) {
