@@ -36,7 +36,7 @@ namespace Breeze.Sharp {
     public MetadataStore MetadataStore { get; internal set; }
 
     public String Name { 
-      get { return TypeNameInfo.QualifyTypeName(ShortName, Namespace); }
+      get { return TypeNameInfo.ToStructuralTypeName(ShortName, Namespace); }
       internal set {
         var parts = TypeNameInfo.FromStructuralTypeName(value);
         ShortName = parts.ShortName;

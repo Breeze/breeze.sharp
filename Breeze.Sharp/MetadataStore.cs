@@ -497,7 +497,7 @@ namespace Breeze.Sharp {
     private void UpdateStructuralTypeFromJNode(JNode jNode) {
       var shortName = jNode.Get<String>("shortName");
       var ns = jNode.Get<String>("namespace");
-      var name = TypeNameInfo.QualifyTypeName(shortName, ns);
+      var name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
       var isComplexType = jNode.Get<bool>("isComplexType", false);
       if (isComplexType) {
         var ct = MetadataStore.Instance.GetComplexType(name);

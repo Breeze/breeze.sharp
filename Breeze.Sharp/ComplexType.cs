@@ -19,7 +19,7 @@ namespace Breeze.Sharp {
     public void UpdateFromJNode(JNode jNode) {
       var shortName = jNode.Get<String>("shortName");
       var ns = jNode.Get<String>("namespace");
-      Name = TypeNameInfo.QualifyTypeName(shortName, ns);
+      Name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
       // BaseTypeName = jnode.Get<String>("baseTypeName");
       // IsAbstract = jnode.Get<bool>("isAbstract");
       jNode.GetJNodeArray("dataProperties").ForEach(jn => {

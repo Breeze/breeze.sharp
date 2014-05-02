@@ -319,6 +319,7 @@ namespace Breeze.Sharp {
       return clientTypeName;
     }
 
+    // Different from TypeNameInfo.FromClrTypeName because of cSpaceOSpaceMap
     private TypeNameInfo ParseClrTypeName(String clrTypeName) {
       if (String.IsNullOrEmpty(clrTypeName)) return null;
       if (clrTypeName.StartsWith(MetadataStore.ANONTYPE_PREFIX)) {
@@ -352,7 +353,7 @@ namespace Breeze.Sharp {
 
     private bool IsIdentityProperty(JObject csdlProperty) {
 
-      var subProp = csdlProperty.Properties().FirstOrDefault(p => p.Name.IndexOf("StoreGeneratedPattern") > 0);
+      var subProp = csdlProperty.Properties().FirstOrDefault(p => p.Name.IndexOf("StoreGeneratedPattern", StringComparison.Ordinal) > 0);
       if (subProp != null) {
         return subProp.Value.ToObject<String>() == "Identity";
       } else {

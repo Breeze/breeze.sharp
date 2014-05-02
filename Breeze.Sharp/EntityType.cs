@@ -21,7 +21,7 @@ namespace Breeze.Sharp {
     internal void UpdateFromJNode(JNode jNode) {
       var shortName = jNode.Get<String>("shortName");
       var ns = jNode.Get<String>("namespace");
-      var name = TypeNameInfo.QualifyTypeName(shortName, ns);
+      var name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
       var et = MetadataStore.Instance.GetEntityType(name);
 
       Check(et.BaseEntityTypeName, jNode.Get<String>("baseTypeName"), "BaseEntityType");

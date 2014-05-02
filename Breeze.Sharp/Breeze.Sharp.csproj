@@ -146,7 +146,7 @@
   <ItemGroup>
     <Content Include="__RequestedFeatures.txt" />
     <Content Include="_Status.txt" />
-    <Content Include="__Notes.txt" />
+    <None Include="__Notes.md" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LocalizedMessages.resx" />
