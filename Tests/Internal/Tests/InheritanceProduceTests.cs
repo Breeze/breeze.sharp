@@ -23,7 +23,7 @@ namespace Breeze.Sharp.Tests {
     [TestInitialize]
     public void TestInitializeMethod() {
       MetadataStore.Instance.ProbeAssemblies(typeof(Apple).Assembly);
-      MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping("Model.Inheritance.Produce", "ProduceTPH");
+      MetadataStore.Instance.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Produce", "ProduceTPH").SetAsDefault();
       _serviceName = "http://localhost:7150/breeze/ProduceTPH/";
     }
 

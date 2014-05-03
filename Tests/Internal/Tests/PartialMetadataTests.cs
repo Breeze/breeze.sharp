@@ -42,6 +42,18 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task NamingConventionSerialization() {
+      // var em = await TestFns.NewEm(_serviceName);
+      var nc = new MorphedClassNamingConvention();
+      var nc2 = new MorphedClassNamingConvention();
+      Assert.IsTrue(nc.Equals(nc2));
+      var nc3 = nc.WithClientServerNamespaceMapping("PartialBar", "Bar").SetAsDefault();
+      var jn = ((IJsonSerializable) nc3).ToJNode(null);
+      var nc4 = jn.ToObject(nc3.GetType(), true);
+      Assert.IsTrue(nc3.Equals(nc4));
+    }
+
+    [TestMethod]
     public async Task MetadataMissingClrProperty() {
       try {
         MetadataStore.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;

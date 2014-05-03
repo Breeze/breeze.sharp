@@ -35,6 +35,7 @@ namespace Breeze.Sharp.Tests {
 
     }
 
+    
 
     [TestMethod]
     public async Task SelfAndSubtypes() {

@@ -1,6 +1,11 @@
-﻿using System;
+﻿using System.Collections.ObjectModel;
+
+using Breeze.Sharp.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Newtonsoft.Json;
 
 namespace Breeze.Sharp {
 
@@ -9,34 +14,15 @@ namespace Breeze.Sharp {
   /// which the MetadataStore will translate type and property names between the server and the .NET client.
   /// The default NamingConvention does not perform any translation, it simply passes property names thru unchanged.
   /// </summary>
-  public class NamingConvention {
+  public class NamingConvention : Internable {
+
+    public static String Suffix = "NamingConvention";
 
     public static List<NamingConvention> __namingConventions = new List<NamingConvention>();
 
     public NamingConvention() {
-      Name = this.GetType().Name;
-    }
-
-    public NamingConvention(String name) {
-      Name = name;
-    }
-
-    /// <summary>
-    /// The name of this NamingConvention. This name will be used when serializing and deserializing metadata
-    /// to insure that the correct NamingConvention is set for any exported metadata.
-    /// </summary>
-    public String Name { 
-      get { return _name; }
-      set {
-        if (_name == value) return;
-        if (_name != null) {
-          throw new Exception("A NamingConvention's 'Name' cannot be changed once set");
-        }
-        _name = value;
-        lock (__namingConventions) {
-          __namingConventions.Add(this);
-        }
-      }
+      Name = UtilFns.TypeToSerializationName(this.GetType(), Suffix);
+      _clientServerNamespaceMap = new Dictionary<string, string>();
     }
 
     /// <summary>
@@ -47,7 +33,10 @@ namespace Breeze.Sharp {
     public virtual TypeNameInfo ServerTypeNameToClient(TypeNameInfo serverNameInfo) {
       
       String clientNs;
-      if (_serverTypeNamespaceMap.TryGetValue(serverNameInfo.Namespace, out clientNs)) {
+      if (_serverClientNamespaceMap == null) {
+        _serverClientNamespaceMap = _clientServerNamespaceMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+      }
+      if (_serverClientNamespaceMap.TryGetValue(serverNameInfo.Namespace, out clientNs)) {
         return new TypeNameInfo(serverNameInfo.ShortName, clientNs);
       } else {
         return serverNameInfo;
@@ -72,7 +61,7 @@ namespace Breeze.Sharp {
     public virtual TypeNameInfo ClientTypeNameToServer(TypeNameInfo clientNameInfo) {
       
       String serverNs;
-      if (_clientTypeNamespaceMap.TryGetValue(clientNameInfo.Namespace, out serverNs)) {
+      if (_clientServerNamespaceMap.TryGetValue(clientNameInfo.Namespace, out serverNs)) {
         return new TypeNameInfo(clientNameInfo.ShortName, serverNs);
       } else {
         return clientNameInfo;
@@ -89,34 +78,51 @@ namespace Breeze.Sharp {
       return clientPropertyName;
     }
 
-    public void AddClientServerNamespaceMapping(String clientNamespace, String serverNamespace) {
-      _clientTypeNamespaceMap[clientNamespace] = serverNamespace;
-      _serverTypeNamespaceMap[serverNamespace] = clientNamespace;
+    public NamingConvention WithClientServerNamespaceMapping(Dictionary<String, String> clientServerNamespaceMap) {
+      var clone = Clone();
+      clone._clientServerNamespaceMap = new Dictionary<string, string>(_clientServerNamespaceMap);
+      _serverClientNamespaceMap = null;
+      return clone;
     }
 
-    private String _name;
-    private readonly Dictionary<String, String> _serverTypeNamespaceMap = new Dictionary<string, string>();
-    private readonly Dictionary<String, String> _clientTypeNamespaceMap = new Dictionary<string, string>();
+    public NamingConvention WithClientServerNamespaceMapping(String clientNamespace, String serverNamespace) {
+      var clone = Clone();
+      clone.AddClientServerNamespaceMapping(clientNamespace, serverNamespace);
+      return clone;
+    }
+
+    protected void AddClientServerNamespaceMapping(String clientNamespace, String serverNamespace) {
+      _clientServerNamespaceMap[clientNamespace] = serverNamespace;
+      _serverClientNamespaceMap = null;
+    }
+
+    public NamingConvention SetAsDefault() {
+      MetadataStore.Instance.NamingConvention = this;
+      return this;
+    }
+
+    protected virtual NamingConvention Clone() {
+      return (NamingConvention) this.ToJNode().ToObject(this.GetType(), true);
+    }
+
+    [JsonIgnore]
+    public ReadOnlyDictionary<String, String> ClientServerNamespaceMap {
+      get { return new ReadOnlyDictionary<String, String>(_clientServerNamespaceMap); }
+    }
+
+    [JsonProperty("ClientServerNamespaceMap")]
+    private Dictionary<String, String> _clientServerNamespaceMap = new Dictionary<string, string>();
+    private Dictionary<String, String> _serverClientNamespaceMap;
+
 
     /// <summary>
     /// The 'Default' NamingConvention. - Basically does nothing to either type or property names.
     /// </summary>
-    public static NamingConvention Default = new NamingConvention("Default");
+    public static NamingConvention Default = new NamingConvention();
     /// <summary>
     /// A NamingConvention that causes properties to be camelCased on the client.
     /// </summary>
     public static NamingConvention CamelCaseProperties = new CamelCasePropertiesNamingConvention();
-
-    /// <summary>
-    /// Returns any NamingConvention based on its 'Name'.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public static NamingConvention FromName(String name) {
-      lock (__namingConventions) {
-        return __namingConventions.FirstOrDefault(nc => nc.Name == name);
-      }
-    }
 
     public String TestPropertyName(String testVal, StructuralType parentType, bool toServer) {
       Func<String, StructuralType, String> fn1;
@@ -144,8 +150,8 @@ namespace Breeze.Sharp {
   /// inherits from NamingConvention.
   /// </summary>
   public class CamelCasePropertiesNamingConvention : NamingConvention  {
-    public CamelCasePropertiesNamingConvention()
-      : base("CamelCase") {
+    public CamelCasePropertiesNamingConvention() {
+      
     }
     
     public override String ServerPropertyNameToClient(String serverName, StructuralType parentType) {

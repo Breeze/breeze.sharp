@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Breeze.Sharp {
 
@@ -19,7 +20,7 @@ namespace Breeze.Sharp {
     public bool Allow { get; set; }
     public String Message {
       get {
-        var mismatchDescr = UtilFns.SplitCamelCase(MetadataMismatchType.ToString()).Replace("C L R", "CLR");
+        var mismatchDescr = SplitCamelCase(MetadataMismatchType.ToString()).Replace("C L R", "CLR");
         if (String.IsNullOrEmpty(PropertyName)) {
           return String.Format("Metadata mismatch classification: '{0}' - for StructuralType: '{1}'.  {2}",
             mismatchDescr, StructuralTypeName, Detail);
@@ -28,6 +29,13 @@ namespace Breeze.Sharp {
             mismatchDescr, StructuralTypeName, PropertyName, Detail);
         }
       }
+    }
+
+    private static string SplitCamelCase(string input) {
+      // From: http://weblogs.asp.net/jgalloway/archive/2005/09/27/426087.aspx
+      return Regex.Replace(input, "([A-Z])", " $1").Trim();
+      // Handle sequential uppercase chars as a single word.
+      // return Regex.Replace(input, "([A-Z][A-Z]*)", " $1").Trim();
     }
   }
 
@@ -59,6 +67,7 @@ namespace Breeze.Sharp {
     /// Mismatches of this type will always throw an exception.
     /// </summary>
     InconsistentCLRTypeDefinition = 32,
+    MissingCLRNamingConvention = 64,
     /// <summary>
     /// 
     /// </summary>

@@ -107,6 +107,7 @@
     <Compile Include="LocalizedMessage.cs" />
     <Compile Include="ValidationContext.cs" />
     <Compile Include="ValidationError.cs" />
+    <Compile Include="Internable.cs" />
     <Compile Include="Validators.cs" />
     <Compile Include="Validator.cs" />
   </ItemGroup>

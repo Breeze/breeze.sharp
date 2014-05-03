@@ -253,7 +253,7 @@ namespace Breeze.Sharp.Tests {
       var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
       var countryProp = custType.GetDataProperty("Country");
       try {
-        countryProp.Validators.Add(new CountryIsUsValidator());
+        countryProp.Validators.Add(new CountryValidator("US"));
         var cust = new Customer();
         var valErrors = cust.EntityAspect.ValidationErrors;
         Assert.IsTrue(valErrors.Count == 0);
@@ -264,20 +264,23 @@ namespace Breeze.Sharp.Tests {
         Assert.IsTrue(valErrors.First().Message.Contains("must start with"));
       }
       finally {
-        countryProp.Validators.Remove(new CountryIsUsValidator());
+        countryProp.Validators.Remove(new CountryValidator("US"));
       }
     }
 
-    public class CountryIsUsValidator : Validator {
-      public CountryIsUsValidator()
+    public class CountryValidator : Validator {
+      public CountryValidator(String countryAbbrev)
         : base() {
-        LocalizedMessage = new LocalizedMessage("{0} must start with the 'US', '{1}' is not valid ");
+        CountryAbbrev = countryAbbrev;
+        LocalizedMessage = new LocalizedMessage("{0} must start with the '" + countryAbbrev + "', '{1}' is not valid ");
       }
+
+      public String CountryAbbrev { get; private set; }
 
       protected override bool ValidateCore(ValidationContext context) {
         var value = (String) context.PropertyValue;
         if (value == null) return true;
-        return value.StartsWith("US");
+        return value.StartsWith(CountryAbbrev);
       }
 
       public override string GetErrorMessage(ValidationContext validationContext) {
@@ -433,8 +436,34 @@ namespace Breeze.Sharp.Tests {
         validators.Remove(validator);
       }
     }
-    
-    
+
+    [TestMethod]
+    public async Task RestoreValidatorFromMetadata() {
+      MetadataStore.__Reset();
+      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
+      var countryProp = custType.GetDataProperty("Country");
+      countryProp.Validators.Add(new CountryValidator("XY"));
+      var exportedMetadata = MetadataStore.Instance.ExportMetadata();
+      try {
+        MetadataStore.__Reset();
+        MetadataStore.Instance.ProbeAssemblies(typeof (Customer).Assembly);
+        MetadataStore.Instance.ImportMetadata(exportedMetadata);
+        var custType2 = MetadataStore.Instance.GetEntityType(typeof(Customer));
+        var countryProp2 = custType.GetDataProperty("Country");
+        var validators = countryProp2.Validators;
+        var cv = validators.FirstOrDefault(v => v is CountryValidator);
+        Assert.IsTrue(cv != null, "should have found the validator");
+        Assert.IsTrue(((CountryValidator) cv).CountryAbbrev == "XY");
+      }
+      finally {
+        MetadataStore.__Reset();
+      }
+
+    }
+
     //test("custom entity validation - register validator", function () {
     //    var ms = MetadataStore.importMetadata(testFns.metadataStore.exportMetadata());
     //    var em = TestFns.NewEm(ms);

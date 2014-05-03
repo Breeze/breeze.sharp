@@ -28,20 +28,17 @@ namespace Breeze.Sharp {
   /// to change the message you might do the following: 
   ///     var newValidator = new RequiredValidator().With(new LocalizedMessage("foo"));
   /// </remarks>
-  public abstract class Validator : IJsonSerializable {
+  public abstract class Validator : Internable {
+
+    public const String Suffix = "Validator";
 
     static Validator() {
       MetadataStore.Instance.ProbeAssemblies(typeof(Validator).GetTypeInfo().Assembly);
     }
 
     protected Validator() {
-      Name = TypeToValidatorName(this.GetType());
+      Name = UtilFns.TypeToSerializationName(this.GetType(), Suffix);
       LocalizedMessage = new LocalizedMessage(LocalizedKey);
-    }
-
-    public String Name {
-      get;
-      private set;
     }
 
     [JsonIgnore]
@@ -60,8 +57,6 @@ namespace Breeze.Sharp {
       internal protected set;
     }
 
-  
-
     public virtual ValidationError Validate(ValidationContext context) {
       return (ValidateCore(context)) ? null : new ValidationError(this, context);
     }
@@ -75,61 +70,7 @@ namespace Breeze.Sharp {
     public static Validator FindOrCreate(JNode jNode) {
       return MetadataStore.Instance.FindOrCreateValidator(jNode);
     }
-  
 
-    public static String TypeToValidatorName(Type type) {
-      var typeName = type.Name;
-      var name = (typeName.EndsWith("Validator")) ? typeName.Substring(0, typeName.Length - "Validator".Length) : typeName;
-      name = ToCamelCase(name);
-      return name;
-    }
-
-    private static String ToCamelCase(String s) {
-      if (s.Length > 1) {
-        return s.Substring(0, 1).ToLower() + s.Substring(1);
-      } else if (s.Length == 1) {
-        return s.Substring(0, 1).ToLower();
-      } else {
-        return s;
-      }
-    }
-
-    
-
-    internal JNode ToJNode() {
-      // This ONLY works because of the immutability convention for all Validators.
-      if (_jNode == null) {
-        _jNode = JNode.FromObject(this, true);
-      }
-      return _jNode;
-    }
-
-    JNode IJsonSerializable.ToJNode(object config) {
-      return ToJNode();
-    }
-
-    public override bool Equals(object obj) {
-      if (obj == this) return true;
-      var other = obj as Validator;
-      if (other == null) return false;
-      return this.ToJNode().Equals(other.ToJNode());
-    }
-
-    internal bool IsInterned {
-      get;
-      set;
-    }
-
-    public override int GetHashCode() {
-      // This ONLY works because of the immutability convention for all Validators.
-      if (_hashCode == 0) {
-        _hashCode = this.ToJNode().GetHashCode();
-      }
-      return _hashCode;
-    }
-
-    private JNode _jNode;
-    private int _hashCode;
     private string _localizedKey;
     
 
@@ -211,7 +152,7 @@ namespace Breeze.Sharp {
     }
 
     public static T Intern<T>(this T validator) where T : Validator {
-      return MetadataStore.Instance.InternValidator<T>(validator);
+      return (T) MetadataStore.Instance.InternValidator(validator);
     }
   }
 

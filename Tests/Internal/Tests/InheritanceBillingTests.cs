@@ -19,7 +19,7 @@ namespace Breeze.Sharp.Tests {
     [TestInitialize]
     public void TestInitializeMethod() {
       // Note: the NamingConvention.Add method MUST come before the ProbeAssemblies call.
-      MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping("Model.Inheritance.Billing", "Inheritance.Models");
+      MetadataStore.Instance.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Billing", "Inheritance.Models").SetAsDefault();
       MetadataStore.Instance.ProbeAssemblies(typeof(BillingDetailTPC).Assembly);
       
       _serviceName = "http://localhost:7150/breeze/Inheritance/";

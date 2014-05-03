@@ -23,12 +23,14 @@ namespace Breeze.Sharp {
 
     private MetadataStore() {
       _clrTypeMap = new ClrTypeMap(this);
+      
       RegisterTypeDiscoveryActionCore(typeof(IEntity), (t) => {
         StructuralTypeBuilder.GetEntityType(t);
         _clrTypeMap.GetStructuralType(t);
       }, false);
       RegisterTypeDiscoveryActionCore(typeof(IComplexObject), (t) => _clrTypeMap.GetStructuralType(t), false);
       RegisterTypeDiscoveryActionCore(typeof(Validator), (t) => RegisterValidator(t), true);
+      RegisterTypeDiscoveryActionCore(typeof(NamingConvention), (t) => RegisterNamingConvention(t), true);
     }
 
 
@@ -466,7 +468,8 @@ namespace Breeze.Sharp {
         var jo = new JNode();
         jo.AddPrimitive("metadataVersion", MetadataVersion);
         // jo.Add("name", this.Name);
-        jo.AddPrimitive("namingConvention", this.NamingConvention.Name);
+        // jo.AddPrimitive("namingConvention", this.NamingConvention.Name);
+        jo.AddJNode("namingConvention", this.NamingConvention);
         // jo.AddProperty("localQueryComparisonOptions", this.LocalQueryComparisonOptions);
         jo.AddArray("dataServices", this._dataServiceMap.Values);
         jo.AddArray("structuralTypes", this._structuralTypes);
@@ -477,8 +480,16 @@ namespace Breeze.Sharp {
 
     private void DeserializeFrom(JNode jNode) {
       MetadataVersion = jNode.Get<String>("metadataVersion");
-      // Name
-      NamingConvention = NamingConvention.FromName(jNode.Get<String>("namingConvention"));
+      // may be more than just a name
+      
+      var ncNode = jNode.GetJNode("namingConvention");
+      var nc = FindOrCreateNamingConvention(ncNode);
+      if (nc == null) {
+        OnMetadataMismatch(null, null, MetadataMismatchType.MissingCLRNamingConvention, ncNode.ToString());
+      } else {
+        NamingConvention = nc;
+      }
+      
       // localQueryComparisonOptions
       jNode.GetJNodeArray("dataServices").Select(jn => new DataService(jn)).ForEach(ds => {
         if (GetDataService(ds.ServiceName) == null) {
@@ -513,60 +524,28 @@ namespace Breeze.Sharp {
     #region Validator methods
 
     internal Validator FindOrCreateValidator(JNode jNode) {
-      lock (_validatorMap) {
-        Validator vr;
-
-        if (_validatorJNodeCache.TryGetValue(jNode, out vr)) {
-          return vr;
-        }
-
-        vr = ValidatorFromJNode(jNode);
-        _validatorJNodeCache[jNode] = vr;
-        return vr;
-      }
+      return _validatorCache.FindOrCreate(jNode);
     }
 
-    internal T InternValidator<T>(T validator) where T : Validator {
-      if (validator.IsInterned) return validator;
-      var jNode = validator.ToJNode();
-
-      lock (_validatorMap) {
-        if (!_validatorMap.ContainsKey(validator.Name)) {
-          _validatorMap[validator.Name] = validator.GetType();
-        }
-        Validator cachedValidator;
-        if (_validatorJNodeCache.TryGetValue(jNode, out cachedValidator)) {
-          cachedValidator.IsInterned = true;
-          return (T)cachedValidator;
-        } else {
-          _validatorJNodeCache[jNode] = validator;
-          validator.IsInterned = true;
-          return validator;
-        }
-      }
+    internal NamingConvention FindOrCreateNamingConvention(JNode jNode) {
+      return _namingConventionCache.FindOrCreate(jNode);
     }
 
+    internal Validator InternValidator(Validator validator) {
+      return _validatorCache.Intern(validator);
+    }
+
+    internal NamingConvention InternNamingConvention(NamingConvention nc) {
+      return _namingConventionCache.Intern(nc);
+    }
+    
     private void RegisterValidator(Type validatorType) {
-      var ti = validatorType.GetTypeInfo();
-      if (ti.IsAbstract) return;
-      if (ti.GenericTypeParameters.Length != 0) return;
-      var key = Validator.TypeToValidatorName(validatorType);
-      lock (_validatorMap) {
-        _validatorMap[key] = validatorType;
-      }
+      _validatorCache.Register(validatorType, Validator.Suffix);
     }
 
-    private Validator ValidatorFromJNode(JNode jNode) {
-      var vrName = jNode.Get<String>("name");
-      Type vrType;
-      if (!_validatorMap.TryGetValue(vrName, out vrType)) {
-        AddMessage("Unable to create a validator for " + vrName, MessageType.Warning);
-        return null;
-      }
-      // Deserialize the object
-      var vr = (Validator)jNode.ToObject(vrType, true);
-      return vr;
-    }
+    private void RegisterNamingConvention(Type namingConventionType) {
+      _namingConventionCache.Register(namingConventionType, NamingConvention.Suffix);
+    }   
 
     #endregion
 
@@ -604,8 +583,8 @@ namespace Breeze.Sharp {
       return new Exception("Unable to locate a CLR type corresponding to: " + typeName
           + ".  Consider calling MetadataStore.Instance.ProbeAssemblies with the assembly containing this " +
           "type when your application starts up.  In addition, if your namespaces are different between server and client " +
-          "then you may need to call MetadataStore.Instance.NamingConvention.AddClientServerNamespaceMapping to " +
-          "tell Breeze how to map between the two.");
+          "then you may need to call MetadataStore.Instance.NamingConvention.WithClientServerNamespaceMapping to create a" +
+          "new NamingConvention that understands how to map between the two.");
     }
 
     internal EntityType AddEntityType(EntityType entityType) {
@@ -679,6 +658,73 @@ namespace Breeze.Sharp {
       }
     }
 
+    private class InternCache<T> where T : Internable {
+      public readonly Dictionary<String, Type> TypeMap = new Dictionary<string, Type>();
+      public readonly Dictionary<JNode, T> JNodeMap = new Dictionary<JNode, T>();
+
+      internal T FindOrCreate(JNode jNode) {
+        try {
+          lock (TypeMap) {
+            T internable;
+
+            if (JNodeMap.TryGetValue(jNode, out internable)) {
+              return internable;
+            }
+
+            internable = InternableFromJNode(jNode);
+            JNodeMap[jNode] = internable;
+            return internable;
+          }
+        } catch (Exception e) {
+          throw new Exception("Unable to deserialize type: " + typeof(T).Name + " item: " + jNode);
+        }
+      }
+
+      public T Intern(T internable) {
+        if (internable.IsInterned) return internable;
+        var jNode = internable.ToJNode();
+
+        lock (TypeMap) {
+          if (!TypeMap.ContainsKey(internable.Name)) {
+            TypeMap[internable.Name] = internable.GetType();
+          }
+          T cachedInternable;
+          if (JNodeMap.TryGetValue(jNode, out cachedInternable)) {
+            cachedInternable.IsInterned = true;
+            return (T)cachedInternable;
+          } else {
+            JNodeMap[jNode] = internable;
+            internable.IsInterned = true;
+            return internable;
+          }
+        }
+      }
+
+      public void Register(Type internableType, String defaultSuffix) {
+        var ti = internableType.GetTypeInfo();
+        if (ti.IsAbstract) return;
+        if (ti.GenericTypeParameters.Length != 0) return;
+        var key = UtilFns.TypeToSerializationName(internableType, defaultSuffix);
+        lock (TypeMap) {
+          TypeMap[key] = internableType;
+        }
+      }
+
+      private T InternableFromJNode(JNode jNode) {
+        var name = jNode.Get<String>("name");
+        Type type;
+        if (!TypeMap.TryGetValue(name, out type)) {
+          return null;
+        }
+        // Deserialize the object
+        var vr = (T)jNode.ToObject(type, true);
+        return vr;
+      }
+
+
+    }
+
+
     #endregion
 
     #region Internal vars;
@@ -713,10 +759,12 @@ namespace Breeze.Sharp {
     private readonly Dictionary<EntityType, String> _defaultResourceNameMap = new Dictionary<EntityType, string>();
     private readonly Dictionary<String, EntityType> _resourceNameEntityTypeMap = new Dictionary<string, EntityType>();
 
-    // validator related. - both locked using _validatorMap
-    private readonly Dictionary<String, Type> _validatorMap = new Dictionary<string, Type>();
-    private readonly Dictionary<JNode, Validator> _validatorJNodeCache = new Dictionary<JNode, Validator>();
+    private InternCache<Validator> _validatorCache = new InternCache<Validator>();
+    private InternCache<NamingConvention> _namingConventionCache = new InternCache<NamingConvention>();
 
+ 
+    private readonly Dictionary<String, Type> _namingConventionMap = new Dictionary<string, Type>();
+    private readonly Dictionary<JNode, NamingConvention> _namingConventionJNodeCache = new Dictionary<JNode, NamingConvention>();
 
     private readonly List<Message> _messages = new List<Message>();
 

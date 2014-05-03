@@ -28,6 +28,9 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="serviceName"></param>
     public DataService(String serviceName) {
+      if (String.IsNullOrEmpty(serviceName)) {
+        throw new ArgumentNullException("serviceName");
+      }
       ServiceName = serviceName;
       HasServerMetadata = true;
       UseJsonP = false;

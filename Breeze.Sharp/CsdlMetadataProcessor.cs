@@ -370,10 +370,10 @@ namespace Breeze.Sharp {
 
     private void AddValidators(DataProperty dp) {
       if (!dp.IsNullable) {
-        dp._validators.Add(new RequiredValidator().Intern());
+        dp._validators.Add(new RequiredValidator());
       }
       if (dp.MaxLength.HasValue) {
-        var vr = new MaxLengthValidator( (Int32) dp.MaxLength.Value).Intern();
+        var vr = new MaxLengthValidator((Int32) dp.MaxLength.Value);
         dp._validators.Add(vr);
       }
     }

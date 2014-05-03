@@ -10,6 +10,7 @@ using System.Linq;
 
 using Breeze.Sharp.Core;
 using Newtonsoft.Json.Serialization;
+using System.Globalization;
 
 namespace Breeze.Sharp {
 
@@ -372,10 +373,47 @@ namespace Breeze.Sharp {
     #endregion
 
     internal JObject _jo;
-    private static JsonSerializer CamelCaseSerializer = new JsonSerializer() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+
+    private static JsonSerializer CamelCaseSerializer = CreateCamelCaseSerializer();
+
+    private static JsonSerializer CreateCamelCaseSerializer() {
+      var s = new JsonSerializer() {
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+      };
+      s.Converters.Add(new DictionaryKeysAreNotPropertyNamesJsonConverter());
+      return s;
+    }
+
     private static JTokenEqualityComparer EqualityComparer = new JTokenEqualityComparer();
   }
 
+  public class DictionaryKeysAreNotPropertyNamesJsonConverter : JsonConverter {
+    public override bool CanConvert(Type objectType) {
+      return typeof(IDictionary).IsAssignableFrom(objectType);
+    }
+
+    public override bool CanRead {
+      get { return false; }
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+      throw new InvalidOperationException();
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+      IDictionary dictionary = (IDictionary)value;
+
+      writer.WriteStartObject();
+
+      foreach (DictionaryEntry entry in dictionary) {
+        string key = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
+        writer.WritePropertyName(key);
+        serializer.Serialize(writer, entry.Value);
+      }
+
+      writer.WriteEndObject();
+    }
+  }
 
 }
 

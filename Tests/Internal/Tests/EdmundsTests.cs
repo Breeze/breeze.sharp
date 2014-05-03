@@ -35,7 +35,8 @@ namespace Breeze.Sharp.Tests {
 
     [TestCleanup]
     public void TearDown() {
-
+      MetadataStore.__Reset();
+      
     }
 
 

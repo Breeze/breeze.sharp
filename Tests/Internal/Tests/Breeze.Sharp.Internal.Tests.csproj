@@ -95,6 +95,10 @@
       <Project>{54b1ce10-2847-4565-839a-26da3a51af38}</Project>
       <Name>Breeze.Sharp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Model.CodeCamper\Model.CodeCamper.csproj">
+      <Project>{3115a147-39a3-4e8f-a8ba-265bb2571acc}</Project>
+      <Name>Model.CodeCamper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model.Edmunds\Model.Edmunds.csproj">
       <Project>{c365d56f-1bd4-4d6c-88ef-84f78de9243d}</Project>
       <Name>Model.Edmunds</Name>

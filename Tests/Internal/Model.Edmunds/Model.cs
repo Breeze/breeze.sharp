@@ -30,6 +30,10 @@ namespace Model.Edmunds {
   }
 
   public class AltNamingConvention : NamingConvention {
+    public AltNamingConvention() {
+      
+    }
+
     public override string ClientPropertyNameToServer(string serverName, StructuralType parentType) {
       if (parentType.Namespace == "Model.Edmunds") {
         return serverName.Substring(0, 1).ToLower() + serverName.Substring(1);
