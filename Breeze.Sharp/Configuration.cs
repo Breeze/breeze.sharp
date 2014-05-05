@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
 
-  
+  /// <summary>
+  /// A singleton class that provides basic registration mechanisms for a Breeze application.
+  /// </summary>
   public class Configuration  {
 
     #region Ctor related 
@@ -27,7 +29,9 @@ namespace Breeze.Sharp {
       RegisterTypeDiscoveryActionCore(typeof(NamingConvention), (t) => RegisterNamingConvention(t), true);
     }
   
-
+    /// <summary>
+    /// The Singleton instance.
+    /// </summary>
     public static Configuration Instance {
       get {
         return __instance;
@@ -38,6 +42,10 @@ namespace Breeze.Sharp {
 
     #region Public methods
 
+    /// <summary>
+    /// For testing purposes only. - Replaces the current instance with a new one, effectively clearing any 
+    /// previously cached or registered data.
+    /// </summary>
     public static void __Reset() {
       lock (__lock) {
         var x = __instance._probedAssemblies;
@@ -46,18 +54,12 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
-    /// Returns the CLR type for a specified structuralTypeName or null if not found.
+    /// Tell's Breeze to probe the specified assemblies and automatically discover any
+    /// Entity types, Complex types, Validators, NamingConventions and any other types 
+    /// for which a type discovery action is registered.
     /// </summary>
-    /// <param name="structuralTypeName"></param>
+    /// <param name="assembliesToProbe"></param>
     /// <returns></returns>
-    public Type GetClrType(String structuralTypeName) {
-      lock (_clrTypeMap) {
-        Type type;
-        _clrTypeMap.TryGetValue(structuralTypeName, out type);
-        return type;
-      }
-    }
-
     public bool ProbeAssemblies(params Assembly[] assembliesToProbe) {
       lock (_typeDiscoveryActions) {
         var assemblies = assembliesToProbe.Except(_probedAssemblies).ToList();
@@ -78,17 +80,16 @@ namespace Breeze.Sharp {
       }
     }
 
-    public void RegisterTypeDiscoveryAction(Type type, Action<Type> action) {
-      RegisterTypeDiscoveryActionCore(type, action, false);
-    }
-
-    // includeThisAssembly = whether to probe the assembly where 'type' is defined
-    private void RegisterTypeDiscoveryActionCore(Type type, Action<Type> action, bool includeThisAssembly) {
-      Func<Assembly, bool> shouldProcessAssembly = (a) => {
-        return includeThisAssembly ? true : a != this.GetType().GetTypeInfo().Assembly;
-      };
-      lock (_typeDiscoveryActions) {
-        _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
+    /// <summary>
+    /// Returns the CLR type for a specified structuralTypeName or null if not found.
+    /// </summary>
+    /// <param name="structuralTypeName"></param>
+    /// <returns></returns>
+    public Type GetClrType(String structuralTypeName) {
+      lock (_clrTypeMap) {
+        Type type;
+        _clrTypeMap.TryGetValue(structuralTypeName, out type);
+        return type;
       }
     }
 
@@ -101,8 +102,32 @@ namespace Breeze.Sharp {
       return typeof(IStructuralObject).IsAssignableFrom(clrType);
     }
 
+   
+    /// <summary>
+    /// Allows for custom actions to be performed as a result of any ProbeAssemblies call.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="action"></param>
+    public void RegisterTypeDiscoveryAction(Type type, Action<Type> action) {
+      RegisterTypeDiscoveryActionCore(type, action, false);
+    }
+
+
     #endregion
- 
+
+    
+
+    // includeThisAssembly = whether to probe the assembly where 'type' is defined
+    private void RegisterTypeDiscoveryActionCore(Type type, Action<Type> action, bool includeThisAssembly) {
+      Func<Assembly, bool> shouldProcessAssembly = (a) => {
+        return includeThisAssembly ? true : a != this.GetType().GetTypeInfo().Assembly;
+      };
+      lock (_typeDiscoveryActions) {
+        _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
+      }
+    }
+
+   
 
     #region Validator & NamingConvention methods
 
@@ -148,8 +173,6 @@ namespace Breeze.Sharp {
     #endregion
     
     #region Inner classes 
-
-    // inner class
 
     private class InternCache<T> where T : Internable {
       public readonly Dictionary<String, Type> TypeMap = new Dictionary<string, Type>();
@@ -216,17 +239,12 @@ namespace Breeze.Sharp {
 
 
     }
-
-
+    
     #endregion
 
-    #region Internal vars;
+    #region Private and Internal vars
 
     internal static String ANONTYPE_PREFIX = "_IB_";
-
-    #endregion
-
-    #region Private vars
 
     private static Configuration __instance = new Configuration();
     private static readonly Object __lock = new Object();
@@ -243,8 +261,6 @@ namespace Breeze.Sharp {
 
     private InternCache<Validator> _validatorCache = new InternCache<Validator>();
     private InternCache<NamingConvention> _namingConventionCache = new InternCache<NamingConvention>();
-
-
 
     #endregion
 
