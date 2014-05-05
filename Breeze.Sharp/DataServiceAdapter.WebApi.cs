@@ -78,7 +78,7 @@ namespace Breeze.Sharp {
     }
 
     private JNode BuildEntityAspectNode(EntityAspect entityAspect) {
-      var nc = MetadataStore.Instance.NamingConvention;
+      var nc = entityAspect.EntityManager.MetadataStore.NamingConvention;
       var jn = new JNode();
       var entityType = entityAspect.EntityType;
         
@@ -127,7 +127,7 @@ namespace Breeze.Sharp {
 
       var jn = new JNode(jo);
       var kms = jn.GetArray<KeyMapping>("KeyMappings");
-      var keyMappings = kms.Select(km => ToEntityKeys(km)).ToDictionary(tpl => tpl.Item1, tpl => tpl.Item2);
+      var keyMappings = kms.Select(km => ToEntityKeys(km, entityManager.MetadataStore)).ToDictionary(tpl => tpl.Item1, tpl => tpl.Item2);
       using (entityManager.NewIsLoadingBlock(false)) {
         keyMappings.ForEach(km => {
           var targetEntity = entityManager.GetEntityByKey(km.Key);
@@ -156,10 +156,10 @@ namespace Breeze.Sharp {
 
     }
 
-    private Tuple<EntityKey, EntityKey> ToEntityKeys(KeyMapping keyMapping) {
+    private Tuple<EntityKey, EntityKey> ToEntityKeys(KeyMapping keyMapping, MetadataStore metadataStore) {
       var serverTypeInfo = TypeNameInfo.FromClrTypeName(keyMapping.EntityTypeName);
-      var clientEntityTypeName = serverTypeInfo.ToClient().Name;
-      var et = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
+      var clientEntityTypeName = serverTypeInfo.ToClient(metadataStore).StructuralTypeName;
+      var et = metadataStore.GetEntityType(clientEntityTypeName);
       var oldKey = new EntityKey(et, keyMapping.TempValue);
       var newKey = new EntityKey(et, keyMapping.RealValue);
       return Tuple.Create(oldKey, newKey);

@@ -33,7 +33,7 @@ namespace Breeze.Sharp {
     public const String Suffix = "Validator";
 
     static Validator() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Validator).GetTypeInfo().Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Validator).GetTypeInfo().Assembly);
     }
 
     protected Validator() {
@@ -68,7 +68,7 @@ namespace Breeze.Sharp {
 
 
     public static Validator FindOrCreate(JNode jNode) {
-      return MetadataStore.Instance.FindOrCreateValidator(jNode);
+      return Configuration.Instance.FindOrCreateValidator(jNode);
     }
 
     private string _localizedKey;
@@ -152,7 +152,7 @@ namespace Breeze.Sharp {
     }
 
     public static T Intern<T>(this T validator) where T : Validator {
-      return (T) MetadataStore.Instance.InternValidator(validator);
+      return (T) Configuration.Instance.InternValidator(validator);
     }
   }
 

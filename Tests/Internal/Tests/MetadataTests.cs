@@ -25,7 +25,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
       
     }
@@ -41,7 +41,7 @@ namespace Breeze.Sharp.Tests {
     public async Task SelfAndSubtypes() {
       var em = await TestFns.NewEm(_serviceName);
       var allOrders = em.GetEntities(typeof(Order), typeof(InternationalOrder));
-      var orderEntityType = MetadataStore.Instance.GetEntityType(typeof (Order));
+      var orderEntityType = em.MetadataStore.GetEntityType(typeof (Order));
       var allOrders2 = em.GetEntities(orderEntityType.SelfAndSubEntityTypes.Select(et => et.ClrType));
       Assert.IsTrue(allOrders.Count() == allOrders2.Count());
       

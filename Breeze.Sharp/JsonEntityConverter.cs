@@ -30,6 +30,10 @@ namespace Breeze.Sharp {
     public JsonSerializer Serializer { get; internal set; }
     public Dictionary<String, Object> RefMap { get; private set; }
 
+    public MetadataStore MetadataStore {
+      get { return EntityManager.MetadataStore; }
+    }
+
     public JsonNodeInfo VisitNode(NodeContext nodeContext) {
       return JsonResultsAdapter.VisitNode(nodeContext.Node, this, nodeContext);
     }
@@ -101,12 +105,12 @@ namespace Breeze.Sharp {
       if (nodeInfo.NodeRefId != null) {
         return _mappingContext.RefMap[nodeInfo.NodeRefId];
       }
-
+      var metadataStore = _mappingContext.MetadataStore;
       EntityType entityType;
       Type objectType;
       if (nodeInfo.ServerTypeNameInfo != null) {
-        var clientEntityTypeName = nodeInfo.ServerTypeNameInfo.ToClient().Name;
-        entityType = MetadataStore.Instance.GetEntityType(clientEntityTypeName);
+        var clientEntityTypeName = nodeInfo.ServerTypeNameInfo.ToClient(metadataStore).StructuralTypeName;
+        entityType = metadataStore.GetEntityType(clientEntityTypeName);
         objectType = entityType.ClrType;
         if (!nodeContext.ObjectType.IsAssignableFrom(objectType)) {
           throw new Exception("Unable to convert returned type: " + objectType.Name + " into type: " +
@@ -116,7 +120,7 @@ namespace Breeze.Sharp {
       }
       else {
         objectType = nodeContext.ObjectType;
-        entityType = MetadataStore.Instance.GetEntityType(objectType);
+        entityType = metadataStore.GetEntityType(objectType);
       }
 
       // an entity type
@@ -128,6 +132,7 @@ namespace Breeze.Sharp {
       var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
       if (entity == null) {
         entity = (IEntity) Activator.CreateInstance(objectType);
+        entity.EntityAspect.EntityType = entityType;
       }
       // must be called before populate
       if (nodeInfo.NodeId != null) {
@@ -170,7 +175,8 @@ namespace Breeze.Sharp {
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
       var dict = (IDictionary<String, JToken>) nodeContext.Node;
       var structuralType = nodeContext.StructuralType;
-      var nc = MetadataStore.Instance.NamingConvention;
+      // needs to be the current namingConvention
+      var nc = _mappingContext.EntityManager.MetadataStore.NamingConvention;
       dict.ForEach(kvp => {
         var key = nc.ServerPropertyNameToClient(kvp.Key, structuralType);
         var prop = structuralType.GetProperty(key);

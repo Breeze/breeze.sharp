@@ -173,7 +173,7 @@ namespace Breeze.Sharp {
     /// For internal use.
     /// </summary>
     /// <returns></returns>
-    public override String GetResourcePath() {
+    public override String GetResourcePath(MetadataStore metadataStore) {
       var dsq = this.DataServiceQuery;
 
       var requestUri = dsq.RequestUri.AbsoluteUri;
@@ -182,8 +182,11 @@ namespace Breeze.Sharp {
       var s2 = requestUri.Replace(__placeholderServiceName, "");
 
       var resourceName = (String.IsNullOrEmpty(ResourceName))
-        ? MetadataStore.Instance.GetDefaultResourceName(this.QueryableType)
+        ? metadataStore.GetDefaultResourceName(this.QueryableType)
         : ResourceName;
+      if (String.IsNullOrEmpty(resourceName)) {
+        throw new Exception("Cannot find a default resource name for CLR type: " + this.QueryableType.FullName);
+      }
 
       // if any filter conditions
       var queryResource = s2.Replace(__placeholderResourceName + "()", resourceName);
@@ -455,7 +458,7 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <returns></returns>
     public abstract object Clone();
-    public abstract String GetResourcePath();
+    public abstract String GetResourcePath(MetadataStore metadataStore);
 
     DataServiceQuery IHasDataServiceQuery.DataServiceQuery {
       get { return DataServiceQuery; }

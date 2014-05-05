@@ -20,7 +20,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
@@ -222,7 +222,7 @@ namespace Breeze.Sharp.Tests {
       var q = new EntityQuery<Supplier>().Where(c => c.Location.City.StartsWith("P") && c.CompanyName != null);
       // var q = new EntityQuery<Supplier>().Where(c => c.CompanyName.StartsWith("P") && c.Location.City != null && c.Location.Address != null);
 
-      var x = q.GetResourcePath();
+      var x = q.GetResourcePath(em1.MetadataStore);
       var suppliers = await em1.ExecuteQuery(q);
 
       Assert.IsTrue(suppliers.Count() > 0, "should have returned some suppliers");
@@ -395,56 +395,61 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task ValidationErrorsChanged() {
       var em1 = await TestFns.NewEm(_serviceName);
+      using (TestFns.ShareWithDetached(em1.MetadataStore)) {
 
-      var supplier = new Supplier();
-      var valErrors = supplier.EntityAspect.ValidationErrors;
-      var errors = new List<DataErrorsChangedEventArgs>();
-      ((INotifyDataErrorInfo)supplier).ErrorsChanged += (se, e) => {
-        errors.Add(e);
-      };
-      em1.AddEntity(supplier);
-      Assert.IsTrue(errors.Count == 1);
-      Assert.IsTrue(valErrors.Count == 1);
-      
-      
-      var s = "very long involved value";
-      s = s + s + s + s + s + s + s + s + s + s + s + s + s;
-      supplier.CompanyName = s;
-      Assert.IsTrue(errors.Count == 3);  // setting the companyName will remove the requiredError but add the maxLenght error
-      Assert.IsTrue(errors.Last().PropertyName == "CompanyName");
-      Assert.IsTrue(valErrors.Count == 1);
-      Assert.IsTrue(((INotifyDataErrorInfo)supplier).HasErrors);
-      var location = supplier.Location;
-      location.City = s;
-      Assert.IsTrue(errors.Last().PropertyName == "Location.City", "location.city should have been the propertyName");
-      Assert.IsTrue(errors.Count == 4);  
-      Assert.IsTrue((String) valErrors.Last().Context.PropertyPath == "Location.City");
-      Assert.IsTrue(valErrors.Count == 2); // companyName_required and location.city_maxLength
-      Assert.IsTrue(((INotifyDataErrorInfo)supplier).HasErrors);
-      location.City = "much shorter";
-      Assert.IsTrue(errors.Last().PropertyName == "Location.City", "location.city should have changed again");
-      Assert.IsTrue(errors.Count == 5);
-      Assert.IsTrue(valErrors.Count == 1);
-      Assert.IsTrue(((INotifyDataErrorInfo)supplier).HasErrors);
-      supplier.CompanyName = "shortName";
-      Assert.IsTrue(errors.Count == 6);
-      Assert.IsTrue(valErrors.Count == 0);
-      Assert.IsTrue(((INotifyDataErrorInfo)supplier).HasErrors == false);
+        var supplier = new Supplier();
+        var valErrors = supplier.EntityAspect.ValidationErrors;
+        var errors = new List<DataErrorsChangedEventArgs>();
+        ((INotifyDataErrorInfo) supplier).ErrorsChanged += (se, e) => {
+          errors.Add(e);
+        };
+        em1.AddEntity(supplier);
+        Assert.IsTrue(errors.Count == 1);
+        Assert.IsTrue(valErrors.Count == 1);
+
+
+        var s = "very long involved value";
+        s = s + s + s + s + s + s + s + s + s + s + s + s + s;
+        supplier.CompanyName = s;
+        Assert.IsTrue(errors.Count == 3);
+          // setting the companyName will remove the requiredError but add the maxLenght error
+        Assert.IsTrue(errors.Last().PropertyName == "CompanyName");
+        Assert.IsTrue(valErrors.Count == 1);
+        Assert.IsTrue(((INotifyDataErrorInfo) supplier).HasErrors);
+        var location = supplier.Location;
+        location.City = s;
+        Assert.IsTrue(errors.Last().PropertyName == "Location.City", "location.city should have been the propertyName");
+        Assert.IsTrue(errors.Count == 4);
+        Assert.IsTrue((String) valErrors.Last().Context.PropertyPath == "Location.City");
+        Assert.IsTrue(valErrors.Count == 2); // companyName_required and location.city_maxLength
+        Assert.IsTrue(((INotifyDataErrorInfo) supplier).HasErrors);
+        location.City = "much shorter";
+        Assert.IsTrue(errors.Last().PropertyName == "Location.City", "location.city should have changed again");
+        Assert.IsTrue(errors.Count == 5);
+        Assert.IsTrue(valErrors.Count == 1);
+        Assert.IsTrue(((INotifyDataErrorInfo) supplier).HasErrors);
+        supplier.CompanyName = "shortName";
+        Assert.IsTrue(errors.Count == 6);
+        Assert.IsTrue(valErrors.Count == 0);
+        Assert.IsTrue(((INotifyDataErrorInfo) supplier).HasErrors == false);
+      }
     }
 
     [TestMethod]
     public async Task ValidationErrorsChanged2() {
       var em1 = await TestFns.NewEm(_serviceName);
-      var supplier = new Supplier();
-      em1.AddEntity(supplier);
-      var s = "very long involved value";
-      s = s + s + s + s + s + s + s + s + s + s + s + s + s;
-      supplier.CompanyName = s;
-      ClearAndRevalidate(supplier, 1);
-      supplier.Location.City = s;
-      ClearAndRevalidate(supplier, 2);
-      supplier.Location.City = "shorter";
-      ClearAndRevalidate(supplier, 1);
+      using (TestFns.ShareWithDetached(em1.MetadataStore)) {
+        var supplier = new Supplier();
+        em1.AddEntity(supplier);
+        var s = "very long involved value";
+        s = s + s + s + s + s + s + s + s + s + s + s + s + s;
+        supplier.CompanyName = s;
+        ClearAndRevalidate(supplier, 1);
+        supplier.Location.City = s;
+        ClearAndRevalidate(supplier, 2);
+        supplier.Location.City = "shorter";
+        ClearAndRevalidate(supplier, 1);
+      }
 
     }
 

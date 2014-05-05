@@ -39,9 +39,10 @@ namespace Breeze.Sharp.Tests {
       var serviceName = "http://localhost:7150/breeze/NorthwindIBModel";
       var ds = new DataService(serviceName);
       try {
-        await MetadataStore.Instance.FetchMetadata(ds);
+        var ms = new MetadataStore();
+        await ms.FetchMetadata(ds);
       } catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("MetadataStore.Instance"));
+        Assert.IsTrue(e.Message.Contains("Configuration.Instance"));
       }
 
       try {
@@ -49,7 +50,7 @@ namespace Breeze.Sharp.Tests {
         await em.FetchMetadata();
       }
       catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("MetadataStore.Instance"));
+        Assert.IsTrue(e.Message.Contains("Configuration.Instance"));
       }
     }
 

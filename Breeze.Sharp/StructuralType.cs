@@ -23,17 +23,15 @@ namespace Breeze.Sharp {
   /// </summary>
   [DebuggerDisplay("{Name}")]
   public abstract class StructuralType {
-    public StructuralType() {
+    public StructuralType(MetadataStore metadataStore) {
       Warnings = new List<string>();
-      MetadataStore = MetadataStore.Instance;
+      MetadataStore = metadataStore;
     }
 
     // TODO: will be needed later when we have complexType inheritance 
     // public abstract StructuralType BaseStructuralType { get; }
 
-
-
-    public MetadataStore MetadataStore { get; internal set; }
+    public MetadataStore MetadataStore { get; private set; }
 
     public String Name { 
       get { return TypeNameInfo.ToStructuralTypeName(ShortName, Namespace); }
@@ -41,7 +39,7 @@ namespace Breeze.Sharp {
         var parts = TypeNameInfo.FromStructuralTypeName(value);
         ShortName = parts.ShortName;
         Namespace = parts.Namespace;
-        _nameOnServer = parts.ToServer().Name;
+        _nameOnServer = parts.ToServer(MetadataStore).StructuralTypeName;
       }
     }
 
@@ -51,23 +49,15 @@ namespace Breeze.Sharp {
       }
       internal set {
         _nameOnServer = value;
-        Name = TypeNameInfo.FromStructuralTypeName(value).ToClient().Name;
+        Name = TypeNameInfo.FromStructuralTypeName(value).ToClient(MetadataStore).StructuralTypeName;
       }
     }
 
     public Type ClrType {
-      get {
-        if (_clrType == null) {
-          _clrType = MetadataStore.GetClrTypeFor(this);
-          if (_clrType == null) {
-            throw MetadataStore.MissingTypeException(this.Name);
-          }
-        }
-        return _clrType;
-      }
+      get { return _clrType; }
       internal set {
         _clrType = value;
-        Name = TypeNameInfo.FromClrTypeName(_clrType.FullName).Name;
+        Name = TypeNameInfo.FromClrTypeName(_clrType.FullName).StructuralTypeName;
       }  
     }
 

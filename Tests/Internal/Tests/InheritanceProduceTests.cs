@@ -22,8 +22,10 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Apple).Assembly);
-      MetadataStore.Instance.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Produce", "ProduceTPH").SetAsDefault();
+      Configuration.Instance.ProbeAssemblies(typeof(Apple).Assembly);
+      TestFns.DefaultMetadataStore.NamingConvention =
+        TestFns.DefaultMetadataStore.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Produce",
+          "ProduceTPH");
       _serviceName = "http://localhost:7150/breeze/ProduceTPH/";
     }
 
@@ -40,7 +42,7 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(r0.Count() > 0);
       var fruit1 = r0.First();
       var id = fruit1.Id;
-      var ek = new EntityKey(typeof(Fruit), id);
+      var ek = new EntityKey(typeof(Fruit), em1.MetadataStore, id);
       var r1 = await em1.ExecuteQuery(ek.ToQuery());
       var fruits = r1.Cast<Fruit>();
       Assert.IsTrue(fruits.First() == fruit1);
@@ -50,17 +52,17 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task FetchByKeyWithDefaultResource() {
       var em1 = await TestFns.NewEm(_serviceName);
-      var rn = MetadataStore.Instance.GetDefaultResourceName(typeof(Fruit));
+      var rn = em1.MetadataStore.GetDefaultResourceName(typeof(Fruit));
       Assert.IsTrue(rn != "Fruits");
-      MetadataStore.Instance.SetResourceName("Fruits", typeof(Fruit), true);
-      var rn2 = MetadataStore.Instance.GetDefaultResourceName(typeof(Fruit));
+      em1.MetadataStore.SetResourceName("Fruits", typeof(Fruit), true);
+      var rn2 = em1.MetadataStore.GetDefaultResourceName(typeof(Fruit));
       Assert.IsTrue(rn2 == "Fruits");
       var q = new EntityQuery<Fruit>();
       var r0 = await em1.ExecuteQuery(q);
       Assert.IsTrue(r0.Count() > 0);
       var fruit1 = r0.First();
       var id = fruit1.Id;
-      var ek = new EntityKey(typeof(Fruit), id);
+      var ek = new EntityKey(typeof(Fruit), em1.MetadataStore, id);
       var r1 = await em1.ExecuteQuery(ek.ToQuery());
       var fruits = r1.Cast<Fruit>();
       Assert.IsTrue(fruits.First() == fruit1);
@@ -87,7 +89,7 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(r0.Count() > 0);
       var iop1 = r0.First();
       var id = iop1.Id;
-      var ek = new EntityKey(typeof(ItemOfProduce), id);
+      var ek = new EntityKey(typeof(ItemOfProduce), em1.MetadataStore, id);
       var r1 = await em1.ExecuteQuery(ek.ToQuery());
       var fruits = r1.Cast<ItemOfProduce>();
       Assert.IsTrue(fruits.First() == iop1);
@@ -114,7 +116,7 @@ namespace Breeze.Sharp.Tests {
       
       // var appleId = new Guid("D35E9669-2BAE-4D69-A27A-252B31800B74");
 
-      var ek = new EntityKey(typeof(ItemOfProduce), appleId);
+      var ek = new EntityKey(typeof(ItemOfProduce), em1.MetadataStore, appleId);
       var fr = await em1.FetchEntityByKey(ek);
       Assert.IsTrue(fr.Entity != null && fr.Entity is Apple && !fr.FromCache);
       // and again
@@ -129,7 +131,7 @@ namespace Breeze.Sharp.Tests {
       var appleId = new Guid("13f1c9f5-3189-45fa-ba6e-13314fafaa92");
       // var appleId = new Guid("D35E9669-2BAE-4D69-A27A-252B31800B74");
 
-      var ek = new EntityKey(typeof(ItemOfProduce), appleId);
+      var ek = new EntityKey(typeof(ItemOfProduce), em1.MetadataStore, appleId);
       var q = new EntityQuery<ItemOfProduce>();
       var r0 = await em1.ExecuteQuery(q);
       Assert.IsTrue(r0.Count() > 30);

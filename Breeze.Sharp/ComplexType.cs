@@ -12,7 +12,7 @@ namespace Breeze.Sharp {
   [DebuggerDisplay("{Name}")]
   public sealed class ComplexType: StructuralType, IJsonSerializable {
 
-    public ComplexType() :base() {
+    public ComplexType(MetadataStore metadataStore) :base(metadataStore) {
 
     }
 

@@ -11,15 +11,15 @@ using Newtonsoft.Json.Linq;
 namespace Model.Edmunds {
 
   public static class Config {
-    public static void Initialize() {
+    public static void Initialize(MetadataStore metadataStore) {
       
 
-      var makeBuilder = new EntityTypeBuilder<Make>();
+      var makeBuilder = new EntityTypeBuilder<Make>(metadataStore);
       makeBuilder.DataProperty(make => make.Id).IsPartOfKey();
       makeBuilder.DataProperty(make => make.Name).MaxLength(40);
       // makeBuilder.NavigationProperty(make => make.Models).HasInverse(model => model.Make);
       
-      var modelBuilder = new EntityTypeBuilder<Model>();
+      var modelBuilder = new EntityTypeBuilder<Model>(metadataStore);
       modelBuilder.DataProperty(model => model.Id).IsPartOfKey();
       modelBuilder.NavigationProperty(model => model.Make)
         .HasForeignKey(model => model.MakeId)
@@ -29,8 +29,8 @@ namespace Model.Edmunds {
     }
   }
 
-  public class AltNamingConvention : NamingConvention {
-    public AltNamingConvention() {
+  public class EdmundsNamingConvention : NamingConvention {
+    public EdmundsNamingConvention() {
       
     }
 

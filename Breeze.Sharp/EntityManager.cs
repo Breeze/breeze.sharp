@@ -28,8 +28,8 @@ namespace Breeze.Sharp {
     ///     // Example: 
     ///     var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
     /// </code></remarks>
-    public EntityManager(String serviceName) 
-      : this(new DataService(serviceName)) {
+    public EntityManager(String serviceName, MetadataStore metadataStore = null) 
+      : this(new DataService(serviceName), metadataStore) {
     
     }
 
@@ -39,12 +39,12 @@ namespace Breeze.Sharp {
     /// </summary>
     /// </summary>
     /// <param name="dataService"></param>
-    public EntityManager(DataService dataService) {
+    public EntityManager(DataService dataService, MetadataStore metadataStore = null) {
       DataService = dataService;
       DefaultQueryOptions = QueryOptions.Default;
       CacheQueryOptions = CacheQueryOptions.Default;
       ValidationOptions = ValidationOptions.Default;
-      
+      MetadataStore = metadataStore ?? new MetadataStore();
       KeyGenerator = new DefaultKeyGenerator();
       Initialize();
     }
@@ -58,6 +58,7 @@ namespace Breeze.Sharp {
       DefaultQueryOptions = em.DefaultQueryOptions;
       CacheQueryOptions = em.CacheQueryOptions;
       ValidationOptions = em.ValidationOptions;
+      MetadataStore = em.MetadataStore;
       KeyGenerator = em.KeyGenerator; // TODO: review whether we should clone instead.
       Initialize();
     }
@@ -120,7 +121,7 @@ namespace Breeze.Sharp {
     #region Public props
 
     public MetadataStore MetadataStore {
-      get { return MetadataStore.Instance; }
+      get; private set;
     }
 
     /// <summary>
@@ -229,7 +230,7 @@ namespace Breeze.Sharp {
         await FetchMetadata(dataService);
         CheckAuthorizedThreadId();
       }
-      var resourcePath = query.GetResourcePath();
+      var resourcePath = query.GetResourcePath(this.MetadataStore);
       // HACK
       resourcePath = resourcePath.Replace("/*", "");
       var result = await dataService.GetAsync(resourcePath);
@@ -493,7 +494,7 @@ namespace Breeze.Sharp {
       }
       var entityGroupNodesMap = jn.GetJNodeArrayMap("entityGroupMap");
       // tempKeyMap will have a new values where collisions will occur
-      var tempKeyMap = jn.GetJNodeArray("tempKeys").Select(jnEk => new EntityKey(jnEk)).ToDictionary(
+      var tempKeyMap = jn.GetJNodeArray("tempKeys").Select(jnEk => new EntityKey(jnEk, this.MetadataStore)).ToDictionary(
         ek => ek, 
         ek => this.GetEntityByKey(ek) == null ? ek : EntityKey.Create(ek.EntityType, KeyGenerator.GetNextTempId(ek.EntityType.KeyProperties.First())) 
       );
@@ -539,6 +540,7 @@ namespace Breeze.Sharp {
           OnEntityChanged(targetEntity, EntityAction.MergeOnImport);
         } else {
           targetEntity = (IEntity)Activator.CreateInstance(entityType.ClrType);
+          targetEntity.EntityAspect.EntityType = entityType;
           PopulateImportedEntity(targetEntity, entityNode);
           if (hasCollision) {
             var origEk = targetEntity.EntityAspect.EntityKey;
@@ -546,7 +548,7 @@ namespace Breeze.Sharp {
             targetEntity.EntityAspect.SetDpValue(entityType.KeyProperties[0], newEk.Values[0]);
           }
           UpdateTempFks(targetEntity, entityAspectNode, tempKeyMap);
-          AttachImportedEntity(targetEntity, entityState);
+          AttachImportedEntity(targetEntity, entityType, entityState);
         }       
 
         importedEntities.Add(targetEntity);
@@ -899,7 +901,7 @@ namespace Breeze.Sharp {
     /// <param name="values"></param>
     /// <returns></returns>
     public T GetEntityByKey<T>(params Object[] values) where T : IEntity {
-      var ek = new EntityKey(typeof(T), values);
+      var ek = new EntityKey(typeof(T), this.MetadataStore, values);
       return (T)GetEntityByKey(ek);
     }
 
@@ -974,7 +976,8 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public IEntity CreateEntity(Type clrType, Object initialValues = null, EntityState entityState = EntityState.Added) {
       var entity = (IEntity)Activator.CreateInstance(clrType);
-      var et = MetadataStore.Instance.GetEntityType(clrType);
+      var et = MetadataStore.GetEntityType(clrType);
+      entity.EntityAspect.EntityType = et;
       InitializeEntity(entity, initialValues, et);
       if (entityState == EntityState.Detached) {
         PrepareForAttach(entity);
@@ -1071,7 +1074,6 @@ namespace Breeze.Sharp {
     internal EntityAspect AttachQueriedEntity(IEntity entity, EntityType entityType) {
       var aspect = entity.EntityAspect;
       aspect.EntityType = entityType;
-
       AttachEntityAspect(aspect, EntityState.Unchanged); 
 
       if ((this.ValidationOptions.ValidationApplicability & ValidationApplicability.OnQuery) > 0) {
@@ -1082,9 +1084,11 @@ namespace Breeze.Sharp {
       return aspect;
     }
 
-    internal EntityAspect AttachImportedEntity(IEntity entity, EntityState entityState) {
+    internal EntityAspect AttachImportedEntity(IEntity entity, EntityType entityType, EntityState entityState) {
       var aspect = entity.EntityAspect;
+      aspect.EntityType = entityType;
       AttachEntityAspect(aspect, entityState);
+      
       aspect.OnEntityChanged(EntityAction.AttachOnImport);
       return aspect;
     }
@@ -1092,8 +1096,9 @@ namespace Breeze.Sharp {
 
     private EntityAspect PrepareForAttach(IEntity entity) {
       var aspect = entity.EntityAspect;
-      if (aspect.EntityType == null) {
+      if (aspect.EntityType.MetadataStore == MetadataStore.Detached) {
         aspect.EntityType = this.MetadataStore.GetEntityType(entity.GetType());
+        aspect.EntityKey = null;
       } else if (aspect.EntityType.MetadataStore != this.MetadataStore) {
         throw new Exception("Cannot attach this entity because the EntityType (" + aspect.EntityType.Name + ") and MetadataStore associated with this entity does not match this EntityManager's MetadataStore.");
       }
@@ -1125,7 +1130,7 @@ namespace Breeze.Sharp {
       // return properties that are = to defaultValues
       var keyProps = aspect.EntityType.KeyProperties;
       var keyPropsWithDefaultValues = keyProps
-        .Zip(ek.Values, (kp, kv) => kp.DefaultValue == kv ? kp : null)
+        .Zip(ek.Values, (kp, kv) => Object.Equals(kp.DefaultValue,kv) ? kp : null)
         .Where(kp => kp != null);
 
       if (keyPropsWithDefaultValues.Any()) {

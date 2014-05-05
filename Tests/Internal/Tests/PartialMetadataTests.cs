@@ -15,25 +15,16 @@ using Newtonsoft.Json;
 
 namespace Breeze.Sharp.Tests {
 
-  public class MorphedClassNamingConvention : Breeze.Sharp.NamingConvention {
-
-    public MorphedClassNamingConvention() {
-      this.AddClientServerNamespaceMapping("PartialFoo", "Foo" );
-    }
-    
-  }
+  
 
   [TestClass]
   public class PartialMetadataTests {
 
-    private String _serviceName;
+    private String _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.__Reset();
-      MetadataStore.Instance.NamingConvention = new MorphedClassNamingConvention();
-      MetadataStore.Instance.ProbeAssemblies(typeof(PartialFoo.Customer).Assembly);
-      
+      Configuration.Instance.ProbeAssemblies(typeof(PartialFoo.Customer).Assembly);
     }
 
     [TestCleanup]
@@ -43,104 +34,99 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task NamingConventionSerialization() {
-      // var em = await TestFns.NewEm(_serviceName);
+      
       var nc = new MorphedClassNamingConvention();
       var nc2 = new MorphedClassNamingConvention();
       Assert.IsTrue(nc.Equals(nc2));
-      var nc3 = nc.WithClientServerNamespaceMapping("PartialBar", "Bar").SetAsDefault();
+      var nc3 = nc.WithClientServerNamespaceMapping("PartialBar", "Bar");
       var jn = ((IJsonSerializable) nc3).ToJNode(null);
       var nc4 = jn.ToObject(nc3.GetType(), true);
       Assert.IsTrue(nc3.Equals(nc4));
     }
 
+    public class MorphedClassNamingConvention : Breeze.Sharp.NamingConvention {
+      public MorphedClassNamingConvention() {
+        this.AddClientServerNamespaceMapping("PartialFoo", "Foo");
+      }
+    }
+
     [TestMethod]
     public async Task MetadataMissingClrProperty() {
-      try {
-        MetadataStore.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
-        var serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
+      
+      var ms = new MetadataStore();
+      ms.NamingConvention = new MorphedClassNamingConvention();
+      var em = new EntityManager(_serviceName, ms);
 
-        var em = new EntityManager(serviceName);
-        var mmargs = new List<MetadataMismatchEventArgs>();
-        MetadataStore.Instance.MetadataMismatch += (s, e) => {
-          mmargs.Add(e);
-        };
-        var x = await em.FetchMetadata();
-        Assert.IsTrue(mmargs.Count > 4, "should be more than 4 mismatches, but found: " + mmargs.Count);
-        var errors = MetadataStore.Instance.GetMessages(MessageType.Error);
-        Assert.IsTrue(errors.Count() == 0, "should be 0 errors: " + errors.ToAggregateString("..."));
-        Assert.IsTrue(MetadataStore.Instance.GetMessages().Count() >= 4, "should be more than 4 message");
-
-      } finally {
-        MetadataStore.__Reset();
-      }
+      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+        
+      var mmargs = new List<MetadataMismatchEventArgs>();
+      em.MetadataStore.MetadataMismatch += (s, e) => {
+        mmargs.Add(e);
+      };
+      var x = await em.FetchMetadata();
+      Assert.IsTrue(mmargs.Count > 4, "should be more than 4 mismatches, but found: " + mmargs.Count);
+      var errors = em.MetadataStore.GetMessages(MessageType.Error);
+      Assert.IsTrue(errors.Count() == 0, "should be 0 errors: " + errors.ToAggregateString("..."));
+      Assert.IsTrue(em.MetadataStore.GetMessages().Count() >= 4, "should be more than 4 message");
     }
 
     [TestMethod]
     public async Task MetadataMissingClrPropertyQuery() {
-      try {
-        MetadataStore.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
-        var serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
 
-        var em = new EntityManager(serviceName);
-        var q = new EntityQuery<PartialFoo.Customer>().Where(c => c.CompanyName.StartsWith("B"));
-        var r0 = await em.ExecuteQuery(q);
-        Assert.IsTrue(r0.Count() > 0);
+      var em = new EntityManager(_serviceName);
+      em.MetadataStore.NamingConvention = new MorphedClassNamingConvention();
+      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+      var q = new EntityQuery<PartialFoo.Customer>().Where(c => c.CompanyName.StartsWith("B"));
+      var r0 = await em.ExecuteQuery(q);
+      Assert.IsTrue(r0.Count() > 0);
 
-      } finally {
-        MetadataStore.__Reset();
-      }
     }
 
     [TestMethod]
     public async Task MetadataMissingClrType() {
-      try {
-        //MetadataStore.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
-        var serviceName = "http://sampleservice.breezejs.com/api/todos/";
+      
+      //Configuration.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+      var serviceName = "http://sampleservice.breezejs.com/api/todos/";
 
-        var em = new EntityManager(serviceName);
-        var mmargs = new List<MetadataMismatchEventArgs>();
-        MetadataStore.Instance.MetadataMismatch += (s, e) => {
-          mmargs.Add(e);
-          Assert.IsTrue(e.StructuralTypeName.ToUpper().Contains("TODO"), "entityTypeName should be TODO");
-          Assert.IsTrue(e.PropertyName == null, "propertyName should be null");
-          Assert.IsTrue(e.Allow == false, "allow should be false");
-          e.Allow = (e.MetadataMismatchType == MetadataMismatchType.MissingCLREntityType);
-        };
-        var x = await em.FetchMetadata();
-        Assert.IsTrue(mmargs.Count == 1, "should be only one mismatch, but found: " + mmargs.Count);
-        var errors = MetadataStore.Instance.GetMessages(MessageType.Error);
-        Assert.IsTrue(errors.Count() == 0, "should be 0 errors: " + errors.ToAggregateString("..."));
-        Assert.IsTrue(MetadataStore.Instance.GetMessages().Count() == 1, "should be 1 message");
-      }
-      finally {
-        MetadataStore.__Reset();
-      }
+      var em = new EntityManager(serviceName);
+      var mmargs = new List<MetadataMismatchEventArgs>();
+      em.MetadataStore.MetadataMismatch += (s, e) => {
+        mmargs.Add(e);
+        Assert.IsTrue(e.StructuralTypeName.ToUpper().Contains("TODO"), "entityTypeName should be TODO");
+        Assert.IsTrue(e.PropertyName == null, "propertyName should be null");
+        Assert.IsTrue(e.Allow == false, "allow should be false");
+        e.Allow = (e.MetadataMismatchType == MetadataMismatchType.MissingCLREntityType);
+      };
+      var x = await em.FetchMetadata();
+      Assert.IsTrue(mmargs.Count == 1, "should be only one mismatch, but found: " + mmargs.Count);
+      var errors = em.MetadataStore.GetMessages(MessageType.Error);
+      Assert.IsTrue(errors.Count() == 0, "should be 0 errors: " + errors.ToAggregateString("..."));
+      Assert.IsTrue(em.MetadataStore.GetMessages().Count() == 1, "should be 1 message");
+      
+      
     }
       
     
     [TestMethod]
     public async Task MetadataWithEmbeddedQuotes() {
+      
+      // this is a legacy service that has quoted metadata.
+      var serviceName = "http://sampleservice.breezejs.com/api/todos/";
+      var ds = new DataService(serviceName);
+          
+      var metadata = await ds.GetAsync("Metadata");
+
+      var metadata2 = System.Text.RegularExpressions.Regex.Unescape(metadata).Trim('"');
+      var jo = (JObject) JsonConvert.DeserializeObject(metadata2);
+      var em = new EntityManager(ds);
       try {
-        // this is a legacy service that has quoted metadata.
-        var serviceName = "http://sampleservice.breezejs.com/api/todos/";
-        var ds = new DataService(serviceName);
-
-        var metadata = await ds.GetAsync("Metadata");
-
-        var metadata2 = System.Text.RegularExpressions.Regex.Unescape(metadata).Trim('"');
-        var jo = (JObject) JsonConvert.DeserializeObject(metadata2);
-        var em = new EntityManager(ds);
-        try {
-          var x = await em.FetchMetadata();
-          Assert.Fail("should not get here - CLR types for this metadata are not available");
-        }
-        catch (Exception e) {
-          Assert.IsTrue(e.Message.Contains("CLR Entity"));
-        }
+        var x = await em.FetchMetadata();
+        Assert.Fail("should not get here - CLR types for this metadata are not available");
       }
-      finally {
-        MetadataStore.__Reset();
+      catch (Exception e) {
+        Assert.IsTrue(e.Message.Contains("CLR Entity"));
       }
+      
     }
 
 

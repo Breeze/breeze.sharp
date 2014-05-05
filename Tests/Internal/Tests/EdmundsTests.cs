@@ -14,6 +14,8 @@ using System.IO;
 using System.Reflection;
 using Model.Edmunds;
 
+
+
 namespace Breeze.Sharp.Tests {
 
   [TestClass]
@@ -25,25 +27,29 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.NamingConvention = new AltNamingConvention();
-      MetadataStore.Instance.ProbeAssemblies(typeof(Make).Assembly);
+      
+      Configuration.Instance.ProbeAssemblies(typeof(Make).Assembly);
       
       var serviceName = "http://api.edmunds.com/v1/api/"; // edmunds
       _dataService = new DataService(serviceName) {HasServerMetadata = false};
-      Config.Initialize();
+      
     }
 
     [TestCleanup]
     public void TearDown() {
-      MetadataStore.__Reset();
+      
       
     }
+
+
 
 
     [TestMethod]
     public async Task SimpleCall() {
       //return;
-      var em1 = await TestFns.NewEm(_dataService);
+      var em1 = new EntityManager(_dataService);
+      em1.MetadataStore.NamingConvention = new EdmundsNamingConvention();
+      Model.Edmunds.Config.Initialize(em1.MetadataStore);
       var initParameters = InitialParameters();
       var q = new EntityQuery<Make>().From("vehicle/makerepository/findall")
         .WithParameters(initParameters).With(new EdmundsJsonResultsAdapter());

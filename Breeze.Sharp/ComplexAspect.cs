@@ -21,11 +21,11 @@ namespace Breeze.Sharp {
 
     #region Ctors
 
-    internal ComplexAspect(IComplexObject co, ComplexType complexType = null)
+    internal ComplexAspect(IComplexObject co)
       : base(co) {
       ComplexObject = co;
       co.ComplexAspect = this;
-      ComplexType = complexType ?? MetadataStore.Instance.GetComplexType(co.GetType());
+      ComplexType = MetadataStore.Detached.GetComplexType(co.GetType());
       InitializeDefaultValues();
     }
 

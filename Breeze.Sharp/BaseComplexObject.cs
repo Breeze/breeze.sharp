@@ -15,7 +15,7 @@ namespace Breeze.Sharp {
     /// Protected ctor.
     /// </summary>
     protected BaseComplexObject() {
-      ComplexAspect = new ComplexAspect(this, null);
+      ComplexAspect = new ComplexAspect(this);
     }
 
     /// <inheritdoc />

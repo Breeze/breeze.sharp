@@ -20,6 +20,7 @@ namespace Breeze.Sharp {
     /// The parent <see cref="IEntity"/> associated with this collection.
     /// </summary>
     IEntity ParentEntity { get; set; }
+
     /// <summary>
     /// The <see cref="NavigationProperty"/> associated with this collection;
     /// </summary>
@@ -47,6 +48,8 @@ namespace Breeze.Sharp {
 
     /// <inheritdoc />
     int Count { get; }
+
+
   }
 
   /// <summary>
@@ -59,9 +62,6 @@ namespace Breeze.Sharp {
     public NavigationSet() {
     }   
 
-    public NavigationSet(IEntity parentEntity, NavigationProperty navigationProperty) {
-      ((INavigationSet) this).ParentEntity = parentEntity;
-    }
 
     #region Public props
 
@@ -71,8 +71,16 @@ namespace Breeze.Sharp {
     }
 
     public NavigationProperty NavigationProperty {
-      get;
-      set;
+      get {
+        if (ParentEntity.EntityAspect.IsAttached != _isAttached) {
+          _navigationProperty = ParentEntity.EntityAspect.EntityType.GetNavigationProperty(_navigationProperty.Name);
+          _isAttached = ParentEntity.EntityAspect.IsAttached;
+        }
+        return _navigationProperty;
+      }
+      set {
+        _navigationProperty = value;
+      }
     }
 
     #endregion
@@ -148,6 +156,8 @@ namespace Breeze.Sharp {
     #region Other private
 
     private bool _inProcess = false;
+    private NavigationProperty _navigationProperty;
+    private bool _isAttached = false;
 
     private void ConnectRelated(IEntity entity) {
 

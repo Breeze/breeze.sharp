@@ -15,9 +15,11 @@ namespace Breeze.Sharp {
     public CsdlMetadataProcessor() {
       
     }
+
+    public MetadataStore MetadataStore { get; private set; }
     
     public void ProcessMetadata(MetadataStore metadataStore, String jsonMetadata) {
-      _metadataStore = metadataStore;
+      MetadataStore = metadataStore;
       var json = (JObject)JsonConvert.DeserializeObject(jsonMetadata);
       _schema = json["schema"];
       _namespace = (String)_schema["namespace"];
@@ -48,10 +50,10 @@ namespace Breeze.Sharp {
         var entitySets = ToEnumerable(entityContainer["entitySet"]).Cast<JObject>().ToList();
         entitySets.ForEach(es => {
           var clientEtName = GetClientTypeNameFromClrTypeName((String) es["entityType"]);
-          var entityType = _metadataStore.GetEntityType(clientEtName, true);
+          var entityType = MetadataStore.GetEntityType(clientEtName, true);
           if (entityType != null) {
             var resourceName = (String) es["name"];
-            _metadataStore.SetResourceName(resourceName, entityType, true);
+            MetadataStore.SetResourceName(resourceName, entityType, true);
           }
         });
       }
@@ -65,7 +67,7 @@ namespace Breeze.Sharp {
     
 
     private NamingConvention NamingConvention {
-      get { return MetadataStore.Instance.NamingConvention; }
+      get { return MetadataStore.NamingConvention; }
     }
     
     private EntityType ParseCsdlEntityType(JObject csdlEntityType) {
@@ -74,7 +76,7 @@ namespace Breeze.Sharp {
       var shortNameVal = (String)csdlEntityType["name"];
       var isAbstract = abstractVal == "true";
       var etName = GetClientTypeNameFromShortName(shortNameVal);
-      var entityType = MetadataStore.Instance.GetEntityType(etName, true);
+      var entityType = MetadataStore.GetEntityType(etName, true);
       if (entityType == null) {
         OnMetadataMismatch(etName, null, MetadataMismatchType.MissingCLREntityType);
         return null;
@@ -85,7 +87,7 @@ namespace Breeze.Sharp {
       var baseKeyNamesOnServer = new List<string>();
       if (baseTypeVal != null) {
         var baseEtName = GetClientTypeNameFromClrTypeName(baseTypeVal);
-        var baseEntityType = _metadataStore.GetEntityType(baseEtName, true);
+        var baseEntityType = MetadataStore.GetEntityType(baseEtName, true);
         if (baseEntityType == null) {
           var detail = String.Format("BaseType of: '{0}' not found", baseEtName);
           OnMetadataMismatch(etName, null, MetadataMismatchType.InconsistentCLRTypeDefinition, detail);
@@ -116,7 +118,7 @@ namespace Breeze.Sharp {
     }
 
     private void OnMetadataMismatch(string stName, string propName, MetadataMismatchType mmType, String detail = null) {
-      var message = MetadataStore.Instance.OnMetadataMismatch(stName, propName, mmType, detail);
+      var message = MetadataStore.OnMetadataMismatch(stName, propName, mmType, detail);
       if (message.IsError) {
         _errorMessages.Add(message);
       }
@@ -296,7 +298,7 @@ namespace Breeze.Sharp {
     private ComplexType ParseCsdlComplexType(JObject csdlComplexType) {
       var nameVal = (String)csdlComplexType["name"];
       var clientTypeName = GetClientTypeNameFromShortName(nameVal);
-      var complexType = MetadataStore.Instance.GetComplexType(clientTypeName);
+      var complexType = MetadataStore.GetComplexType(clientTypeName);
       if (complexType == null) {
         OnMetadataMismatch(clientTypeName, null, MetadataMismatchType.MissingCLRComplexType);
         return null;
@@ -310,12 +312,12 @@ namespace Breeze.Sharp {
 
     private string GetClientTypeNameFromShortName(string serverShortName) {
       var ns = GetNamespaceFor(serverShortName);
-      var clientTypeName = new TypeNameInfo(serverShortName, ns).ToClient().Name;
+      var clientTypeName = new TypeNameInfo(serverShortName, ns).ToClient(MetadataStore).StructuralTypeName;
       return clientTypeName;
     }
 
     private string GetClientTypeNameFromClrTypeName(string serverClrTypeName) {
-      var clientTypeName = ParseClrTypeName(serverClrTypeName).ToClient().Name;
+      var clientTypeName = ParseClrTypeName(serverClrTypeName).ToClient(MetadataStore).StructuralTypeName;
       return clientTypeName;
     }
 
@@ -422,7 +424,7 @@ namespace Breeze.Sharp {
 
     private JToken _schema;
     private String _namespace;
-    private MetadataStore _metadataStore;
+    
     private Dictionary<String, String> _cSpaceOSpaceMap;
     private List<Message> _errorMessages = new List<Message>();
     

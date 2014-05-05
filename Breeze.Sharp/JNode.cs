@@ -193,8 +193,9 @@ namespace Breeze.Sharp {
 
     public Dictionary<String, T> GetMap<T>(String propName) {
       var map = (JObject)GetToken<JObject>(propName);
-      if (map == null) return null;
+      
       var rmap = new Dictionary<String, T>();
+      if (map == null) return rmap;
       foreach (var kvp in map) {
         rmap.Add(kvp.Key, kvp.Value.ToObject<T>());
       }

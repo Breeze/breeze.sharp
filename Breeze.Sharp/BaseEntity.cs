@@ -17,7 +17,7 @@ namespace Breeze.Sharp {
     /// Protected empty ctor.
     /// </summary>
     protected BaseEntity() {
-      EntityAspect = new EntityAspect(this, null);
+      EntityAspect = new EntityAspect(this);
     }
 
     /// <inheritdoc />

@@ -17,33 +17,38 @@ namespace Breeze.Sharp {
   /// This class is threadsafe meaning that single MetadataStore.Instance value may be shared across multiple threads. 
   /// This is NOT true of most other instances of classes within Breeze.
   /// </summary>
-  [DebuggerDisplay("StoreID: {StoreID}")]
   public class MetadataStore : IJsonSerializable {
+
+    #region Ctor related 
+
+    private MetadataStore() {
+      _clrTypeMap = new ClrTypeMap(this);
+      
+      RegisterTypeDiscoveryActionCore(typeof(IEntity), (t) => {
+        StructuralTypeBuilder.GetEntityType(t);
+        _clrTypeMap.GetStructuralType(t);
+      }, false);
+      RegisterTypeDiscoveryActionCore(typeof(IComplexObject), (t) => _clrTypeMap.GetStructuralType(t), false);
+      RegisterTypeDiscoveryActionCore(typeof(Validator), (t) => RegisterValidator(t), true);
+      RegisterTypeDiscoveryActionCore(typeof(NamingConvention), (t) => RegisterNamingConvention(t), true);
+    }
 
 
      // Explicit static constructor to tell C# compiler
     // not to mark type as beforefieldinit
-    static MetadataStore() {
-      
-    }
+    static MetadataStore() {     }
 
-    public MetadataStore() {
-      
-      lock (__lock) {
-        StoreID = __nextStoreID++;
+    public static MetadataStore Instance {
+      get {
+        return __instance;
       }
     }
 
+    #endregion
+
     #region Public properties
 
-    public int StoreID { get; private set; }
-
     public static String MetadataVersion = "1.0.3";
-
-    public static MetadataStore Detached {
-      get { return __detached; }
-      set { __detached = value ?? new MetadataStore(); }
-    }
 
     /// <summary>
     /// Returns a list of all of the <see cref="EntityType"/>s within this store.
@@ -71,8 +76,16 @@ namespace Breeze.Sharp {
     /// The NamingConvention associated with this MetadataStore.
     /// </summary>
     public NamingConvention NamingConvention {
-      get { return _namingConvention; }
-      set { _namingConvention = value; } 
+      get { 
+        lock( _lock) {
+          return _namingConvention;
+        }
+      }
+      set {
+        lock (_lock) {
+          _namingConvention = value;
+        }
+      } 
     }
 
     /// <summary>
@@ -113,25 +126,65 @@ namespace Breeze.Sharp {
     }
 
     internal Message AddMessage(String message, MessageType messageType, bool throwOnError = false) {
-      
-      var msg = new Message() { Text = message, MessageType = messageType };
-      _messages.Add(msg);
-      if (messageType == MessageType.Error && throwOnError) {
-        throw new Exception(message);
+      lock (_lock) {
+        var msg = new Message() { Text = message, MessageType = messageType };
+        _messages.Add(msg);
+        if (messageType == MessageType.Error && throwOnError) {
+          throw new Exception(message);
+        }
+        return msg;
       }
-      return msg;
-      
     }
 
     public IEnumerable<String> GetMessages(MessageType messageType = MessageType.All) {
-      return _messages.ToList().Where(m => (m.MessageType & messageType) > 0).Select(m => m.Text);
+      lock (_lock) {
+        return _messages.ToList().Where(m => (m.MessageType & messageType) > 0).Select(m => m.Text);
+      }
     }
 
     #endregion
 
     #region Public methods
 
-    
+    public static void __Reset() {
+      lock (__lock) {
+        var x = __instance._probedAssemblies;
+        __instance = new MetadataStore();
+        // __instance.ProbeAssemblies(x.ToArray());
+      }
+    }
+
+    public bool ProbeAssemblies(params Assembly[] assembliesToProbe) {
+      lock (_structuralTypes) {
+        var assemblies = assembliesToProbe.Except(_probedAssemblies).ToList();
+        if (assemblies.Any()) {
+          assemblies.ForEach(asm => {
+            _probedAssemblies.Add(asm);
+            _typeDiscoveryActions.Where(tpl => tpl.Item3 == null || tpl.Item3(asm))
+              .ForEach(tpl => {
+                var type = tpl.Item1;
+                var action = tpl.Item2;
+                TypeFns.GetTypesImplementing(type, asm).ForEach(action);
+              });
+          });
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    public void RegisterTypeDiscoveryAction(Type type, Action<Type> action) {
+      RegisterTypeDiscoveryActionCore(type, action, false);
+    }
+
+    private void RegisterTypeDiscoveryActionCore(Type type, Action<Type> action, bool includeThisAssembly) {
+      Func<Assembly, bool> shouldProcessAssembly = (a) => {
+        return includeThisAssembly ? true : a != this.GetType().GetTypeInfo().Assembly;
+      };
+      _typeDiscoveryActions.Add(Tuple.Create(type, action, shouldProcessAssembly));
+    }
+
     /// <summary>
     /// Fetches the metadata for a specified 'service'. This method is automatically called 
     /// internally by an EntityManager before its first query against a new service.
@@ -205,9 +258,10 @@ namespace Breeze.Sharp {
     /// Returns an EntityType given its CLR type.
     /// </summary>
     /// <param name="clrEntityType"></param>
+    /// <param name="okIfNotFound"></param>
     /// <returns></returns>
-    public EntityType GetEntityType(Type clrEntityType) {
-      return GetStructuralType<EntityType>(clrEntityType);
+    public EntityType GetEntityType(Type clrEntityType, bool okIfNotFound = false) {
+      return GetStructuralType<EntityType>(clrEntityType, okIfNotFound);
     }
 
     /// <summary>
@@ -224,9 +278,10 @@ namespace Breeze.Sharp {
     /// Returns an ComplexType given its CLR type.
     /// </summary>
     /// <param name="clrComplexType"></param>
+    /// <param name="okIfNotFound"></param>
     /// <returns></returns>
-    public ComplexType GetComplexType(Type clrComplexType ) {
-      return GetStructuralType<ComplexType>(clrComplexType);
+    public ComplexType GetComplexType(Type clrComplexType, bool okIfNotFound = false) {
+      return GetStructuralType<ComplexType>(clrComplexType, okIfNotFound);
     }
 
     /// <summary>
@@ -239,29 +294,15 @@ namespace Breeze.Sharp {
       return GetStructuralType<ComplexType>(ctName, okIfNotFound);
     }
 
-    // T is ComplexType or EntityType
-    internal T GetStructuralType<T>(Type clrType) where T : class {
-      var st = GetStructuralType(clrType);
-      var result = st as T;
-      if (result == null) {
-        throw new Exception("A type by this name exists but is not a " + typeof(T).FullName);
-      } 
-      return result; 
-    }
 
-    // T is either <ComplexType> or <EntityType>
-    private T GetStructuralType<T>(String typeName, bool okIfNotFound = false) where T : class {
-      var st = GetStructuralTypeCore(typeName);
-      if (st != null) {
-        var result = st as T;
-        if (result == null) {
-          throw new Exception("A type by this name exists but is not a " + typeof(T).FullName);
-        }
-        return result;
-      } else if (okIfNotFound) {
-        return (T)null;
+    internal T GetStructuralType<T>(Type clrType, bool okIfNotFound = false) where T : class {
+      var stype = GetStructuralType(clrType, okIfNotFound);
+      var ttype = stype as T;
+      if (ttype != null) {
+        return ttype;
       } else {
-        throw MissingTypeException(typeName);
+        if (okIfNotFound) return null;
+        throw new Exception("Unable to find a matching " + typeof(T).Name + " for " + clrType.Name);
       }
     }
 
@@ -269,49 +310,27 @@ namespace Breeze.Sharp {
     /// Returns an StructuralType (EntityType or ComplexType) given its CLR type.
     /// </summary>
     /// <param name="clrType"></param>
+    /// <param name="okIfNotFound"></param>
     /// <returns></returns>
-    public StructuralType GetStructuralType(Type clrType) {
-      if (!IsStructuralType(clrType)) {
-        throw new ArgumentOutOfRangeException("clrType", "This type does not implement either IEntity or IComplexObject");
-      }
-      // not need for okIfNotFound because we will create a type if one isn't found.
-      var stName = TypeNameInfo.FromClrType(clrType).StructuralTypeName;
+    public StructuralType GetStructuralType(Type clrType, bool okIfNotFound = false) {
       lock (_structuralTypes) {
-        var st = _structuralTypes[stName];
-        if (st == null) {
-          var stb = new StructuralTypeBuilder(this);
-          st = stb.CreateStructuralType(clrType);
-          _structuralTypes[stName] = st;
-        }
-        return st;
-      }
-    }
+        if (IsStructuralType(clrType)) {
+          var stType = _clrTypeMap.GetStructuralType(clrType);
+          if (stType != null) return stType;
 
-    private StructuralType GetStructuralTypeCore(String stName) {
-      lock (_structuralTypes) {
-        if (!TypeNameInfo.IsQualifiedTypeName(stName)) {
-          String fullStName;
-          if (_shortNameMap.TryGetValue(stName, out fullStName)) {
-            stName = fullStName;
+          // Not sure if this is needed.
+          if (ProbeAssemblies(new Assembly[] { clrType.GetTypeInfo().Assembly })) {
+            stType = _clrTypeMap.GetStructuralType(clrType);
+            if (stType != null) return stType;
           }
         }
-        var st = _structuralTypes[stName];
-        if (st == null) {
-          var clrType = Configuration.Instance.GetClrType(stName);
-          if (clrType == null) return null;
-          var stb = new StructuralTypeBuilder(this);
-          st = stb.CreateStructuralType(clrType);
-          _structuralTypes[stName] = st;
-        }
-        return st;
+
+        if (okIfNotFound) return null;
+        var msg = String.Format("Unable to find a matching EntityType or ComplexType for type: '{0}'",clrType.Name);
+        throw new Exception(msg);
       }
     }
 
-    private StructuralType CreateStructuralType(Type clrType) {
-      var stb = new StructuralTypeBuilder(this);
-      var st = stb.CreateStructuralType(clrType);
-      return st;
-    }
     
     /// <summary>
     /// Sets a resourceName for a specified clrType.
@@ -464,7 +483,7 @@ namespace Breeze.Sharp {
       // may be more than just a name
       
       var ncNode = jNode.GetJNode("namingConvention");
-      var nc = Configuration.Instance.FindOrCreateNamingConvention(ncNode);
+      var nc = FindOrCreateNamingConvention(ncNode);
       if (nc == null) {
         OnMetadataMismatch(null, null, MetadataMismatchType.MissingCLRNamingConvention, ncNode.ToString());
       } else {
@@ -492,17 +511,73 @@ namespace Breeze.Sharp {
       var name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
       var isComplexType = jNode.Get<bool>("isComplexType", false);
       if (isComplexType) {
-        var ct = GetComplexType(name);
+        var ct = MetadataStore.Instance.GetComplexType(name);
         ct.UpdateFromJNode(jNode);
       } else {
-        var et = GetEntityType(name);
+        var et = MetadataStore.Instance.GetEntityType(name);
         et.UpdateFromJNode(jNode);
       }
     }
 
     #endregion
 
+    #region Validator methods
+
+    internal Validator FindOrCreateValidator(JNode jNode) {
+      return _validatorCache.FindOrCreate(jNode);
+    }
+
+    internal NamingConvention FindOrCreateNamingConvention(JNode jNode) {
+      return _namingConventionCache.FindOrCreate(jNode);
+    }
+
+    internal Validator InternValidator(Validator validator) {
+      return _validatorCache.Intern(validator);
+    }
+
+    internal NamingConvention InternNamingConvention(NamingConvention nc) {
+      return _namingConventionCache.Intern(nc);
+    }
+    
+    private void RegisterValidator(Type validatorType) {
+      _validatorCache.Register(validatorType, Validator.Suffix);
+    }
+
+    private void RegisterNamingConvention(Type namingConventionType) {
+      _namingConventionCache.Register(namingConventionType, NamingConvention.Suffix);
+    }   
+
+    #endregion
+
     #region Internal and Private
+
+    internal Type GetClrTypeFor(StructuralType stType) {
+      lock (_structuralTypes) {
+        return _clrTypeMap.GetClrType(stType);
+      }
+    }
+
+    // T is either <ComplexType> or <EntityType>
+    private T GetStructuralType<T>(String typeName, bool okIfNotFound = false) where T : class {
+      lock (_structuralTypes) {
+        var t = _structuralTypes[typeName];
+        if (t == null) {
+          // locate by short name if not found by full name;
+          t = _structuralTypes.FirstOrDefault(st => st.ShortName == typeName);
+        }
+        if (t != null) {
+          var result = t as T;
+          if (result == null) {
+            throw new Exception("A type by this name exists but is not a " + typeof(T).Name);
+          }
+          return result;
+        }  else if (okIfNotFound) {
+          return (T)null;
+        } else {
+          throw MissingTypeException(typeName);
+        }
+      }
+    }
 
     internal static Exception MissingTypeException(String typeName) {
       return new Exception("Unable to locate a CLR type corresponding to: " + typeName
@@ -531,6 +606,7 @@ namespace Breeze.Sharp {
           throw new Exception("Type " + stType.Name + " already exists in this MetadataStore.");
         }
 
+        _clrTypeMap.GetClrType(stType);
         _structuralTypes.Add(stType);
         _shortNameMap[stType.ShortName] = stType.Name;
 
@@ -542,7 +618,45 @@ namespace Breeze.Sharp {
     #region Inner classes 
 
     // inner class
- 
+    internal class ClrTypeMap {
+      public ClrTypeMap(MetadataStore metadataStore) {
+        _metadataStore = metadataStore;
+      }
+
+      public StructuralType GetStructuralType(Type clrType) {
+        var stName = TypeNameInfo.FromClrTypeName(clrType.FullName).Name;
+        TypePair tp;
+        if (_map.TryGetValue(stName, out tp)) {
+          return tp.StructuralType;
+        } else {
+          _map.Add(stName, new TypePair() { ClrType = clrType });
+          return null;
+        }
+      }
+
+      public Type GetClrType(StructuralType stType) {
+        TypePair tp;
+        if (_map.TryGetValue(stType.Name, out tp)) {
+          stType.ClrType = tp.ClrType;
+          if (tp.StructuralType == null) {
+            tp.StructuralType = stType;
+          }
+          return tp.ClrType;
+        } else {
+          _map.Add(stType.Name, new TypePair() { StructuralType = stType });
+          return null;
+        }
+      }
+
+      private readonly MetadataStore _metadataStore;
+      private readonly Dictionary<String, TypePair> _map = new Dictionary<String, TypePair>();
+
+      [DebuggerDisplay("{ClrType.FullName} - {StructuralType.Name}")]
+      private class TypePair {
+        public Type ClrType;
+        public StructuralType StructuralType;
+      }
+    }
 
     private class InternCache<T> where T : Internable {
       public readonly Dictionary<String, Type> TypeMap = new Dictionary<string, Type>();
@@ -621,21 +735,19 @@ namespace Breeze.Sharp {
 
     #region Private vars
 
-    private static Object __lock = new Object();
-    private static int __nextStoreID = 1;
-    // Note: the two lines above need to appear before this next one 
-    private static MetadataStore __detached = new MetadataStore();
-    
-
     private NamingConvention _namingConvention = new NamingConvention();
 
+    private static MetadataStore __instance = new MetadataStore();
+    private static readonly Object __lock = new Object();
+    
     private readonly AsyncSemaphore _asyncSemaphore = new AsyncSemaphore(1);
     private readonly Object _lock = new Object();
 
     // lock using _dataServiceMap
     private readonly Dictionary<String, DataService> _dataServiceMap = new Dictionary<String, DataService>();
-      
     
+    // locked using _structuralTypes
+    private readonly ClrTypeMap _clrTypeMap;
     private readonly HashSet<Assembly> _probedAssemblies = new HashSet<Assembly>();
     private readonly List<Tuple<Type, Action<Type>, Func<Assembly, bool>>> _typeDiscoveryActions = new List<Tuple<Type, Action<Type>, Func<Assembly, bool>>>();
 

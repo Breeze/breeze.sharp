@@ -18,7 +18,7 @@ namespace Breeze.Sharp {
     public TypeNameInfo(String shortName, String ns, bool isAnonymous = false) {
       ShortName = shortName;
       Namespace = ns;
-      Name = ToStructuralTypeName(shortName, ns);
+      StructuralTypeName = ToStructuralTypeName(shortName, ns);
       IsAnonymous = isAnonymous;
     }
 
@@ -91,19 +91,19 @@ namespace Breeze.Sharp {
     //}
     
 
-    public TypeNameInfo ToClient() {
-      return MetadataStore.Instance.NamingConvention.ServerTypeNameToClient(this);
+    public TypeNameInfo ToClient(MetadataStore metadataStore) {
+      return metadataStore.NamingConvention.ServerTypeNameToClient(this);
     }
 
-    public TypeNameInfo ToServer() {
-      return MetadataStore.Instance.NamingConvention.ClientTypeNameToServer(this);
+    public TypeNameInfo ToServer(MetadataStore metadataStore) {
+      return metadataStore.NamingConvention.ClientTypeNameToServer(this);
     }
 
     public static bool IsQualifiedTypeName(String typeName) {
       return typeName.IndexOf(":#", StringComparison.Ordinal) >= 0;
     }
 
-    public String Name { get; private set; }
+    public String StructuralTypeName { get; private set; }
     public String ShortName { get; set; }
     public String Namespace { get; set; }
     public bool IsAnonymous { get; private set; }

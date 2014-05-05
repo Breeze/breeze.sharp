@@ -21,7 +21,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel";
     }
 
@@ -970,22 +970,22 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task AttachRecursive() {
       var em1 = await TestFns.NewEm(_serviceName);
+      using (TestFns.ShareWithDetached(em1.MetadataStore)) {
+        var emp1 = new Employee();
+        var emp2 = new Employee();
+        var emp3 = new Employee();
 
-      var emp1 = new Employee();
-      var emp2 = new Employee();
-      var emp3 = new Employee();
-
-      emp2.Manager = emp1;
-      emp3.Manager = emp2;
-      em1.AddEntity(emp3);
-      Assert.IsTrue(emp3.EntityAspect.IsAttached);
-      Assert.IsTrue(emp2.EntityAspect.IsAttached);
-      Assert.IsTrue(emp1.EntityAspect.IsAttached);
-      Assert.IsTrue(emp1.DirectReports.Contains(emp2), "emp1 manages emp2");
-      Assert.IsTrue(emp2.DirectReports.Contains(emp3), "emp2 manages emp3");
-      Assert.IsTrue(emp2.Manager == emp1, "emp2 manager is emp1");
-      Assert.IsTrue(emp3.Manager == emp2, "emp3 mamager is emp2");
-
+        emp2.Manager = emp1;
+        emp3.Manager = emp2;
+        em1.AddEntity(emp3);
+        Assert.IsTrue(emp3.EntityAspect.IsAttached);
+        Assert.IsTrue(emp2.EntityAspect.IsAttached);
+        Assert.IsTrue(emp1.EntityAspect.IsAttached);
+        Assert.IsTrue(emp1.DirectReports.Contains(emp2), "emp1 manages emp2");
+        Assert.IsTrue(emp2.DirectReports.Contains(emp3), "emp2 manages emp3");
+        Assert.IsTrue(emp2.Manager == emp1, "emp2 manager is emp1");
+        Assert.IsTrue(emp3.Manager == emp2, "emp3 manager is emp2");
+      }
     }
   }
 }

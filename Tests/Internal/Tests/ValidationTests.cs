@@ -21,7 +21,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof (Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof (Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
@@ -148,34 +148,36 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task RequiredProperty2() {
       var em1 = await TestFns.NewEm(_serviceName);
+      using (TestFns.ShareWithDetached(em1.MetadataStore)) {
+        var emp = new Employee();
+        var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
+        var ves = emp.EntityAspect.ValidateProperty(dp);
 
-      var emp = new Employee();
-      var dp = emp.EntityAspect.EntityType.GetDataProperty("LastName");
-      var ves = emp.EntityAspect.ValidateProperty(dp);
-
-      Assert.IsTrue(ves.Count() > 0);
-      var ve = ves.First();
-      Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required"));
-      Assert.IsTrue(ve.Context.Entity == emp);
-      Assert.IsTrue(ve.Validator == new RequiredValidator().Intern(), "validator should a requiredValdator");
-      Assert.IsTrue(ve.Key != null);
+        Assert.IsTrue(ves.Count() > 0);
+        var ve = ves.First();
+        Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required"));
+        Assert.IsTrue(ve.Context.Entity == emp);
+        Assert.IsTrue(ve.Validator == new RequiredValidator().Intern(), "validator should a requiredValdator");
+        Assert.IsTrue(ve.Key != null);
+      }
     }
 
     [TestMethod]
     public async Task EntireEntity() {
       var em1 = await TestFns.NewEm(_serviceName);
+      using (TestFns.ShareWithDetached(em1.MetadataStore)) {
+        var emp = new Employee();
 
-      var emp = new Employee();
+        var ves = emp.EntityAspect.Validate();
 
-      var ves = emp.EntityAspect.Validate();
+        Assert.IsTrue(ves.Count() > 0);
 
-      Assert.IsTrue(ves.Count() > 0);
-
-      Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
-      Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
-      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
-        "validator should a requiredValdator");
-      Assert.IsTrue(ves.All(ve => ve.Key != null));
+        Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
+        Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
+        Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
+          "validator should a requiredValdator");
+        Assert.IsTrue(ves.All(ve => ve.Key != null));
+      }
     }
 
     [TestMethod]
@@ -250,7 +252,7 @@ namespace Breeze.Sharp.Tests {
     public async Task CustomPropertyValidator() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof (Customer));
       var countryProp = custType.GetDataProperty("Country");
       try {
         countryProp.Validators.Add(new CountryValidator("US"));
@@ -303,7 +305,7 @@ namespace Breeze.Sharp.Tests {
     public async Task EmailValidator() {
        var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
+       var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var validator = new EmailValidator();
       var validators = custType.GetDataProperty("Address").Validators;
       try {
@@ -328,7 +330,7 @@ namespace Breeze.Sharp.Tests {
     public async Task EmailValidator2() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var validator = new EmailValidator("special email type");
       var validators = custType.GetDataProperty("Address").Validators;
       try {
@@ -352,7 +354,7 @@ namespace Breeze.Sharp.Tests {
     public async Task PhoneValidator() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var validator = new PhoneNumberValidator();
       var validators = custType.GetDataProperty("Address").Validators;
       try {
@@ -382,7 +384,7 @@ namespace Breeze.Sharp.Tests {
     public async Task CustomRegexValidator() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var validator = new RegexValidator("^[A-Z]{2}$", "US State");
       var validators = custType.GetDataProperty("Address").Validators;
       try {
@@ -410,7 +412,7 @@ namespace Breeze.Sharp.Tests {
     public async Task UrlValidator() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof(Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var validator = new UrlValidator(null, UrlOptions.RequireProtocol);
       var validators = custType.GetDataProperty("Address").Validators;
       try {
@@ -439,29 +441,25 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task RestoreValidatorFromMetadata() {
-      MetadataStore.__Reset();
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
-      var em1 = await TestFns.NewEm(_serviceName);
+      
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      var em1 = new EntityManager(_serviceName);
 
-      var custType = MetadataStore.Instance.GetEntityType(typeof (Customer));
+      var custType = em1.MetadataStore.GetEntityType(typeof(Customer));
       var countryProp = custType.GetDataProperty("Country");
       countryProp.Validators.Add(new CountryValidator("XY"));
-      var exportedMetadata = MetadataStore.Instance.ExportMetadata();
-      try {
-        MetadataStore.__Reset();
-        MetadataStore.Instance.ProbeAssemblies(typeof (Customer).Assembly);
-        MetadataStore.Instance.ImportMetadata(exportedMetadata);
-        var custType2 = MetadataStore.Instance.GetEntityType(typeof(Customer));
-        var countryProp2 = custType.GetDataProperty("Country");
-        var validators = countryProp2.Validators;
-        var cv = validators.FirstOrDefault(v => v is CountryValidator);
-        Assert.IsTrue(cv != null, "should have found the validator");
-        Assert.IsTrue(((CountryValidator) cv).CountryAbbrev == "XY");
-      }
-      finally {
-        MetadataStore.__Reset();
-      }
+      var exportedMetadata = em1.MetadataStore.ExportMetadata();
 
+
+      var em2 = new EntityManager(_serviceName);
+      em2.MetadataStore.ImportMetadata(exportedMetadata);
+      var custType2 = em2.MetadataStore.GetEntityType(typeof(Customer));
+      var countryProp2 = custType.GetDataProperty("Country");
+      var validators = countryProp2.Validators;
+      var cv = validators.FirstOrDefault(v => v is CountryValidator);
+      Assert.IsTrue(cv != null, "should have found the validator");
+      Assert.IsTrue(((CountryValidator) cv).CountryAbbrev == "XY");
+      
     }
 
     //test("custom entity validation - register validator", function () {

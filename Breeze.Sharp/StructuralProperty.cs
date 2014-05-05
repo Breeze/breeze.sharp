@@ -60,12 +60,15 @@ namespace Breeze.Sharp {
       get { return _validators; }
     }
 
+    public MetadataStore MetadataStore {
+      get { return ParentType.MetadataStore; }
+    }
 
     internal void Check(Object v1, Object v2, String name) {
       if (v1 == null && v2 == null) return;
       if (Object.Equals(v1, v2)) return;
       var msg = "Metadata mismatch - values do not match between server and client for " + FormatName() + " Metadata property: " + name;
-      MetadataStore.Instance.AddMessage(msg, MessageType.Error, true);
+      MetadataStore.AddMessage(msg, MessageType.Error, true);
     }
 
     internal String FormatName() {
@@ -75,7 +78,7 @@ namespace Breeze.Sharp {
     }
 
     internal void UpdateClientServerNames() {
-      var nc = MetadataStore.Instance.NamingConvention;
+      var nc = MetadataStore.NamingConvention;
       if (!String.IsNullOrEmpty(Name)) {
         NameOnServer = nc.TestPropertyName(Name, ParentType, true);
       } else {

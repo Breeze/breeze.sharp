@@ -18,7 +18,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
@@ -449,7 +449,7 @@ namespace Breeze.Sharp.Tests {
     public async Task WhereGuid() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Customer>().Where(c => c.CustomerID.Equals(Guid.NewGuid())); // && true);
-      var rp = q.GetResourcePath();
+      var rp = q.GetResourcePath(em1.MetadataStore);
       var r = await em1.ExecuteQuery(q);
       Assert.IsTrue(r.Count() == 0, "should be no results");
 
@@ -459,7 +459,7 @@ namespace Breeze.Sharp.Tests {
     public async Task WhereGuid2() {
       var em1 = await TestFns.NewEm(_serviceName);
       var q = new EntityQuery<Order>().Where(o => o.CustomerID == Guid.NewGuid()); // && true);
-      var rp = q.GetResourcePath();
+      var rp = q.GetResourcePath(em1.MetadataStore);
       var r = await em1.ExecuteQuery(q);
       Assert.IsTrue(r.Count() == 0, "should be no results");
 

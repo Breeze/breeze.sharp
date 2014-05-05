@@ -151,13 +151,13 @@ namespace Model.CodeCamper {
 
   public static class Config {
 
-    public static void Initialize() {
+    public static void Initialize(MetadataStore metadataStore) {
 
       // Configure keys and relationships
-      var personBuilder = new EntityTypeBuilder<Person>();
+      var personBuilder = new EntityTypeBuilder<Person>(metadataStore);
       personBuilder.DataProperty(person => person.Id).IsPartOfKey();
 
-      var sessionBuilder = new EntityTypeBuilder<Session>();
+      var sessionBuilder = new EntityTypeBuilder<Session>(metadataStore);
       sessionBuilder.DataProperty(session => session.Id).IsPartOfKey().IsAutoIncrementing();
       sessionBuilder.NavigationProperty(session => session.Room)
         .HasForeignKey(session => session.RoomId);
@@ -169,13 +169,13 @@ namespace Model.CodeCamper {
         .HasForeignKey(session => session.SpeakerId)
         .HasInverse(speaker => speaker.SpeakerSessions);
 
-      var roomBuilder = new EntityTypeBuilder<Room>();
+      var roomBuilder = new EntityTypeBuilder<Room>(metadataStore);
       roomBuilder.DataProperty(room => room.Id).IsPartOfKey().IsAutoIncrementing();
 
-      var timeSlotBuilder = new EntityTypeBuilder<TimeSlot>();
+      var timeSlotBuilder = new EntityTypeBuilder<TimeSlot>(metadataStore);
       timeSlotBuilder.DataProperty(timeSlot => timeSlot.Id).IsPartOfKey().IsAutoIncrementing();
 
-      var trackBuilder = new EntityTypeBuilder<Track>();
+      var trackBuilder = new EntityTypeBuilder<Track>(metadataStore);
       timeSlotBuilder.DataProperty(track => track.Id).IsPartOfKey().IsAutoIncrementing();
 
       // Configure constraints

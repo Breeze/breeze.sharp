@@ -1,4 +1,5 @@
 ﻿using Breeze.Sharp;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,24 +31,33 @@ namespace Breeze.Sharp.Tests {
       }
     }
 
-    public static async Task<EntityManager> NewEm(string serviceName) {
-      if (MetadataStore.Instance.GetDataService(serviceName) == null) {
-        var em = new EntityManager(serviceName);
+    public static MetadataStore DefaultMetadataStore = new MetadataStore();
+
+    public static async Task<EntityManager> NewEm(string serviceName, MetadataStore metadataStore = null) {
+      metadataStore = metadataStore ?? DefaultMetadataStore;
+      if (metadataStore.GetDataService(serviceName) == null) {
+        var em = new EntityManager(serviceName, metadataStore);
         await em.FetchMetadata();
         return em;
       } else {
-        return new EntityManager(serviceName);
+        return new EntityManager(serviceName, metadataStore);
       }
     }
 
-    public static async Task<EntityManager> NewEm(DataService dataService) {
-      if (dataService.HasServerMetadata && MetadataStore.Instance.GetDataService(dataService.ServiceName) == null) {
-        var em = new EntityManager(dataService.ServiceName);
+    public static async Task<EntityManager> NewEm(DataService dataService, MetadataStore metadataStore = null) {
+      metadataStore = metadataStore ?? DefaultMetadataStore;
+      if (dataService.HasServerMetadata && metadataStore.GetDataService(dataService.ServiceName) == null) {
+        var em = new EntityManager(dataService.ServiceName, metadataStore);
         await em.FetchMetadata();
         return em;
       } else {
-        return new EntityManager(dataService);
+        return new EntityManager(dataService, metadataStore);
       }
+    }
+
+    // within this using block make the DetachedMetadataStore == ms
+    public static UsingBlock ShareWithDetached(MetadataStore ms) {
+      return UsingBlock.Create(MetadataStore.Detached, ms, (x) => MetadataStore.Detached = x);
     }
 
     public static bool DEBUG_MONGO = false;

@@ -28,11 +28,11 @@ namespace Breeze.Sharp {
     /// For internal use only.
     /// </summary>
     /// <param name="entity"></param>
-    public EntityAspect(IEntity entity, EntityType entityType = null)
+    internal EntityAspect(IEntity entity)
       : base(entity) {
       Entity = entity;
       entity.EntityAspect = this;
-      EntityType = entityType ?? MetadataStore.Instance.GetEntityType(entity.GetType());
+      EntityType = MetadataStore.Detached.GetEntityType(entity.GetType());
       InitializeDefaultValues();
       IndexInEntityGroup = -1;
       _entityState = EntityState.Detached;
@@ -99,7 +99,7 @@ namespace Breeze.Sharp {
         }
         return _entityKey;
       }
-      protected set {
+      protected internal set {
         // set it to null to force recalc
         _entityKey = value;
         OnEntityAspectPropertyChanged("EntityKey");
@@ -653,7 +653,13 @@ namespace Breeze.Sharp {
 
       // manage attachment -
       if (newEntity != null) {
+        var fixupProperty = this.IsDetached && newAspect.IsAttached;
         ManageAttachment(newEntity);
+        if (fixupProperty) {
+          // need to insure that property is from the correct metadataStore
+          property = this.EntityType.GetNavigationProperty(property.Name);
+        }
+
       }
 
       // process related updates ( the inverse relationship) first so that collection dups check works properly.
@@ -757,6 +763,7 @@ namespace Breeze.Sharp {
           var em = newAspect.EntityManager;
           if (!em.IsLoadingEntity) {
             em.AttachEntity(this.Entity, EntityState.Added);
+
           }
         }
       }

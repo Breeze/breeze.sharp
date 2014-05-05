@@ -69,8 +69,8 @@ namespace Breeze.Sharp {
       try {
         EntityType entityType = null;
         if (EntityTypeName != null) {
-          var stName = TypeNameInfo.FromClrTypeName(EntityTypeName).ToClient().Name;
-          entityType = MetadataStore.Instance.GetEntityType(stName);
+          var stName = TypeNameInfo.FromClrTypeName(EntityTypeName).ToClient(em.MetadataStore).StructuralTypeName;
+          entityType = em.MetadataStore.GetEntityType(stName);
           var ek = new EntityKey(entityType, KeyValues);
           Entity = em.GetEntityByKey(ek);
         }

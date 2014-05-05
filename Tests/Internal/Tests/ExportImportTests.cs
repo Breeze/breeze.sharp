@@ -24,7 +24,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
@@ -39,16 +39,16 @@ namespace Breeze.Sharp.Tests {
     public async Task ExpMetadata() {
       var em1 = await TestFns.NewEm(_serviceName);
 
-      var metadata = MetadataStore.Instance.ExportMetadata();
+      var metadata = em1.MetadataStore.ExportMetadata();
       File.WriteAllText("c:/temp/metadata.txt", metadata);
 
-      var ms = MetadataStore.Instance;
+      var ms = Configuration.Instance;
 
-      MetadataStore.__Reset();
-      Assert.IsTrue(ms != MetadataStore.Instance);
-
-      MetadataStore.Instance.ImportMetadata(metadata);
-      var metadata2 = MetadataStore.Instance.ExportMetadata();
+      
+      Assert.IsTrue(ms != Configuration.Instance);
+      var ms2 = new MetadataStore();
+      ms2.ImportMetadata(metadata);
+      var metadata2 = ms2.ExportMetadata();
 
       File.WriteAllText("c:/temp/metadata2.txt", metadata2);
       Assert.IsTrue(metadata == metadata2, "metadata should match between export and import");
@@ -258,7 +258,7 @@ namespace Breeze.Sharp.Tests {
       var suppliers = await q.Execute(em1);
 
       Assert.IsTrue(suppliers.Count() > 0, "should be some suppliers");
-      var orderIdProp = MetadataStore.Instance.GetEntityType(typeof(Order)).KeyProperties[0];
+      var orderIdProp = em1.MetadataStore.GetEntityType(typeof(Order)).KeyProperties[0];
       em1.KeyGenerator.GetNextTempId(orderIdProp);
 
       var order1 = new Order();

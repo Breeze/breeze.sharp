@@ -96,10 +96,10 @@ namespace Breeze.Sharp {
       _serverClientNamespaceMap = null;
     }
 
-    public NamingConvention SetAsDefault() {
-      MetadataStore.Instance.NamingConvention = this;
-      return this;
-    }
+    //public NamingConvention SetAsDefault(MetadataStore) {
+    //  MetadataStore.Instance.NamingConvention = this;
+    //  return this;
+    //}
 
     protected virtual NamingConvention Clone() {
       return (NamingConvention) this.ToJNode().ToObject(this.GetType(), true);

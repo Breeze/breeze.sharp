@@ -21,9 +21,9 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="clrType"></param>
     /// <param name="values"></param>
-    public EntityKey(Type clrType, params Object[] values) {
+    public EntityKey(Type clrType, MetadataStore metadataStore, params Object[] values) {
       ClrType = clrType;
-      EntityType = MetadataStore.Instance.GetEntityType(ClrType);
+      EntityType = metadataStore.GetEntityType(ClrType);
       InitializeValues(values, true);
     }
 
@@ -38,9 +38,9 @@ namespace Breeze.Sharp {
       InitializeValues(values, true);
     }
 
-    internal EntityKey(JNode jn) {
+    internal EntityKey(JNode jn, MetadataStore metadataStore) {
       var etName = jn.Get<String>("entityType");
-      EntityType = MetadataStore.Instance.GetEntityType(etName);
+      EntityType = metadataStore.GetEntityType(etName);
       ClrType = EntityType.ClrType;
       // coerce the incoming data
       Values = jn.GetArray("values", EntityType.KeyProperties.Select(kp => kp.ClrType)).ToArray();

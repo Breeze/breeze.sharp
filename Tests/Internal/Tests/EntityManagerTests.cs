@@ -22,7 +22,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      MetadataStore.Instance.ProbeAssemblies(typeof(Customer).Assembly);
+      Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
     }
 
@@ -35,7 +35,7 @@ namespace Breeze.Sharp.Tests {
     public async Task EntityKeyNoMetadata() {
 
       try {
-        var ek = new EntityKey(typeof(FooEntity), 7);
+        var ek = new EntityKey(typeof(FooEntity), MetadataStore.Detached, 7);
         Assert.Fail("should not get here");
       } catch (Exception e) {
         Assert.IsTrue(e.Message.Contains("FooEntity") && e.Message.Contains("FetchMetadata"));
@@ -54,7 +54,8 @@ namespace Breeze.Sharp.Tests {
       var serviceName = "http://localhost:7150/breeze/xxxFoo";
       var ds = new DataService(serviceName);
       try {
-        await MetadataStore.Instance.FetchMetadata(ds);
+        var ms = new MetadataStore();
+        await ms.FetchMetadata(ds);
       } catch (Exception e) {
         Assert.IsTrue(e.Message.Contains("metadata resource"));
       }
