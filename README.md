@@ -1,6 +1,6 @@
 #![Breeze.Sharp](http://www.breezejs.com/sites/all/themes/breeze/images/logo.png "Breeze.Sharp")<span style="font-size:200%; font-weight:bold; position: relative; top:-14px">#</span>
 
-Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, or VB.NET**.
+Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
 
 >Samples and Breeze-related code for server development reside in [sibling Breeze repositories](https://github.com/Breeze "Breeze repositories on github").
 
