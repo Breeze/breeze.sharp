@@ -14,7 +14,7 @@ namespace Breeze.Sharp {
 
   #region EntityGroup
   
-  internal abstract class EntityGroup : IGrouping<Type, EntityAspect>  {
+  internal class EntityGroup : IGrouping<Type, EntityAspect>  {
 
     #region ctors
 
@@ -28,9 +28,7 @@ namespace Breeze.Sharp {
     /// <param name="clrEntityType"></param>
     /// <returns></returns>
     internal static EntityGroup Create(Type clrEntityType, EntityManager em) {
-      EntityGroup entityGroup;
-      Type egType = typeof(EntityGroup<>).MakeGenericType(clrEntityType);
-      entityGroup = (EntityGroup)Activator.CreateInstance(egType);
+      var entityGroup = new EntityGroup(clrEntityType);
       entityGroup.Initialize(em);
       return entityGroup;
     }
@@ -103,6 +101,26 @@ namespace Breeze.Sharp {
             .ToSafeList();
         }
         return _selfAndSubtypeGroups.ReadOnlyValues;
+      }
+    }
+
+    /// <summary>
+    /// Returns a collection of entities of given entity type and sub-types.
+    /// </summary>
+    public IEnumerable<IEntity> Entities {
+      get {
+        return EntityAspects.Select(w => w.Entity);
+      }
+    }
+
+    /// <summary>
+    /// Returns the currently live (i.e not deleted or detached) entities for the given entity type and its subtypes.
+    /// </summary>
+    public IEnumerable<IEntity> CurrentEntities {
+      get {
+        return EntityAspects
+          .Where(e => !e.EntityState.IsDeletedOrDetached())
+          .Select(w => w.Entity);
       }
     }
 
@@ -248,6 +266,8 @@ namespace Breeze.Sharp {
    
     #endregion
 
+ 
+
     #region explict interfaces
 
     Type IGrouping<Type, EntityAspect>.Key {
@@ -278,64 +298,6 @@ namespace Breeze.Sharp {
 
   }
 
-  #endregion
-
-  #region EntityGroup<T>
-  /// <summary>
-  /// Base class for all entity containers holding cached entities.
-  /// </summary>
-  /// <typeparam name="TEntity"></typeparam>
-  /// <remarks>
-  /// Classes derived from <b>EntityGroup{T}</b> are automatically created by the framework 
-  /// to hold entities of each type.  The <see cref="T:Breeze.Sharp.EntityManager"/> 
-  /// manages all EntityGroups in its cache. 
-  /// </remarks>
-  internal class EntityGroup<TEntity> : EntityGroup where TEntity : IEntity {
-
-    #region ctors
-
-    /// <summary>
-    /// For internal use only.
-    /// </summary>
-    public EntityGroup()
-      : base(typeof(TEntity)) {
-    }
-
-    /// <summary>
-    /// For internal use only.
-    /// </summary>
-    /// <param name="entityGroup"></param>
-    public EntityGroup(EntityGroup<TEntity> entityGroup)
-      : base(entityGroup.ClrType ) {
-        EntityType = entityGroup.EntityType;
-
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Returns a collection of entities of given entity type and sub-types.
-    /// </summary>
-    public IEnumerable<TEntity> Entities {
-      get {
-        // return EntityAspects.Select(w => w.Entity).Cast<TEntity>();
-        // same as above - not sure which is faster;
-        return EntityAspects.Select(w => (TEntity)w.Entity);
-      }
-    }
-
-    /// <summary>
-    /// Returns the currently live (i.e not deleted or detached) entities for the given entity type and its subtypes.
-    /// </summary>
-    public IEnumerable<TEntity> CurrentEntities {
-      get {
-        return EntityAspects
-          .Where(e => !e.EntityState.IsDeletedOrDetached())
-          .Select(w => (TEntity)w.Entity);
-      }
-    }
-
-  }
   #endregion
 
   #region EntityGroupCollection and EntityCollection
@@ -414,8 +376,9 @@ namespace Breeze.Sharp {
   }
 
 
-#endregion
+  #endregion
 
+  #region NullEntityGroup - not currently used. 
   //public class NullEntityGroup : EntityGroup {
 
   //  public NullEntityGroup(Type clrType, EntityType entityType) 
@@ -447,6 +410,7 @@ namespace Breeze.Sharp {
   //    get { return _selfAndSubtypeGroups.ReadOnlyValues;  }
   //  }
 
-  
+
   //}
+  #endregion
 }

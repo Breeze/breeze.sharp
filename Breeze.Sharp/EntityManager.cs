@@ -1181,8 +1181,8 @@ namespace Breeze.Sharp {
       }
     }
 
-    internal EntityGroup<T> GetEntityGroup<T>() where T : IEntity {
-      return (EntityGroup<T>)GetEntityGroup(typeof(T));
+    internal EntityGroup GetEntityGroup<T>() where T : IEntity {
+      return GetEntityGroup(typeof(T));
     }
 
 
