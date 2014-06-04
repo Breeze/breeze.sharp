@@ -27,7 +27,44 @@ namespace Breeze.Sharp.Tests {
       
     }
 
-  
+    [TestMethod]
+    public async Task WhereTypeWithEnum() {
+      var em = await TestFns.NewEm(_serviceName);
+      var q1 = EntityQuery.From<Role>();
+      var r1 = await em.ExecuteQuery(q1);
+      Assert.IsTrue(r1.Any());
+      Assert.IsTrue(r1.Any(r => r.RoleType != null));
+
+    }
+
+    [TestMethod]
+    public async Task WhereEnumEquals() {
+      //Assert.Inconclusive("Waiting on OData server impl that supports 'cast' - maybe in WebApi 2.2?");
+      // OData server impl does not yet understand 'cast'
+      var em = await TestFns.NewEm(_serviceName);
+      var q0 = EntityQuery.From<Role>().Where(r => r.RoleType == RoleType.Guest);
+      var rp0 = q0.GetResourcePath(em.MetadataStore);
+      var q1 = EntityQuery.From<Role>().Where(r => r.Description.StartsWith("G") && r.RoleType == RoleType.Guest);
+      var rp1 = q1.GetResourcePath(em.MetadataStore);
+      var q2 =
+        EntityQuery.From<Role>()
+          .Where(r => r.RoleType == RoleType.Guest && r.Description.StartsWith("G"))
+          .Select(r => new {r.Description});
+      var rp2 = q2.GetResourcePath(em.MetadataStore);
+
+      
+
+      var r0 = await em.ExecuteQuery(q0);
+      Assert.IsTrue(r0.Any());
+      Assert.IsTrue(r0.All(r => r.RoleType == RoleType.Guest));
+
+      var q3 = EntityQuery.From<Role>()
+          .Where(r => r.RoleType == RoleType.Guest)
+          .Select(r => new { r.Description });
+      var r3 = await em.ExecuteQuery(q3);
+      Assert.IsTrue(r3.Any());
+
+    }
 
     [TestMethod]
     public async Task WherePropertyPath() {

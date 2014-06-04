@@ -69,9 +69,10 @@ namespace Breeze.Sharp {
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
     public JsonEntityConverter(MappingContext mappingContext) {
       _mappingContext = mappingContext;
+      _enumSerializer = new JsonSerializer();
+      _enumSerializer.Converters.Add(new StringEnumConverter());
     }
 
-    
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       if (reader.TokenType != JsonToken.Null) {
         // Load JObject from stream
@@ -192,7 +193,11 @@ namespace Breeze.Sharp {
                   coBacking[kvp2.Key] = kvp2.Value;
                 });
               } else {
-                backingStore[key] = kvp.Value.ToObject(dp.ClrType);
+                if (dp.IsEnumType) {
+                  backingStore[key] = kvp.Value.ToObject(dp.ClrType, _enumSerializer);
+                } else {
+                  backingStore[key] = kvp.Value.ToObject(dp.ClrType);
+                }
               }
             }
           } else {
@@ -245,6 +250,7 @@ namespace Breeze.Sharp {
   
 
     private MappingContext _mappingContext;
+    private JsonSerializer _enumSerializer;
   }
 
   

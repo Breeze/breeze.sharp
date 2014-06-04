@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
+using Microsoft.Data.Edm.Library;
+
 namespace Breeze.Sharp {
 
   /// <summary>
@@ -183,6 +185,9 @@ namespace Breeze.Sharp {
       }
     }
 
+    /// <summary>
+    /// Whether this property is part of this entity type's key.
+    /// </summary>
     public bool IsPartOfKey {
       get { return _isPartOfKey; }
       set {
@@ -202,7 +207,14 @@ namespace Breeze.Sharp {
         IsNullable = false;
       }
     }
-    
+
+    /// <summary>
+    /// Whether this property is an Enum type.
+    /// </summary>
+    public bool IsEnumType {
+      get { return !String.IsNullOrEmpty(EnumTypeName); }
+    }
+
     public Object DefaultValue {
       get { return _defaultValue; }
       internal set {

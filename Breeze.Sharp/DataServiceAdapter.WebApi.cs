@@ -1,6 +1,7 @@
 ﻿using Breeze.Sharp.Core;
 using Microsoft.Data.OData;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -146,6 +147,7 @@ namespace Breeze.Sharp {
         };
         var jsonConverter = new JsonEntityConverter(mappingContext);
         serializer.Converters.Add(jsonConverter);
+        // serializer.Converters.Add(new StringEnumConverter());
         // Don't use the result of the Deserialize call to get the list of entities 
         // because it won't include entities added on the server.
         serializer.Deserialize<IEnumerable<IEntity>>(entityNodes.CreateReader());

@@ -374,7 +374,7 @@ namespace Breeze.Sharp {
       if (!dp.IsNullable) {
         dp._validators.Add(new RequiredValidator());
       }
-      if (dp.MaxLength.HasValue) {
+      if (dp.DataType == DataType.String && dp.MaxLength.HasValue) {
         var vr = new MaxLengthValidator((Int32) dp.MaxLength.Value);
         dp._validators.Add(vr);
       }

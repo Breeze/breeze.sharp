@@ -48,6 +48,26 @@ namespace Breeze.Sharp.Tests {
     //}
 
     [TestMethod]
+    public async Task WithEnum() {
+      var em = await TestFns.NewEm(_serviceName);
+      var q1 = EntityQuery.From<Role>().OrderBy(r => r.Name).Take(2);
+      var r1 = await em.ExecuteQuery(q1);
+      Assert.IsTrue(r1.Any());
+      var role1 = r1.First();
+      var newRoleType = role1.RoleType == RoleType.Guest ? RoleType.Restricted : RoleType.Guest;
+      role1.RoleType = newRoleType;
+      Assert.IsTrue(em.HasChanges());
+      var sr1 = await em.SaveChanges();
+      Assert.IsTrue(sr1.Entities.Count == 1);
+      var em2 = await TestFns.NewEm(_serviceName);
+      var q1a = role1.EntityAspect.EntityKey.ToQuery<Role>();
+      var r1a = await em2.ExecuteQuery(q1a);
+      Assert.IsTrue(r1a.First().RoleType == newRoleType);
+
+
+    }
+
+    [TestMethod]
     public async Task SaveNoChanges() {
       var em1 = await TestFns.NewEm(_serviceName);
 

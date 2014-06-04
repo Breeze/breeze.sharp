@@ -1,4 +1,6 @@
-﻿using Breeze.Sharp.Core;
+﻿using System.Reflection;
+
+using Breeze.Sharp.Core;
 
 using System;
 using System.Collections;
@@ -196,11 +198,35 @@ namespace Breeze.Sharp {
       // TODO: Hack to avoid DataServiceQuery from inferring the entity key
       queryResource = queryResource.Replace("$filter=true%20and%20", "$filter=");
       queryResource = queryResource.Replace("$filter=true", "");
+      queryResource = RewriteEnumFilters(queryResource);
 
       return queryResource;
     }
 
-
+    private string RewriteEnumFilters(string resourcePath) {
+      // This whole method is a hack to get around the fact that MS's current server OData implementations
+      // do not understand the valid 'cast' operator the DataServiceQuery generates in the url.
+      // So as a result we need to translate the cast query into a string query that the current server OData
+      // implementation DOES understand. 
+      var pattern = @"(?<prefix>.*)cast\((?<enumName>.*),.*\)%20eq%20(?<enumValue>.[^%&]*)(?<suffix>.*)";
+      var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
+      if (m.Success) {
+        var enumName = m.Groups["enumName"].Value;
+        var enumValue = m.Groups["enumValue"].Value; 
+        var pinfo = this.QueryableType.GetTypeInfo().GetDeclaredProperty(enumName);
+        if (pinfo == null) return resourcePath;
+        var enumType = TypeFns.GetNonNullableType(pinfo.PropertyType);
+        if (!enumType.GetTypeInfo().IsEnum) return resourcePath;
+        var enumString = "'" + Enum.GetName(enumType, Int32.Parse(enumValue)) + "'";
+        var result = m.Groups["prefix"].Value 
+                   + enumName + "%20eq%20" + enumString 
+                   + m.Groups["suffix"].Value;
+        // in case there is another cast in the string.
+        return RewriteEnumFilters(result);
+      } else {
+        return resourcePath;
+      }
+    }
 
     #region IQueryable impl 
 

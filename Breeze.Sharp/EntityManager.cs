@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
+using System.Text.RegularExpressions;
 
 namespace Breeze.Sharp {
 
@@ -233,6 +235,7 @@ namespace Breeze.Sharp {
       var resourcePath = query.GetResourcePath(this.MetadataStore);
       // HACK
       resourcePath = resourcePath.Replace("/*", "");
+      
       var result = await dataService.GetAsync(resourcePath);
       
       CheckAuthorizedThreadId();
@@ -248,7 +251,7 @@ namespace Breeze.Sharp {
       var jsonConverter = new JsonEntityConverter(mappingContext);
       var serializer = new JsonSerializer();
       serializer.Converters.Add(jsonConverter);
-      
+      // serializer.Converters.Add(new StringEnumConverter());
       Type rType;
       
       using (NewIsLoadingBlock()) {
@@ -270,6 +273,8 @@ namespace Breeze.Sharp {
         
       }
     }
+
+    
 
     /// <summary>
     /// Performs an asynchronous saves of all pending changes within this EntityManager.
