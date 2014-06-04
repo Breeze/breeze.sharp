@@ -27,7 +27,7 @@ namespace Breeze.Sharp {
     /// 
     /// </summary>
     /// <param name="serviceName"></param>
-    public DataService(String serviceName) {
+    public DataService(String serviceName, HttpMessageHandler httpMessageHandler = null) {
       if (String.IsNullOrEmpty(serviceName)) {
         throw new ArgumentNullException("serviceName");
       }
@@ -36,7 +36,7 @@ namespace Breeze.Sharp {
       UseJsonP = false;
       Adapter = new WebApiDataServiceAdapter();
       JsonResultsAdapter = Adapter.JsonResultsAdapter;
-      InitializeHttpClient();
+      InitializeHttpClient(httpMessageHandler);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ namespace Breeze.Sharp {
       Adapter = GetAdapter(jNode.Get<String>("adapterName"));
       // TODO: need to do the same as above with JsonResultsAdapter.
       JsonResultsAdapter = Adapter.JsonResultsAdapter;
-      InitializeHttpClient();
+      InitializeHttpClient(null);
 
     }
 
@@ -63,8 +63,23 @@ namespace Breeze.Sharp {
       get { return _httpClient; }
     }
 
-    private void InitializeHttpClient() {
-      _httpClient = new HttpClient();
+    public static HttpMessageHandler DefaultHttpMessageHandler {
+      get {
+        lock (__lock) {
+          return __defaultHttpMessageHandler;
+        }
+      }
+      set {
+        lock (__lock) {
+          __defaultHttpMessageHandler = value;
+        }
+      }
+    }
+
+    private void InitializeHttpClient(HttpMessageHandler handler) {
+      handler = handler ?? DefaultHttpMessageHandler;
+
+      _httpClient = handler == null ? new HttpClient() : new HttpClient(handler);
       _httpClient.BaseAddress = new Uri(ServiceName);
 
       // Add an Accept header for JSON format.
@@ -150,7 +165,8 @@ namespace Breeze.Sharp {
 
     private HttpClient _httpClient;
     private String _serviceName;
-
+    private static HttpMessageHandler __defaultHttpMessageHandler;
+    private static Object __lock = new Object();
 
   }
 

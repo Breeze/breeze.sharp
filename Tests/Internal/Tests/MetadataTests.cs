@@ -13,6 +13,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
+using System.Net.Http;
 
 namespace Breeze.Sharp.Tests {
 
@@ -45,6 +46,19 @@ namespace Breeze.Sharp.Tests {
       var allOrders2 = em.GetEntities(orderEntityType.SelfAndSubEntityTypes.Select(et => et.ClrType));
       Assert.IsTrue(allOrders.Count() == allOrders2.Count());
       
+    }
+
+
+    [TestMethod]
+    public async Task HttpClientHandler() {
+      var  handler = new HttpClientHandler() {
+        UseDefaultCredentials = true
+      };
+      var ds = new DataService(_serviceName, handler);
+      var em = new EntityManager(ds);
+      var md = await em.FetchMetadata(ds);
+      Assert.IsTrue(md != null);
+
     }
 
     // Creates a convention that removes underscores from server property names
