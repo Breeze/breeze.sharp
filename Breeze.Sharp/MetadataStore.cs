@@ -1,4 +1,6 @@
 ﻿using Breeze.Sharp.Core;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +15,6 @@ namespace Breeze.Sharp {
   /// <summary>
   /// An instance of the MetadataStore contains all of the metadata about a collection of <see cref="EntityType"/>s 
   /// and <see cref="ComplexType"/>s.
-  /// The MetadataStore.Instance property returns a singleton MetadataStore that is shared by all EntityManagers.
-  /// This class is threadsafe meaning that single MetadataStore.Instance value may be shared across multiple threads. 
-  /// This is NOT true of most other instances of classes within Breeze.
   /// </summary>
   [DebuggerDisplay("StoreID: {StoreID}")]
   public class MetadataStore : IJsonSerializable {
@@ -159,11 +158,27 @@ namespace Breeze.Sharp {
         _asyncSemaphore.Release();
       }
       metadata = metadata.Trim();
+      // this section is needed if metadata is returned as an escaped string - ( not common but does happen ... ).
       if (metadata.Substring(0, 1) == "\"" && metadata.Substring(metadata.Length - 1, 1) == "\"") {
         metadata = Regex.Unescape(metadata.Substring(1, metadata.Length - 2));
       }
-      var metadataProcessor = new CsdlMetadataProcessor();
-      metadataProcessor.ProcessMetadata(this, metadata);
+
+      var json = (JObject)JsonConvert.DeserializeObject(metadata);
+      var schema = json["schema"];
+      if (schema != null) {
+        // metadata returned in CSDL format
+        var metadataProcessor = new CsdlMetadataProcessor();
+        metadataProcessor.ProcessMetadata(this, json);
+      } else {
+        // metadata returned in breeze native format
+        this.ImportMetadata(metadata, true);
+        
+      }
+      var errorMessages = GetMessages(MessageType.Error).ToList();
+      if (errorMessages.Any()) {
+        throw new Exception("Metadata errors encountered: \n" + errorMessages.ToAggregateString("\n"));
+      }
+
       dataService.ServerMetadata = metadata;
       AddDataService(dataService);
       return dataService;
@@ -420,29 +435,31 @@ namespace Breeze.Sharp {
     /// Imports metadata from a string.
     /// </summary>
     /// <param name="metadata"></param>
-    public void ImportMetadata(String metadata) {
+    public void ImportMetadata(String metadata, bool isFromServer = false) {
       var jNode = JNode.DeserializeFrom(metadata);
-      ImportMetadata(jNode);
+      ImportMetadata(jNode, isFromServer);
     }
 
     /// <summary>
     /// Imports metadata via a TextReader.
     /// </summary>
     /// <param name="textReader"></param>
-    public void ImportMetadata(TextReader textReader) {
+    public void ImportMetadata(TextReader textReader, bool isFromServer = false) {
       var jNode = JNode.DeserializeFrom(textReader);
-      ImportMetadata(jNode);
+      ImportMetadata(jNode, isFromServer);
     }
 
-    internal void ImportMetadata(JNode jNode ) {
-      DeserializeFrom(jNode);
-      EntityTypes.ForEach(et => ResolveComplexTypeRefs(et));
+    internal void ImportMetadata(JNode jNode, bool isFromServer ) {
+      DeserializeFrom(jNode, isFromServer);
+      EntityTypes.ForEach(et => {
+        et.UpdateNavigationProperties();
+        et.ComplexProperties
+          .Where(cp => cp.ComplexType == null)
+          .ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexType.Name));
+      });
+     
     }
 
-    private void ResolveComplexTypeRefs(EntityType et) {
-      et.ComplexProperties.Where(cp => cp.ComplexType == null)
-        .ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexType.Name));
-    }
 
     JNode IJsonSerializable.ToJNode(Object config) {
       lock (_structuralTypes) {
@@ -459,18 +476,21 @@ namespace Breeze.Sharp {
       }
     }
 
-    private void DeserializeFrom(JNode jNode) {
+    private void DeserializeFrom(JNode jNode, bool isFromServer) {
       MetadataVersion = jNode.Get<String>("metadataVersion");
       // may be more than just a name
       
       var ncNode = jNode.GetJNode("namingConvention");
-      var nc = Configuration.Instance.FindOrCreateNamingConvention(ncNode);
-      if (nc == null) {
-        OnMetadataMismatch(null, null, MetadataMismatchType.MissingCLRNamingConvention, ncNode.ToString());
-      } else {
-        NamingConvention = nc;
+      if (ncNode != null) {
+        var nc = Configuration.Instance.FindOrCreateNamingConvention(ncNode);
+        if (nc == null) {
+          OnMetadataMismatch(null, null, MetadataMismatchType.MissingCLRNamingConvention, ncNode.ToString());
+        } else {
+          // keep any preexisting ClientServerNamespaceMap info
+          NamingConvention = nc.WithClientServerNamespaceMapping(this.NamingConvention.ClientServerNamespaceMap);
+        }
       }
-      
+
       // localQueryComparisonOptions
       jNode.GetJNodeArray("dataServices").Select(jn => new DataService(jn)).ForEach(ds => {
         if (GetDataService(ds.ServiceName) == null) {
@@ -478,26 +498,53 @@ namespace Breeze.Sharp {
         }
       });
       jNode.GetJNodeArray("structuralTypes")
-        .ForEach(UpdateStructuralTypeFromJNode);
+        .ForEach(jn => UpdateStructuralTypeFromJNode(jn, isFromServer));
 
       jNode.GetMap<String>("resourceEntityTypeMap").ForEach(kvp => {
-        var et = GetEntityType(kvp.Value);
-        SetResourceName(kvp.Key, et);
+        var stName = kvp.Value;
+        if (isFromServer) {
+            stName = TypeNameInfo.FromStructuralTypeName(stName).ToClient(this).StructuralTypeName;
+        }
+        // okIfNotFound because metadata may contain refs to types that were already excluded earlier in
+        // UpdateStructuralTypeFromJNode
+        var et = GetEntityType(stName, true);
+        if (et != null) {
+          SetResourceName(kvp.Key, et);
+        }
       });
     }
 
-    private void UpdateStructuralTypeFromJNode(JNode jNode) {
+    private void UpdateStructuralTypeFromJNode(JNode jNode, bool isFromServer) {
+      var name = GetStructuralTypeNameFromJNode(jNode, isFromServer);
+      var stype = GetStructuralTypeCore(name);
+      if (stype == null) {
+        var isComplexType = jNode.Get<bool>("isComplexType", false);
+        OnMetadataMismatch(name, null, isComplexType ? 
+          MetadataMismatchType.MissingCLRComplexType : MetadataMismatchType.MissingCLREntityType);
+        return;
+      }
+      
+      stype.UpdateFromJNode(jNode, isFromServer);
+    }
+
+    internal String GetStructuralTypeNameFromJNode(JNode jNode, String key, bool isFromServer) {
+      var stName = jNode.Get<String>(key);
+      if (stName != null && isFromServer) {
+        stName = TypeNameInfo.FromStructuralTypeName(stName).ToClient(this).StructuralTypeName;
+      }
+      return stName;
+    }
+
+    internal String GetStructuralTypeNameFromJNode(JNode jNode, bool isFromServer) {
       var shortName = jNode.Get<String>("shortName");
       var ns = jNode.Get<String>("namespace");
-      var name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
-      var isComplexType = jNode.Get<bool>("isComplexType", false);
-      if (isComplexType) {
-        var ct = GetComplexType(name);
-        ct.UpdateFromJNode(jNode);
+      String stName;
+      if (isFromServer) {
+        stName = new TypeNameInfo(shortName, ns).ToClient(this).StructuralTypeName;
       } else {
-        var et = GetEntityType(name);
-        et.UpdateFromJNode(jNode);
+        stName = TypeNameInfo.ToStructuralTypeName(shortName, ns);
       }
+      return stName;
     }
 
     #endregion
@@ -506,10 +553,12 @@ namespace Breeze.Sharp {
 
     internal static Exception MissingTypeException(String typeName) {
       return new Exception("Unable to locate a CLR type corresponding to: " + typeName
-          + ".  Consider calling MetadataStore.Instance.ProbeAssemblies with the assembly containing this " +
+          + ".  Consider calling Configuration.Instance.ProbeAssemblies with the assembly containing this " +
           "type when your application starts up.  In addition, if your namespaces are different between server and client " +
-          "then you may need to call MetadataStore.Instance.NamingConvention.WithClientServerNamespaceMapping to create a" +
-          "new NamingConvention that understands how to map between the two.");
+          "then you may need to call the MetadataStore.NamingConvention.WithClientServerNamespaceMapping method to create a " +
+          "new NamingConvention that understands how to map between the two. Another alternative, if this type is not going " +
+          "to be defined on the client, is to set the MetadataStore.AllowMetadataMismatchTypes property" +
+          "or to use the MetadataStore.MetadataMismatch event.");
     }
 
     internal EntityType AddEntityType(EntityType entityType) {

@@ -35,13 +35,24 @@ namespace Breeze.Sharp.Tests {
 
     public static async Task<EntityManager> NewEm(string serviceName, MetadataStore metadataStore = null) {
       metadataStore = metadataStore ?? DefaultMetadataStore;
+#if NHIBERNATE
+      metadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      var nc = metadataStore.NamingConvention.WithClientServerNamespaceMapping("Foo", "Models.NorthwindIB.NH");
+      metadataStore.NamingConvention = nc;
+#else
+      metadataStore.MetadataMismatch += (s, e) => {
+        if (e.StructuralTypeInfo.ShortName == "Geospatial") {
+          e.Allow = true;
+        }
+      };
+
+#endif
+      var em = new EntityManager(serviceName, metadataStore);
       if (metadataStore.GetDataService(serviceName) == null) {
-        var em = new EntityManager(serviceName, metadataStore);
         await em.FetchMetadata();
-        return em;
-      } else {
-        return new EntityManager(serviceName, metadataStore);
-      }
+      } 
+
+      return em;
     }
 
     public static async Task<EntityManager> NewEm(DataService dataService, MetadataStore metadataStore = null) {

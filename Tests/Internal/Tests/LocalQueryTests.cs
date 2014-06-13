@@ -219,8 +219,8 @@ namespace Breeze.Sharp.Tests {
       var r1Local = q1.ExecuteLocally(em1);
       
       Assert.IsTrue(r1Local.Count() == r1.Count());
-      ok = r1Local.All(r => r.Customer.Orders.Count == 1);
-      Assert.IsTrue(ok, "Order's per customer should be only one for now because that's all we cached");
+      ok = r1Local.All(r => r.Customer.Orders.Count >= 1);
+      Assert.IsTrue(ok, "Order's per customer should be >= one for now because that's what we cached");
       ok = r1Local.All(r => r.Customer.GetType() == typeof(Customer));
       Assert.IsTrue(ok );
 

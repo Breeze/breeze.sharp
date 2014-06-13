@@ -18,10 +18,10 @@ namespace Breeze.Sharp {
 
     public MetadataStore MetadataStore { get; private set; }
     
-    public void ProcessMetadata(MetadataStore metadataStore, String jsonMetadata) {
+    public void ProcessMetadata(MetadataStore metadataStore, JObject json) {
       MetadataStore = metadataStore;
-      var json = (JObject)JsonConvert.DeserializeObject(jsonMetadata);
       _schema = json["schema"];
+
       _namespace = (String)_schema["namespace"];
 
       var mapping = (String)_schema["cSpaceOSpaceMapping"];
@@ -58,10 +58,6 @@ namespace Breeze.Sharp {
         });
       }
 
-      if (_errorMessages.Any()) {
-        throw new Exception("Metadata errors encountered: \n" +
-                            _errorMessages.Select(em => em.Text).ToAggregateString("\n"));
-      }
     }
 
     
@@ -78,7 +74,7 @@ namespace Breeze.Sharp {
       var etName = GetClientTypeNameFromShortName(shortNameVal);
       var entityType = MetadataStore.GetEntityType(etName, true);
       if (entityType == null) {
-        OnMetadataMismatch(etName, null, MetadataMismatchType.MissingCLREntityType);
+        MetadataStore.OnMetadataMismatch(etName, null, MetadataMismatchType.MissingCLREntityType);
         return null;
       }
       
@@ -90,7 +86,7 @@ namespace Breeze.Sharp {
         var baseEntityType = MetadataStore.GetEntityType(baseEtName, true);
         if (baseEntityType == null) {
           var detail = String.Format("BaseType of: '{0}' not found", baseEtName);
-          OnMetadataMismatch(etName, null, MetadataMismatchType.InconsistentCLRTypeDefinition, detail);
+          MetadataStore.OnMetadataMismatch(etName, null, MetadataMismatchType.InconsistentCLRTypeDefinition, detail);
           return null;
         }
         CheckStructuralType(entityType, entityType.BaseEntityType, baseEntityType, "BaseEntityType");
@@ -115,13 +111,6 @@ namespace Breeze.Sharp {
 
       return entityType;
 
-    }
-
-    private void OnMetadataMismatch(string stName, string propName, MetadataMismatchType mmType, String detail = null) {
-      var message = MetadataStore.OnMetadataMismatch(stName, propName, mmType, detail);
-      if (message.IsError) {
-        _errorMessages.Add(message);
-      }
     }
 
     private DataProperty ParseCsdlDataProperty(StructuralType parentType, JObject csdlProperty, List<String> keyNamesOnServer) {
@@ -161,7 +150,7 @@ namespace Breeze.Sharp {
       var dpName = NamingConvention.ServerPropertyNameToClient(nameVal, parentType);
       var dp = parentType.GetDataProperty( dpName);
       if (dp == null) {
-        OnMetadataMismatch(parentType.Name, dpName, MetadataMismatchType.MissingCLRDataProperty);
+        MetadataStore.OnMetadataMismatch(parentType.Name, dpName, MetadataMismatchType.MissingCLRDataProperty);
         return null;
       }
 
@@ -220,20 +209,19 @@ namespace Breeze.Sharp {
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer, parentType);
       var dp = parentType.GetDataProperty(name);
       if (dp == null) {
-        OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.MissingCLRDataProperty);
+        MetadataStore.OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.MissingCLRDataProperty);
         return null;
       }
       
       if (!dp.IsComplexProperty) {
         var detail = "Defined as a ComplexProperty on the server but not on the client";
-        OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.InconsistentCLRPropertyDefinition, detail);
+        MetadataStore.OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.InconsistentCLRPropertyDefinition, detail);
         return null;
       }
 
       CheckProperty(dp, dp.ComplexType.Name, complexTypeName, "ComplexTypeName");
       return dp;
     }
-
 
     private NavigationProperty ParseCsdlNavigationProperty(EntityType parentType, JObject csdlProperty) {
       var association = GetAssociation(csdlProperty);
@@ -259,7 +247,7 @@ namespace Breeze.Sharp {
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer, parentType);
       var np = parentType.GetNavigationProperty(name);
       if (np == null) {
-        OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.MissingCLRNavigationProperty);
+        MetadataStore.OnMetadataMismatch(parentType.Name, name, MetadataMismatchType.MissingCLRNavigationProperty);
         return null;
       }
 
@@ -300,7 +288,7 @@ namespace Breeze.Sharp {
       var clientTypeName = GetClientTypeNameFromShortName(nameVal);
       var complexType = MetadataStore.GetComplexType(clientTypeName);
       if (complexType == null) {
-        OnMetadataMismatch(clientTypeName, null, MetadataMismatchType.MissingCLRComplexType);
+        MetadataStore.OnMetadataMismatch(clientTypeName, null, MetadataMismatchType.MissingCLRComplexType);
         return null;
       }
 
@@ -385,7 +373,7 @@ namespace Breeze.Sharp {
       if (Object.Equals(v1, v2)) return;
       var detail = String.Format("Type property: {0}, Client value: '{1}',  Server value: '{2}'",
         name, (v1 ?? "").ToString(), (v2 ?? "").ToString());
-      OnMetadataMismatch(stType.Name, null, MetadataMismatchType.InconsistentCLRTypeDefinition, detail);
+      MetadataStore.OnMetadataMismatch(stType.Name, null, MetadataMismatchType.InconsistentCLRTypeDefinition, detail);
     }
 
 
@@ -394,7 +382,7 @@ namespace Breeze.Sharp {
       if (Object.Equals(v1, v2)) return;
       var detail = String.Format("Client value: '{0}',  Server value: '{1}'",
         (v1 ?? "").ToString(), (v2 ?? "").ToString());
-      OnMetadataMismatch(prop.ParentType.Name, prop.Name, MetadataMismatchType.InconsistentCLRPropertyDefinition, detail);
+      MetadataStore.OnMetadataMismatch(prop.ParentType.Name, prop.Name, MetadataMismatchType.InconsistentCLRPropertyDefinition, detail);
     }
 
 
@@ -426,7 +414,7 @@ namespace Breeze.Sharp {
     private String _namespace;
     
     private Dictionary<String, String> _cSpaceOSpaceMap;
-    private List<Message> _errorMessages = new List<Message>();
+    
     
   }
 }

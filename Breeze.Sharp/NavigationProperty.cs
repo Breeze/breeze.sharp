@@ -42,14 +42,14 @@ namespace Breeze.Sharp {
       
     }
 
-    internal void UpdateFromJNode(JNode jNode) {
-      
-      Check(EntityType.Name, jNode.Get<String>("entityTypeName"), "EntityTypeName");
+    internal void UpdateFromJNode(JNode jNode, bool isFromServer) {
+      var etName = MetadataStore.GetStructuralTypeNameFromJNode(jNode, "entityTypeName", isFromServer);
+      Check(EntityType.Name, etName, "EntityTypeName");
       IsScalar = jNode.Get<bool>("isScalar", true);
       AssociationName = jNode.Get<String>("associationName");
       _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
-      SetFkNames(jNode.GetArray<String>("foreignKeyNames"));
-      SetInvFkNames(jNode.GetArray<String>("invForeignKeyNames"));
+      SetFkNames(jNode.GetArray<String>( isFromServer ? "foreignKeyNamesOnServer" : "foreignKeyNames"));
+      SetInvFkNames(jNode.GetArray<String>(isFromServer ? "invForeignKeyNamesOnServer" : "invForeignKeyNames"));
       // custom
     }
 

@@ -16,16 +16,14 @@ namespace Breeze.Sharp {
 
     }
 
-    public void UpdateFromJNode(JNode jNode) {
-      var shortName = jNode.Get<String>("shortName");
-      var ns = jNode.Get<String>("namespace");
-      Name = TypeNameInfo.ToStructuralTypeName(shortName, ns);
+    internal override void UpdateFromJNode(JNode jNode, bool isFromServer) {
+      Name = this.MetadataStore.GetStructuralTypeNameFromJNode(jNode, isFromServer);
       // BaseTypeName = jnode.Get<String>("baseTypeName");
       // IsAbstract = jnode.Get<bool>("isAbstract");
       jNode.GetJNodeArray("dataProperties").ForEach(jn => {
-        var dpName = jn.Get<String>("name");
+        var dpName = GetPropertyNameFromJNode(jn);
         var dp = this.GetDataProperty(dpName);
-        dp.UpdateFromJNode(jn);
+        dp.UpdateFromJNode(jn, isFromServer);
       });
       // validators
       // custom

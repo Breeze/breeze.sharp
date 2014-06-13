@@ -464,8 +464,9 @@ namespace Foo {
       get { return GetValue<DateTime?>(); }
       set { SetValue(value); }
     }
-    public int RowVersion {
-      get { return GetValue<int>(); }
+    // TODO: not really nullable but changed for NH bug
+    public int? RowVersion {
+      get { return GetValue<int?>(); }
       set { SetValue(value); }
     }
 
@@ -821,6 +822,7 @@ namespace Foo {
 
   }
 
+#if !NHIBERNATE
   public partial class Geospatial : BaseEntity {
 
     public Geospatial() {
@@ -843,6 +845,7 @@ namespace Foo {
       set { SetValue(value); }
     }
   }
+#endif
 
   public partial class UnusualDate : BaseEntity {
     public int Id {

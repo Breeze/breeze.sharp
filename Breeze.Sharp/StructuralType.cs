@@ -61,6 +61,18 @@ namespace Breeze.Sharp {
       }  
     }
 
+    internal abstract void UpdateFromJNode(JNode jNode, bool isFromServer);
+
+
+    internal String GetPropertyNameFromJNode(JNode jn) {
+      var dpName = jn.Get<String>("name");
+      if (dpName == null) {
+        var dpNameOnServer = jn.Get<String>("nameOnServer");
+        dpName = MetadataStore.NamingConvention.ServerPropertyNameToClient(dpNameOnServer, this);
+      }
+      return dpName;
+    }
+
     private Type _clrType;
     public String ShortName { get; private set; }
     public String Namespace { get; private set;}

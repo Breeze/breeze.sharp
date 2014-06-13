@@ -636,6 +636,8 @@ namespace Breeze.Sharp.Tests {
       var product = new Product();
       em.AddEntity(product);
       product.ProductName = "Test.NET_" + TestFns.RandomSuffix(7);
+      // only needed because of NH bug where we made 'rowVersion' nullable on the client.
+      product.RowVersion = 0;
       return product;
     }
 

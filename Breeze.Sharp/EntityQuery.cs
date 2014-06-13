@@ -371,17 +371,6 @@ namespace Breeze.Sharp {
       return new EntityQuery<T>(resourceName); 
     }
 
-    // TODO: think about whether this would ever be useful.
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    ///// <param name="resourceName"></param>
-    ///// <returns></returns>
-    //public static EntityQuery From(string resourceName) {
-    //  var et = MetadataStore.Instance.GetEntityTypeForResourceName(resourceName);
-    //  return EntityQuery.Create(et.ClrType);
-    //}
-
     /// <summary>
     /// This signature is intended to be use for queries that will return 
     /// an anonymous type. An example instance of the anonymous type you want

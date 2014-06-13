@@ -78,7 +78,7 @@ namespace Breeze.Sharp {
       return clientPropertyName;
     }
 
-    public NamingConvention WithClientServerNamespaceMapping(Dictionary<String, String> clientServerNamespaceMap) {
+    public NamingConvention WithClientServerNamespaceMapping(IDictionary<String, String> clientServerNamespaceMap) {
       var clone = Clone();
       clone._clientServerNamespaceMap = new Dictionary<string, string>(_clientServerNamespaceMap);
       _serverClientNamespaceMap = null;
@@ -95,11 +95,6 @@ namespace Breeze.Sharp {
       _clientServerNamespaceMap[clientNamespace] = serverNamespace;
       _serverClientNamespaceMap = null;
     }
-
-    //public NamingConvention SetAsDefault(MetadataStore) {
-    //  MetadataStore.Instance.NamingConvention = this;
-    //  return this;
-    //}
 
     protected virtual NamingConvention Clone() {
       return (NamingConvention) this.ToJNode().ToObject(this.GetType(), true);

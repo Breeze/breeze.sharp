@@ -23,7 +23,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestInitialize]
     public void TestInitializeMethod() {
-      
+      Configuration.__Reset();
       
     }
 
@@ -42,7 +42,7 @@ namespace Breeze.Sharp.Tests {
         var ms = new MetadataStore();
         await ms.FetchMetadata(ds);
       } catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("Configuration.Instance"));
+        Assert.IsTrue(e.Message.Contains("Configuration.Instance"), e.Message);
       }
 
       try {
@@ -50,7 +50,7 @@ namespace Breeze.Sharp.Tests {
         await em.FetchMetadata();
       }
       catch (Exception e) {
-        Assert.IsTrue(e.Message.Contains("Configuration.Instance"));
+        Assert.IsTrue(e.Message.Contains("Configuration.Instance"), e.Message);
       }
     }
 

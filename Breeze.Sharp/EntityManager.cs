@@ -490,7 +490,7 @@ namespace Breeze.Sharp {
       if (importOptions.ShouldMergeMetadata) {
         var msNode = jn.GetJNode("metadataStore");
         if (msNode != null) {
-          MetadataStore.ImportMetadata(msNode);
+          MetadataStore.ImportMetadata(msNode, false);
           var dsJn = jn.GetJNode("dataService");
           if (dsJn != null) DataService = new DataService(dsJn);
           var qoJn = jn.GetJNode("queryOptions");
