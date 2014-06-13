@@ -75,7 +75,10 @@ namespace Breeze.Sharp {
       IsAutoIncrementing = jNode.Get<bool>("isAutoIncrementing", false);
       ConcurrencyMode = (ConcurrencyMode)Enum.Parse(typeof(ConcurrencyMode), jNode.Get<String>("concurrencyMode", ConcurrencyMode.None.ToString()));
       MaxLength = jNode.Get<int?>("maxLength");
-      EnumTypeName = jNode.Get<String>("enumType");
+      // EnumType is best determined on the client and not from the server
+      // so for now just ignore the 'enumType'
+      // var enumTypeName = jNode.Get<String>("enumType");
+      
       _validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));
     }
 

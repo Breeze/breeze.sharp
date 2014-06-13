@@ -112,10 +112,16 @@ namespace Breeze.Sharp {
         dp.IsNullable = false;
         // complex Objects do not have defaultValues currently
       } else {
+        var nnType = TypeFns.GetNonNullableType(propType);
         dp.ClrType = propType;
-        dp.DataType = DataType.FromClrType(TypeFns.GetNonNullableType(propType));
+
+        dp.DataType = DataType.FromClrType(nnType);
         dp.IsNullable = TypeFns.IsNullableType(propType);
         dp.DefaultValue = dp.IsNullable ? null : dp.DataType.DefaultValue;
+        var isEnumType = nnType.GetTypeInfo().IsEnum;
+        if (isEnumType) {
+          dp.EnumTypeName = nnType.FullName;
+        }
       }
 
       structuralType.AddDataProperty(dp);
