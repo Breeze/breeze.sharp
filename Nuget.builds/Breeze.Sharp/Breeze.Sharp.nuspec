@@ -17,8 +17,6 @@
         <releaseNotes>Please review the BreezeSharp release notes at http://www.breezejs.com/documentation/download</releaseNotes>        
         <tags>javascript WebApi Breeze SPA</tags>
 		<dependencies>
-        <dependency id="Microsoft.AspNet.WebApi.Client" version="5.1.1" />
-        <dependency id="Microsoft.Bcl" version="1.1.6"  />
         <dependency id="Newtonsoft.Json" version="6.0.2" />
 		</dependencies>
     </metadata>
