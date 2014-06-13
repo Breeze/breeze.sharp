@@ -1,4 +1,6 @@
 ﻿
+using System.Reflection;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -193,10 +195,14 @@ namespace Breeze.Sharp {
                   coBacking[kvp2.Key] = kvp2.Value;
                 });
               } else {
-                if (dp.IsEnumType) {
-                  backingStore[key] = kvp.Value.ToObject(dp.ClrType, _enumSerializer);
+                var val = kvp.Value;
+                if (val.Type == JTokenType.Null && dp.ClrType != typeof(String) && !TypeFns.IsNullableType(dp.ClrType)) {
+                  // this can only happen if the client is nonnullable but the server is nullable.
+                  backingStore[key] = dp.DefaultValue;
+                } else if (dp.IsEnumType) {
+                  backingStore[key] = val.ToObject(dp.ClrType, _enumSerializer);
                 } else {
-                  backingStore[key] = kvp.Value.ToObject(dp.ClrType);
+                  backingStore[key] = val.ToObject(dp.ClrType);
                 }
               }
             }

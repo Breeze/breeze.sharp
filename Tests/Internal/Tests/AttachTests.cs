@@ -116,6 +116,7 @@ namespace Breeze.Sharp.Tests {
       var em1 = await TestFns.NewEm(_serviceName);
 
       var cust1 = new Customer();
+      // cust1.RowVersion = 0;
       em1.AttachEntity(cust1);
       Assert.IsTrue(cust1.EntityAspect.ValidationErrors.Count == 1);
       cust1.CompanyName = "valid name";

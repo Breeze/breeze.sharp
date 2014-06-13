@@ -435,6 +435,7 @@ namespace Breeze.Sharp {
     /// Imports metadata from a string.
     /// </summary>
     /// <param name="metadata"></param>
+    /// <param name="isFromServer"></param>
     public void ImportMetadata(String metadata, bool isFromServer = false) {
       var jNode = JNode.DeserializeFrom(metadata);
       ImportMetadata(jNode, isFromServer);
@@ -444,6 +445,7 @@ namespace Breeze.Sharp {
     /// Imports metadata via a TextReader.
     /// </summary>
     /// <param name="textReader"></param>
+    /// <param name="isFromServer"></param>
     public void ImportMetadata(TextReader textReader, bool isFromServer = false) {
       var jNode = JNode.DeserializeFrom(textReader);
       ImportMetadata(jNode, isFromServer);
@@ -452,6 +454,7 @@ namespace Breeze.Sharp {
     internal void ImportMetadata(JNode jNode, bool isFromServer ) {
       DeserializeFrom(jNode, isFromServer);
       EntityTypes.ForEach(et => {
+        // cross entity/complex type fixup.
         et.UpdateNavigationProperties();
         et.ComplexProperties
           .Where(cp => cp.ComplexType == null)
