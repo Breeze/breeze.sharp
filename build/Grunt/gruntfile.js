@@ -94,7 +94,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-compress');
+  //grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-newer');
 
   
@@ -143,6 +143,8 @@ module.exports = function(grunt) {
       fileGroup.src.forEach(function(fileName) {
         grunt.log.writeln('Deploy: ' + fileName);
         var folderName = path.dirname(fileName);
+		fileName = path.normalize(fileName);
+		grunt.log.writeln('Deploy: ' + fileName);
         runExec('deployNupkg', {
           cmd: 'nuget push ' + fileName 
         });
