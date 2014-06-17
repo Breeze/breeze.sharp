@@ -8,8 +8,8 @@
     <ProjectGuid>{54B1CE10-2847-4565-839A-26DA3A51AF38}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>breeze.sharp</RootNamespace>
-    <AssemblyName>breeze.sharp</AssemblyName>
+    <RootNamespace>Breeze.Sharp</RootNamespace>
+    <AssemblyName>Breeze.Sharp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -25,7 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\breeze.sharp.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Breeze.Sharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
