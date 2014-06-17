@@ -90,8 +90,8 @@ namespace Foo {
       get { return GetValue<string>(); }
       set { SetValue(value); }
     }
-    public int RowVersion  {
-      get { return GetValue<int>(); }
+    public int? RowVersion  {
+      get { return GetValue<int?>(); }
       set { SetValue(value); }
     }
 

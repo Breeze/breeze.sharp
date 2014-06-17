@@ -48,6 +48,44 @@ namespace Breeze.Sharp.Tests {
     //}
 
     [TestMethod]
+    public async Task RemovingNavigationProperty() {
+      var entityManager = await TestFns.NewEm(_serviceName);
+
+      var employee = new Employee() {
+        FirstName = "First",
+        LastName = "Employee"
+      };
+      entityManager.AddEntity(employee);
+
+
+      var manager = new Employee() {
+        FirstName = "First",
+        LastName = "Manager"
+      };
+      entityManager.AddEntity(manager);
+      employee.Manager = manager;
+
+      try {
+        var saveResult = await entityManager.SaveChanges();
+
+        // Now reverse everything
+        manager.EntityAspect.Delete();
+        employee.Manager = null;
+
+        employee.EntityAspect.Delete();
+
+        saveResult = await entityManager.SaveChanges();
+
+      } catch (Exception e) {
+        var message = string.Format("Save should have succeeded;  Received {0}: {1}",
+                                    e.GetType().Name, e.Message);
+        Assert.Fail(message);
+      }
+
+    }
+
+
+    [TestMethod]
     public async Task WithEnum() {
       var em = await TestFns.NewEm(_serviceName);
       var q1 = EntityQuery.From<Role>().OrderBy(r => r.Name).Take(2);
