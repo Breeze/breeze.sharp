@@ -48,6 +48,33 @@ namespace Breeze.Sharp.Tests {
     //}
 
     [TestMethod]
+    public async Task NullableInt() {
+      
+      var em = await TestFns.NewEm(_serviceName);
+      var emp = new Employee() {
+        FirstName = "Test",
+        LastName = "Test"
+      };
+      em.AddEntity(emp);
+      Assert.IsTrue(emp.ReportsToEmployeeID == null, "fk should be null");
+      var sr = await em.SaveChanges();
+      Assert.IsTrue(sr.Entities.Count == 1);
+      Assert.IsTrue(emp.ReportsToEmployeeID == null, "fk should still be null");
+      emp.ReportsToEmployeeID = 0;
+      Assert.IsTrue(emp.ReportsToEmployeeID == 0, "fk should be 0");
+      try {
+        var sr2 = await em.SaveChanges();
+        Assert.Fail("should not get here");
+      }
+      catch (SaveException e) {
+        Assert.IsTrue(e.Message.Contains("constraint"), "error should mention fk constraint violation");
+      }
+      emp.EntityAspect.Delete();
+      var sr3 = await em.SaveChanges();
+      Assert.IsTrue(sr3.Entities.Count == 1);
+    }
+
+    [TestMethod]
     public async Task RemovingNavigationProperty() {
       var entityManager = await TestFns.NewEm(_serviceName);
 
