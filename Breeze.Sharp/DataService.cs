@@ -23,11 +23,18 @@ namespace Breeze.Sharp {
   /// </remarks>
   public class DataService : IJsonSerializable {
 
+    
     /// <summary>
-    /// 
+    /// Constructs a new DataService with the option to use an already configured HttpClient. If one is not provided
+    /// then the DataService will create one internally.  In either case it will be available via the HttpClient property.
     /// </summary>
+    /// <remarks>Note that if an HttpClient is passed in that it MUST be a different instance than that provided
+    /// to any other DataService.  Whether passed in or created by the DataService, the HttpClient will automatically have 
+    /// its BaseAddress set and will be configured to support for a 'application/json' media type request header.
+    /// </remarks>
     /// <param name="serviceName"></param>
-    public DataService(String serviceName, HttpMessageHandler httpMessageHandler = null) {
+    /// <param name="httpClient"></param>
+    public DataService(String serviceName, HttpClient httpClient = null) {
       if (String.IsNullOrEmpty(serviceName)) {
         throw new ArgumentNullException("serviceName");
       }
@@ -36,7 +43,7 @@ namespace Breeze.Sharp {
       UseJsonP = false;
       Adapter = new WebApiDataServiceAdapter();
       JsonResultsAdapter = Adapter.JsonResultsAdapter;
-      InitializeHttpClient(httpMessageHandler);
+      InitializeHttpClient(httpClient);
     }
 
     /// <summary>
@@ -63,6 +70,10 @@ namespace Breeze.Sharp {
       get { return _httpClient; }
     }
 
+    /// <summary>
+    /// The Default HttpMessageHandler to be used in the event that 
+    /// Breeze creates the HttpClient automatically for this service.
+    /// </summary>
     public static HttpMessageHandler DefaultHttpMessageHandler {
       get {
         lock (__lock) {
@@ -76,15 +87,17 @@ namespace Breeze.Sharp {
       }
     }
 
-    private void InitializeHttpClient(HttpMessageHandler handler) {
-      handler = handler ?? DefaultHttpMessageHandler;
+    private void InitializeHttpClient(HttpClient httpClient) {
 
-      _httpClient = handler == null ? new HttpClient() : new HttpClient(handler);
+      if (httpClient == null) {
+        httpClient = DefaultHttpMessageHandler == null ? new HttpClient() : new HttpClient(DefaultHttpMessageHandler);
+      }
+      _httpClient = httpClient;
       _httpClient.BaseAddress = new Uri(ServiceName);
-
+      
       // Add an Accept header for JSON format.
       _httpClient.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
+         new MediaTypeWithQualityHeaderValue("application/json"));
 
     }
 

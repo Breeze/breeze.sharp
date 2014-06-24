@@ -154,11 +154,12 @@ namespace Breeze.Sharp.Tests {
         var ves = emp.EntityAspect.ValidateProperty(dp);
 
         Assert.IsTrue(ves.Count() > 0);
-        var ve = ves.First();
-        Assert.IsTrue(ve.Message.Contains("LastName") && ve.Message.Contains("required"));
-        Assert.IsTrue(ve.Context.Entity == emp);
-        Assert.IsTrue(ve.Validator == new RequiredValidator().Intern(), "validator should a requiredValdator");
-        Assert.IsTrue(ve.Key != null);
+        var ve1 = ves.First();
+        Assert.IsTrue(ve1.Message.Contains("LastName") && ve1.Message.Contains("required"));
+        Assert.IsTrue(ve1.Context.Entity == emp);
+        Assert.IsTrue(ves.Any(ve => ve.Validator.Equals(new RequiredValidator().Intern())),
+          "validator should be a requiredValdator. ");
+        Assert.IsTrue(ve1.Key != null);
       }
     }
 
@@ -170,12 +171,17 @@ namespace Breeze.Sharp.Tests {
 
         var ves = emp.EntityAspect.Validate();
 
-        Assert.IsTrue(ves.Count() > 0);
+        Assert.IsTrue(ves.Count() == 2, "should only be 2 emp validation errors here");
 
         Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
         Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
-        Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
-          "validator should a requiredValdator");
+        var msg = ves.Select(ve => 
+          ve.Validator.GetType() + " " 
+          + ve.Key + " " + 
+          (ve.Validator.Equals(new RequiredValidator().Intern())).ToString()
+        ).ToAggregateString(" ,");
+        Assert.IsTrue(ves.Any(ve => ve.Validator.Equals(new RequiredValidator().Intern())),
+          "validator should be a requiredValdator. " + msg);
         Assert.IsTrue(ves.All(ve => ve.Key != null));
       }
     }
@@ -193,8 +199,8 @@ namespace Breeze.Sharp.Tests {
 
       Assert.IsTrue(ves.Any(ve => ve.Message.Contains("LastName") && ve.Message.Contains("required")));
       Assert.IsTrue(ves.All(ve => ve.Context.Entity == emp));
-      Assert.IsTrue(ves.Any(ve => ve.Validator == new RequiredValidator().Intern()),
-        "validator should a requiredValdator");
+      Assert.IsTrue(ves.Any(ve => ve.Validator.Equals(new RequiredValidator().Intern())),
+          "validator should be a requiredValdator. ");
       Assert.IsTrue(ves.All(ve => ve.Key != null));
     }
 

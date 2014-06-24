@@ -51,10 +51,10 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task HttpClientHandler() {
-      var  handler = new HttpClientHandler() {
+      var  httpClient = new HttpClient(new HttpClientHandler() {
         UseDefaultCredentials = true
-      };
-      var ds = new DataService(_serviceName, handler);
+      });
+      var ds = new DataService(_serviceName, httpClient);
       var em = new EntityManager(ds);
       em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
       var md = await em.FetchMetadata(ds);

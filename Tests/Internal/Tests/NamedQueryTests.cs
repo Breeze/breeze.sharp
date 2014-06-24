@@ -205,7 +205,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SearchEmployees() {
-      Assert.Fail("Known failure - MS OData lib doesn't serialize arrays properly for WebApi");
+      Assert.Inconclusive("Known failure - MS OData lib doesn't serialize arrays properly for WebApi");
       var em1 = await TestFns.NewEm(_serviceName);
 
 
