@@ -48,6 +48,32 @@ namespace Breeze.Sharp.Tests {
     //}
 
     [TestMethod]
+    public async Task ServerSideValidationFailure() {
+      if (TestFns.DEBUG_MONGO || TestFns.DEBUG_ODATA) {
+        Assert.Inconclusive("NA for Mongo or OData does not yet support server side validation");
+      }
+
+      var em = await TestFns.NewEm(_serviceName);
+      var cust = em.CreateEntity<Customer>();
+      cust.CompanyName = "error";
+      try {
+        var sr = await em.SaveChanges();
+        Assert.Fail("should not get here");
+      }
+      catch (SaveException se) {
+        Assert.IsTrue(true, se.Message);
+      }
+      catch (Exception e) {
+        Assert.Fail(e.Message);
+      }
+      
+    }
+
+
+
+
+
+    [TestMethod]
     public async Task NullableInt() {
       
       var em = await TestFns.NewEm(_serviceName);

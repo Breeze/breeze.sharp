@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
-  
+
   /// <summary>
   /// Provides entity services to a <see cref="IEntity"/>.  
   /// <seealso cref="T:Breeze.Sharp.EntityManager"/>
@@ -300,7 +300,7 @@ namespace Breeze.Sharp {
       // this.OriginalValuesMap = null;
       // this.PreproposedValuesMap = null;
 
-      
+
 
       EntityManager.NotifyStateChange(this, false);
       if (this.EntityGroup.ChangeNotificationEnabled) {
@@ -404,7 +404,7 @@ namespace Breeze.Sharp {
     #region EntityState change methods
 
     internal void SetEntityStateCore(EntityState value) {
-      
+
       if (value.IsAdded()) {
         _originalValuesMap = null;
       }
@@ -417,7 +417,7 @@ namespace Breeze.Sharp {
           OnEntityAspectPropertyChanged("IsChanged");
         }
       }
-    
+
     }
 
     // Sets the entity to an EntityState of 'Unchanged'.  This is also the equivalent of calling {{#crossLink "EntityAspect/acceptChanges"}}{{/crossLink}}
@@ -503,7 +503,7 @@ namespace Breeze.Sharp {
       if (prop == null) {
         throw new Exception("Unable to locate property: " + EntityType.Name + ":" + propertyName);
       }
-      
+
       SetValue(prop, newValue);
     }
 
@@ -575,7 +575,7 @@ namespace Breeze.Sharp {
       }
 
     }
- 
+
     private void SetDpValueSimple(DataProperty property, object newValue, object oldValue) {
       SetRawValue(property.Name, newValue);
 
@@ -631,7 +631,7 @@ namespace Breeze.Sharp {
           };
         });
       }
-      
+
     }
 
     private void SetDpValueComplex(DataProperty property, object newValue, object oldValue) {
@@ -769,7 +769,7 @@ namespace Breeze.Sharp {
       }
     }
 
-  
+
 
     // only ever called once for each EntityAspect when the EntityType is first set
     internal void InitializeDefaultValues() {
@@ -817,7 +817,7 @@ namespace Breeze.Sharp {
 
     #region Validation error handling
 
-    
+
 
     #endregion
 
@@ -1299,28 +1299,13 @@ namespace Breeze.Sharp {
 
     // also raises Entitychanged with an Action of PropertyChanged.
     // internal because may be called from ComplexAspect
-    internal void OnPropertyChanged(PropertyChangedEventArgs pcArgs)
-    {
+    internal void OnPropertyChanged(PropertyChangedEventArgs pcArgs) {
       if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
       pcArgs = pcArgs ?? AllPropertiesChangedEventArgs;
-      QueueEvent(() =>
-      {
+      QueueEvent(() => {
         OnPropertyChangedCore(pcArgs);
         OnEntityChangedCore(EntityAction.PropertyChange, pcArgs);
       });
-    }
-
-    // internal because may be called from ComplexAspect
-    internal bool OnEntityChanging(EntityAction action, EventArgs actionEventArgs = null) {
-      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return true;
-      return EntityManager.OnEntityChanging(this.Entity, action, actionEventArgs);
-    }
-
- 
-
-    internal void OnEntityChanged(EntityAction entityAction, EventArgs args = null) {
-      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
-      QueueEvent(() => OnEntityChangedCore(entityAction, args));
     }
 
     private void OnPropertyChangedCore(PropertyChangedEventArgs args) {
@@ -1332,8 +1317,23 @@ namespace Breeze.Sharp {
         // eat exceptions during load
         if (IsDetached || !this.EntityManager.IsLoadingEntity) throw;
       }
-      
+
     }
+
+    // internal because may be called from ComplexAspect
+    internal bool OnEntityChanging(EntityAction action, EventArgs actionEventArgs = null) {
+      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return true;
+      return EntityManager.OnEntityChanging(this.Entity, action, actionEventArgs);
+    }
+
+
+
+    internal void OnEntityChanged(EntityAction entityAction, EventArgs args = null) {
+      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
+      QueueEvent(() => OnEntityChangedCore(entityAction, args));
+    }
+
+
 
     private void OnEntityChangedCore(EntityAction entityAction, EventArgs actionEventArgs) {
       // change actions will fire property change inside of OnPropertyChanged 
@@ -1443,7 +1443,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    
+
     internal void OnErrorsChanged(ValidationError validationError) {
       OnErrorsChanged(validationError.Context.PropertyPath);
     }
@@ -1453,7 +1453,7 @@ namespace Breeze.Sharp {
       // _inErrorsChanged is needed because some environments try to reinvoke validation every time in the ErrorsChanged event fires.
       if (_inErrorsChanged) return;
       _inErrorsChanged = true;
-      
+
       try {
         var handler = _errorsChangedHandler;
         if (handler != null) {
@@ -1464,7 +1464,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    
+
 
     private bool _inErrorsChanged = false;
 
@@ -1531,7 +1531,7 @@ namespace Breeze.Sharp {
     private EntityType _entityType;
     private EntityGroup _entityGroup;
     private EntityState _entityState = EntityState.Detached;
-    private ValidationErrorCollection _validationErrors; 
+    private ValidationErrorCollection _validationErrors;
     // should only ever be set to either current or proposed ( never original)
     private EntityVersion _entityVersion = EntityVersion.Current;
 

@@ -31,9 +31,14 @@ namespace Breeze.Sharp {
       try {
         var saveResultJson =
           await saveOptions.DataService.PostAsync(saveOptions.ResourceName, saveBundleNode.Serialize());
-        return ProcessSaveResult(entityManager, saveOptions, saveResultJson);
+        var jn = JNode.DeserializeFrom(saveResultJson);
+        if (jn.HasValues("Errors") || jn.HasValues("errors")) {
+          throw new SaveException(entityManager, jn);
+        }
+        return ProcessSaveResult(entityManager, saveOptions, jn);
       } catch (DataServiceRequestException dsre) {
-        throw SaveException.Parse(entityManager, dsre.ResponseContent);
+        var jn = JNode.DeserializeFrom(dsre.ResponseContent);
+        throw new SaveException(entityManager, jn);
       } catch (HttpRequestException e) {
         throw new SaveException(e.Message, e);
       }
@@ -123,12 +128,9 @@ namespace Breeze.Sharp {
 
     #region Save results processing
 
-    private SaveResult ProcessSaveResult(EntityManager entityManager, SaveOptions saveOptions, string saveResultJson) {
+    private SaveResult ProcessSaveResult(EntityManager entityManager, SaveOptions saveOptions, JNode jNode) {
 
-      var jo = JObject.Parse(saveResultJson);
-
-      var jn = new JNode(jo);
-      var kms = jn.GetArray<KeyMapping>("KeyMappings");
+      var kms = jNode.GetArray<KeyMapping>("KeyMappings");
       var keyMappings = kms.Select(km => ToEntityKeys(km, entityManager.MetadataStore)).ToDictionary(tpl => tpl.Item1, tpl => tpl.Item2);
       using (entityManager.NewIsLoadingBlock(false)) {
         keyMappings.ForEach(km => {
@@ -136,9 +138,8 @@ namespace Breeze.Sharp {
           targetEntity.EntityAspect.SetDpValue(km.Key.EntityType.KeyProperties[0], km.Value.Values[0]);
         });
 
-        var prop = jo.Property("Entities");
-        if (prop == null) return null;
-        var entityNodes = (JArray)prop.Value;
+        var entityNodes = jNode.GetToken<JArray>("Entities");
+
         var serializer = new JsonSerializer();
         var mappingContext = new MappingContext() {
           EntityManager = entityManager,

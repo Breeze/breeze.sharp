@@ -65,6 +65,11 @@ namespace Breeze.Sharp {
       set;
     }
 
+    public bool HasValues(String propName) {
+      var jt = _jo[propName];
+      return jt != null && jt.HasValues;
+    }
+
     #region Add Methods
 
     public void AddPrimitive(String propName, Object value, Object defaultValue = null) {
@@ -81,8 +86,6 @@ namespace Breeze.Sharp {
       if (value == null) return;
       AddRaw(propName, new JValue(value.ToString()));
     }
-
-
 
     public void AddJNode(String propName, IJsonSerializable item) {
       if (item == null) return;
@@ -110,7 +113,6 @@ namespace Breeze.Sharp {
       
       AddRaw(propName, jn._jo);
     }
-
 
 
     public void AddJNode(String propName, JNode jn) {
@@ -178,7 +180,18 @@ namespace Breeze.Sharp {
         });
       }
     }
-  
+
+    public IEnumerable<T> GetArray<T>(params String[] propNames) {
+      var items = propNames.Select(pn => GetToken<JArray>(pn)).FirstOrDefault(jt => jt != null);
+      if (items == null) {
+        return Enumerable.Empty<T>();
+      }
+      else {
+        return items.Select(item => {
+          return item.ToObject<T>();
+        });
+      }
+    }
 
     public IEnumerable<Object> GetArray(String propName, IEnumerable<Type> toTypes) {
       var items = GetToken<JArray>(propName);

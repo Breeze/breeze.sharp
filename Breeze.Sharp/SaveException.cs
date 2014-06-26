@@ -10,26 +10,33 @@ namespace Breeze.Sharp {
   /// SaveExceptions are thrown whenever an <see cref="EntityManager.SaveChanges(SaveOptions)"/> call fails for any reason.
   /// </summary>
   public class SaveException : Exception {
-    public static SaveException Parse(EntityManager em, String json) {
-      var jn = JNode.DeserializeFrom(json);
-      var message = jn.Get<String>("ExceptionMessage");
-      var entityErrors = jn.GetArray<EntityError>("EntityErrors");
-      var saveErrors = entityErrors.Select(ee => ee.Resolve(em));
-      return new SaveException(message ?? "see EntityErrors property", saveErrors);
-    }
 
-    public SaveException(String message, IEnumerable<EntityError> entityErrors) : base(message) {
+    public SaveException(EntityManager em, String json) : 
+      this(em, JNode.DeserializeFrom(json)) {
+    }
+    
+    internal SaveException(EntityManager em, JNode jn) 
+      : base() {
+      _message = jn.Get<String>("ExceptionMessage") ?? "see EntityErrors";
+      var entityErrors = jn.GetArray<EntityError>("Errors", "errors", "EntityErrors", "entityErrors");
+      entityErrors = entityErrors.Select(ee => ee.Resolve(em));
       _entityErrors = new SafeList<EntityError>(entityErrors);
       IsServerError = true;
     }
 
+
     public SaveException(String message, Exception innerException) : base(message, innerException) {
-      
+      _message = message;
     }
 
-    public SaveException(IEnumerable<ValidationError> validationErrors) : base("ValidationErrors encountered - see the ValidationErrors property") {
+    public SaveException(IEnumerable<ValidationError> validationErrors) : base() {
+      _message = "ValidationErrors encountered - see the ValidationErrors property";
       _validationErrors = validationErrors;
       IsServerError = false;
+    }
+
+    public override string Message {
+	    get { return _message; }
     }
 
     public ReadOnlyCollection<EntityError> EntityErrors {
@@ -42,6 +49,7 @@ namespace Breeze.Sharp {
 
     public bool IsServerError { get; private set; }
 
+    private string _message;
     private SafeList<EntityError> _entityErrors;
     private IEnumerable<ValidationError> _validationErrors;
   }
