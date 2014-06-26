@@ -10,7 +10,7 @@ namespace Breeze.Sharp {
   #region EntityChange base classes
 
   /// <summary>
-  /// Base class for all Entity/EntityProperty Changing/Changed event args.
+  /// Base class for all Entity Changing/Changed event args.
   /// </summary>
   public abstract class EntityChangeEventArgs : EventArgs {
 
@@ -60,19 +60,28 @@ namespace Breeze.Sharp {
 
   }
 
+  
   /// <summary>
-  ///  Base class for all Entity/EntityProperty Changing EventArgs.
+  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event.
   /// </summary>
-  public abstract class EntityChangeCancelEventArgs : EntityChangeEventArgs {
+  /// <remarks>
+  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event fires whenever an action
+  /// is about to take place on an entity.
+  /// You can set the <see cref="P:Breeze.Sharp.EntityChangingEventArgs.Cancel"/> property to true in your handler to stop further 
+  /// processing of the change.  See the <see cref="EntityAction"/> for the action to
+  /// be performed.
+  /// </remarks>
+  public class EntityChangingEventArgs : EntityChangeEventArgs {
 
     /// <summary>
-    /// 
+    /// Ctor.
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="action"></param>
     /// <param name="actionEventArgs"></param>
-    protected EntityChangeCancelEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
+    public EntityChangingEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
       : base(entity, action, actionEventArgs) {
+      Cancel = false;
     }
 
     /// <summary>
@@ -81,6 +90,31 @@ namespace Breeze.Sharp {
     /// <value>True if the event should be canceled; otherwise, False.</value>
     public bool Cancel { get; set; }
 
+
+  }
+  
+
+  /// <summary>
+  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event.
+  /// </summary>
+  /// <remarks>
+  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event fires whenever an action
+  /// has taken place on an entity. See the <see cref="EntityAction"/> for the action performed.
+  /// </remarks>
+  public class EntityChangedEventArgs : EntityChangeEventArgs {
+
+    /// <summary>
+    /// Ctor.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="action"></param>
+    /// <param name="actionEventArgs"></param>
+    public EntityChangedEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
+      : base(entity, action, actionEventArgs ) {
+      
+    }
+
+    
   }
 
   #endregion
@@ -120,7 +154,7 @@ namespace Breeze.Sharp {
   //  /// <param name="nestedProposedValue"></param>
   //  public EntityPropertyChangingEventArgs(IEntity entity, StructuralProperty property, IComplexObject proposedValue, StructuralProperty nestedProperty, object nestedProposedValue)
   //    : base(entity) {
-      
+
   //    Property = property;
   //    ProposedValue = proposedValue;
   //    NestedProperty = nestedProperty;
@@ -176,7 +210,7 @@ namespace Breeze.Sharp {
 
   //   public EntityPropertyChangedEventArgs(IEntity entity, StructuralProperty property, IComplexObject newValue, StructuralProperty nestedProperty, object nestedNewValue)
   //    : base(entity) {
-      
+
   //    Property = property;
   //    NewValue = newValue;
   //    NestedProperty = nestedProperty;
@@ -207,57 +241,4 @@ namespace Breeze.Sharp {
 
   //}
   //#endregion
-
-  #region EntityChangingEventArgs
-  /// <summary>
-  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event.
-  /// </summary>
-  /// <remarks>
-  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event fires whenever an action
-  /// is about to take place on an entity.
-  /// You can set the <see cref="P:Breeze.Sharp.EntityChangingEventArgs.Cancel"/> property to true in your handler to stop further 
-  /// processing of the change.  See the <see cref="EntityAction"/> for the action to
-  /// be performed.
-  /// </remarks>
-  public class EntityChangingEventArgs : EntityChangeCancelEventArgs {
-
-    /// <summary>
-    /// Ctor.
-    /// </summary>
-    /// <param name="entityAspect"></param>
-    /// <param name="action"></param>
-    public EntityChangingEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
-      : base(entity, action, actionEventArgs) {
-      Cancel = false;
-    }
-
-    public EntityAction Action { get; private set; }
-
-  }
-  #endregion
-
-  #region EntityChangedEventArgs
-  /// <summary>
-  /// Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event.
-  /// </summary>
-  /// <remarks>
-  /// The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event fires whenever an action
-  /// has taken place on an entity. See the <see cref="EntityAction"/> for the action performed.
-  /// </remarks>
-  public class EntityChangedEventArgs : EntityChangeEventArgs {
-
-    /// <summary>
-    /// Ctor.
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="action"></param>
-    public EntityChangedEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
-      : base(entity, action, actionEventArgs ) {
-      
-      
-    }
-
-    
-  }
-  #endregion
 }

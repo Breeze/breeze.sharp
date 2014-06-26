@@ -298,11 +298,12 @@ namespace Breeze.Sharp {
       var oldValue = GetValue(property);
       if (Object.Equals(oldValue, newValue)) return;
 
-      if (!EntityAspect.OnEntityChanging(EntityAction.PropertyChange)) return;
+      var pcArgs = new PropertyChangedEventArgs(this.ParentEntityProperty.Name);
+      if (!EntityAspect.OnEntityChanging(EntityAction.PropertyChange, pcArgs)) return;
 
       action(property, newValue, oldValue);
 
-      EntityAspect.OnPropertyChanged(this.ParentEntityProperty);
+      EntityAspect.OnPropertyChanged(pcArgs);
 
       if (this.IsAttached) {
         if (!EntityManager.IsLoadingEntity) {

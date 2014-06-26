@@ -555,12 +555,12 @@ namespace Breeze.Sharp {
 
       var oldValue = GetValue(property);
       if (Object.Equals(oldValue, newValue)) return;
-
-      if (!OnEntityChanging(EntityAction.PropertyChange)) return;
+      var pcArgs = new PropertyChangedEventArgs(property.Name);
+      if (!OnEntityChanging(EntityAction.PropertyChange, pcArgs)) return;
 
       action(property, newValue, oldValue);
 
-      OnPropertyChanged(property);
+      OnPropertyChanged(pcArgs);
 
       if (this.IsAttached) {
         if (!EntityManager.IsLoadingEntity) {
@@ -1294,52 +1294,51 @@ namespace Breeze.Sharp {
     /// </para>
     /// </remarks>
     public void ForceEntityPropertyChanged(PropertyChangedEventArgs args) {
-      var propName = (args == null) ? null : args.PropertyName;
-      OnPropertyChanged(propName);
-    }
-
-    // internal because may be called from ComplexAspect
-    internal bool OnEntityChanging(EntityAction action) {
-      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return true;
-      return EntityManager.OnEntityChanging(this.Entity, action);
+      OnPropertyChanged(args);
     }
 
     // also raises Entitychanged with an Action of PropertyChanged.
     // internal because may be called from ComplexAspect
-    internal void OnPropertyChanged(StructuralProperty property) {
-      OnPropertyChanged(property.Name);
-    }
-
-    private void OnPropertyChanged(String propertyName) {
+    internal void OnPropertyChanged(PropertyChangedEventArgs pcArgs)
+    {
       if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
-      QueueEvent(() => {
-        var pcArgs = OnPropertyChangedCore(propertyName);
+      pcArgs = pcArgs ?? AllPropertiesChangedEventArgs;
+      QueueEvent(() =>
+      {
+        OnPropertyChangedCore(pcArgs);
         OnEntityChangedCore(EntityAction.PropertyChange, pcArgs);
       });
     }
 
-    internal void OnEntityChanged(EntityAction entityAction, EventArgs args = null) {
-      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
-      QueueEvent(() => OnEntityChangedCore(entityAction, args ?? EventArgs.Empty));
+    // internal because may be called from ComplexAspect
+    internal bool OnEntityChanging(EntityAction action, EventArgs actionEventArgs = null) {
+      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return true;
+      return EntityManager.OnEntityChanging(this.Entity, action, actionEventArgs);
     }
 
-    private PropertyChangedEventArgs OnPropertyChangedCore(String propertyName) {
+ 
+
+    internal void OnEntityChanged(EntityAction entityAction, EventArgs args = null) {
+      if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
+      QueueEvent(() => OnEntityChangedCore(entityAction, args));
+    }
+
+    private void OnPropertyChangedCore(PropertyChangedEventArgs args) {
       var handler = EntityPropertyChanged;
-      var args = new PropertyChangedEventArgs(propertyName ?? NullPropertyName);
-      if (handler == null) return args;
+      if (handler == null) return;
       try {
         handler(this.Entity, args);
       } catch {
         // eat exceptions during load
         if (IsDetached || !this.EntityManager.IsLoadingEntity) throw;
       }
-      return args;
+      
     }
 
     private void OnEntityChangedCore(EntityAction entityAction, EventArgs actionEventArgs) {
       // change actions will fire property change inside of OnPropertyChanged 
       if (entityAction != EntityAction.PropertyChange && entityAction != EntityAction.EntityStateChange) {
-        OnPropertyChanged((String) null);
+        OnPropertyChanged(AllPropertiesChangedEventArgs);
       }
       EntityManager.OnEntityChanged(this.Entity, entityAction, actionEventArgs);
     }
@@ -1364,11 +1363,6 @@ namespace Breeze.Sharp {
       }
     }
 
-#if NET
-    private static readonly String NullPropertyName = null;
-#else
-    private static readonly String NullPropertyName = String.Empty;
-#endif
 
     //private void TryToHandle<T>(EventHandler<T> handler, T args) where T : EventArgs {
     //  if (handler == null) return;
@@ -1449,10 +1443,7 @@ namespace Breeze.Sharp {
       }
     }
 
-    /// <summary>
-    /// Raises the ErrorsChanged event.
-    /// </summary>
-    /// <param name="propertyName"></param>
+    
     internal void OnErrorsChanged(ValidationError validationError) {
       OnErrorsChanged(validationError.Context.PropertyPath);
     }
@@ -1526,14 +1517,15 @@ namespace Breeze.Sharp {
     // DataForm blows unless we use String.Empty - see B1112 - we're keeping 
     // old non-SL behavior because this change was made at last minute and couldn't
     // be adequately tested.
-#if NET
-    private static readonly PropertyChangedEventArgs AllPropertiesChangedEventArgs
-      = new PropertyChangedEventArgs(null);
-#else
-    private static readonly PropertyChangedEventArgs AllPropertiesChangedEventArgs
-      = new PropertyChangedEventArgs(String.Empty);
 
+#if NET
+    private static readonly String NullPropertyName = null;
+#else
+    private static readonly String NullPropertyName = String.Empty;
 #endif
+
+    private static readonly PropertyChangedEventArgs AllPropertiesChangedEventArgs
+      = new PropertyChangedEventArgs(NullPropertyName);
 
     private EntityKey _entityKey;
     private EntityType _entityType;
