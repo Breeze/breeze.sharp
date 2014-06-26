@@ -1313,34 +1313,35 @@ namespace Breeze.Sharp {
     private void OnPropertyChanged(String propertyName) {
       if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
       QueueEvent(() => {
-        OnPropertyChangedCore(propertyName);
-        OnEntityChangedCore(EntityAction.PropertyChange);
+        var pcArgs = OnPropertyChangedCore(propertyName);
+        OnEntityChangedCore(EntityAction.PropertyChange, pcArgs);
       });
     }
 
-    internal void OnEntityChanged(EntityAction entityAction) {
+    internal void OnEntityChanged(EntityAction entityAction, EventArgs args = null) {
       if (IsDetached || !EntityGroup.ChangeNotificationEnabled) return;
-      QueueEvent(() => OnEntityChangedCore(entityAction));
+      QueueEvent(() => OnEntityChangedCore(entityAction, args ?? EventArgs.Empty));
     }
 
-    private void OnPropertyChangedCore(String propertyName) {
+    private PropertyChangedEventArgs OnPropertyChangedCore(String propertyName) {
       var handler = EntityPropertyChanged;
-      if (handler == null) return;
       var args = new PropertyChangedEventArgs(propertyName ?? NullPropertyName);
+      if (handler == null) return args;
       try {
         handler(this.Entity, args);
       } catch {
         // eat exceptions during load
         if (IsDetached || !this.EntityManager.IsLoadingEntity) throw;
       }
+      return args;
     }
 
-    private void OnEntityChangedCore(EntityAction entityAction) {
+    private void OnEntityChangedCore(EntityAction entityAction, EventArgs actionEventArgs) {
       // change actions will fire property change inside of OnPropertyChanged 
       if (entityAction != EntityAction.PropertyChange && entityAction != EntityAction.EntityStateChange) {
         OnPropertyChanged((String) null);
       }
-      EntityManager.OnEntityChanged(this.Entity, entityAction);
+      EntityManager.OnEntityChanged(this.Entity, entityAction, actionEventArgs);
     }
 
     private void OnEntityAspectPropertyChanged(String propertyName) {

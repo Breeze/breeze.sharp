@@ -17,10 +17,14 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Create an instance of this class.
     /// </summary>
-    /// <param name="entityAspect"></param>
-    protected EntityChangeEventArgs(IEntity entity)
+    /// <param name="entity"></param>
+    /// <param name="entityAction"></param>
+    /// <param name="actionEventArgs"></param>
+    protected EntityChangeEventArgs(IEntity entity, EntityAction entityAction, EventArgs actionEventArgs = null) 
       : base() {
       Entity = entity;
+      Action = entityAction;
+      ActionEventArgs = actionEventArgs ?? EventArgs.Empty;
     }
 
     /// <summary>
@@ -38,6 +42,22 @@ namespace Breeze.Sharp {
       private set;
     }
 
+    /// <summary>
+    /// Action that caused this change.
+    /// </summary>
+    public EntityAction Action {
+      get; 
+      private set;
+    }
+
+    /// <summary>
+    /// The EventArgs ( if any) that are associated with this specified EntityAction.
+    /// </summary>
+    public EventArgs ActionEventArgs {
+      get; 
+      private set;
+    }
+
   }
 
   /// <summary>
@@ -48,9 +68,11 @@ namespace Breeze.Sharp {
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="entityAspect"></param>
-    protected EntityChangeCancelEventArgs(IEntity entity)
-      : base(entity) {
+    /// <param name="entity"></param>
+    /// <param name="action"></param>
+    /// <param name="actionEventArgs"></param>
+    protected EntityChangeCancelEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
+      : base(entity, action, actionEventArgs) {
     }
 
     /// <summary>
@@ -204,15 +226,11 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityAspect"></param>
     /// <param name="action"></param>
-    public EntityChangingEventArgs(IEntity entity, EntityAction action)
-      : base(entity) {
-      Action = action;
+    public EntityChangingEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
+      : base(entity, action, actionEventArgs) {
       Cancel = false;
     }
 
-    /// <summary>
-    /// Action that caused this change.
-    /// </summary>
     public EntityAction Action { get; private set; }
 
   }
@@ -231,18 +249,15 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Ctor.
     /// </summary>
-    /// <param name="entityAspect"></param>
+    /// <param name="entity"></param>
     /// <param name="action"></param>
-    public EntityChangedEventArgs(IEntity entity, EntityAction action)
-      : base(entity) {
-      Action = action;
+    public EntityChangedEventArgs(IEntity entity, EntityAction action, EventArgs actionEventArgs)
+      : base(entity, action, actionEventArgs ) {
+      
+      
     }
 
-    /// <summary>
-    /// Action that caused this change.
-    /// </summary>
-    public EntityAction Action { get; private set; }
-
+    
   }
   #endregion
 }

@@ -636,7 +636,12 @@ namespace Breeze.Sharp.Tests {
 
       supp0.CompanyName = "xxx";
       var lastEc = entityChangedList.Last();
+      var ecPcArg = entityChangedList.FirstOrDefault(ecArg => ecArg.Action == EntityAction.PropertyChange);
+      Assert.IsTrue(ecPcArg != null, "should find a propertyChange event");
+      var pcArgs = ecPcArg.ActionEventArgs as PropertyChangedEventArgs;
+      Assert.IsTrue(pcArgs.PropertyName == "CompanyName", "ActionEventArgs should be set");
       Assert.IsTrue(lastEc.EntityAspect == supp0.EntityAspect, "ec should have been fired");
+      
       Assert.IsTrue(entityChangedList[0].Action == EntityAction.PropertyChange && entityChangedList[0].Entity == supp0);
       Assert.IsTrue(entityChangedList[1].Action == EntityAction.EntityStateChange && entityChangedList[1].Entity == supp0);
       

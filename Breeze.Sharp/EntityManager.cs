@@ -383,10 +383,10 @@ namespace Breeze.Sharp {
     public event EventHandler<EntityManagerHasChangesChangedEventArgs> HasChangesChanged;
 
 
-    internal bool OnEntityChanging(IEntity entity, EntityAction action) {
+    internal bool OnEntityChanging(IEntity entity, EntityAction action, EventArgs actionEventArgs = null) {
       EventHandler<EntityChangingEventArgs> handler = EntityChanging;
       if (handler != null) {
-        var args = new EntityChangingEventArgs(entity, action);
+        var args = new EntityChangingEventArgs(entity, action, actionEventArgs);
         try {
           handler(this, args);
           return !args.Cancel;
@@ -398,10 +398,10 @@ namespace Breeze.Sharp {
       return true;
     }
 
-    internal void OnEntityChanged(IEntity entity, EntityAction entityAction) {
+    internal void OnEntityChanged(IEntity entity, EntityAction entityAction, EventArgs actionEventArgs = null) {
       EventHandler<EntityChangedEventArgs> handler = EntityChanged;
       if (handler != null) {
-        var args = new EntityChangedEventArgs(entity, entityAction);
+        var args = new EntityChangedEventArgs(entity, entityAction, actionEventArgs);
         try {
           handler(this, args);
         } catch {
