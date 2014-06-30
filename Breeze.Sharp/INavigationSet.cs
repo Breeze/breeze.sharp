@@ -59,6 +59,9 @@ namespace Breeze.Sharp {
   /// <typeparam name="T"></typeparam>
   public class NavigationSet<T> : NotifiableCollection<T>, INavigationSet where T:IEntity {
 
+    /// <summary>
+    /// Ctor.
+    /// </summary>
     public NavigationSet() {
     }   
 

@@ -57,16 +57,34 @@ namespace Breeze.Sharp {
       internal protected set;
     }
 
+    /// <summary>
+    /// Performs validation given a specified context.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
     public virtual ValidationError Validate(ValidationContext context) {
       return (ValidateCore(context)) ? null : new ValidationError(this, context);
     }
 
+    /// <summary>
+    /// Provides the core validation logic to this validator. 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns>true for success or false for failure</returns>
     protected abstract bool ValidateCore(ValidationContext context);
 
-
+    /// <summary>
+    /// Provides the error message associated with a failure of this validator.
+    /// </summary>
+    /// <param name="validationContext"></param>
+    /// <returns></returns>
     public abstract String GetErrorMessage(ValidationContext validationContext);
 
-
+    /// <summary>
+    /// For internal use only - used during validator deserialization.
+    /// </summary>
+    /// <param name="jNode"></param>
+    /// <returns></returns>
     public static Validator FindOrCreate(JNode jNode) {
       return Configuration.Instance.FindOrCreateValidator(jNode);
     }
