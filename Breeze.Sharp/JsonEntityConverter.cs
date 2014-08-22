@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 
 using Breeze.Sharp.Core;
+using System.Xml;
 
 namespace Breeze.Sharp {
 
@@ -62,7 +63,27 @@ namespace Breeze.Sharp {
     // Attach - not yet needed
   }
 
-  
+  public class TimeSpanConverter : JsonConverter {
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+      var ts = (TimeSpan) value;
+      var tsString = XmlConvert.ToString(ts);
+      serializer.Serialize(writer, tsString);
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+      if (reader.TokenType == JsonToken.Null) {
+        return null;
+      }
+
+      var value = serializer.Deserialize<String>(reader);
+      return XmlConvert.ToTimeSpan(value);
+    }
+
+    public override bool CanConvert(Type objectType) {
+      return objectType == typeof (TimeSpan) || objectType == typeof (TimeSpan?);
+    }
+  }
+
   /// <summary>
   /// For internal use only.
   /// </summary>
@@ -71,8 +92,9 @@ namespace Breeze.Sharp {
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
     public JsonEntityConverter(MappingContext mappingContext) {
       _mappingContext = mappingContext;
-      _enumSerializer = new JsonSerializer();
-      _enumSerializer.Converters.Add(new StringEnumConverter());
+      _customSerializer = new JsonSerializer();
+      _customSerializer.Converters.Add(new StringEnumConverter());
+      _customSerializer.Converters.Add(new TimeSpanConverter());
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
@@ -199,8 +221,8 @@ namespace Breeze.Sharp {
                 if (val.Type == JTokenType.Null && dp.ClrType != typeof(String) && !TypeFns.IsNullableType(dp.ClrType)) {
                   // this can only happen if the client is nonnullable but the server is nullable.
                   backingStore[key] = dp.DefaultValue;
-                } else if (dp.IsEnumType) {
-                  backingStore[key] = val.ToObject(dp.ClrType, _enumSerializer);
+                } else if (dp.IsEnumType || (dp.DataType.ClrType == typeof (TimeSpan))) {
+                  backingStore[key] = val.ToObject(dp.ClrType, _customSerializer);
                 } else {
                   backingStore[key] = val.ToObject(dp.ClrType);
                 }
@@ -256,7 +278,7 @@ namespace Breeze.Sharp {
   
 
     private MappingContext _mappingContext;
-    private JsonSerializer _enumSerializer;
+    private JsonSerializer _customSerializer;
   }
 
   

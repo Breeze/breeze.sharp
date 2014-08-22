@@ -28,6 +28,17 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task WhereTypeWithTimeSpan() {
+      var em = await TestFns.NewEm(_serviceName);
+      
+      var q1 = EntityQuery.From<TimeLimit>();
+      var tls = await em.ExecuteQuery(q1);
+      Assert.IsTrue(tls.Any());
+      Assert.IsTrue(tls.All(tl => tl.MaxTime.Ticks >= 0)) ;
+
+    }
+
+    [TestMethod]
     public async Task WhereTypeWithEnum() {
       var em = await TestFns.NewEm(_serviceName);
       var q1 = EntityQuery.From<Role>();
