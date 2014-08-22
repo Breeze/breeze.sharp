@@ -61,7 +61,7 @@ namespace Breeze.Sharp {
     public static DataType String = new DataType(typeof(String)) {
       DefaultValue = "",
       FmtOData = FmtString,
-      GetNextTempValue = null
+      GetNextTempValue = GetNextString
     };
 
     public static DataType Int64 = new NumericDataType(typeof(Int64), "L", true);
