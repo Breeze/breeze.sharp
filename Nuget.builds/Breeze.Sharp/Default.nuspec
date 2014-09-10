@@ -17,16 +17,16 @@
         <releaseNotes>Please review the BreezeSharp release notes at http://www.breezejs.com/documentation/download</releaseNotes>        
         <tags>javascript WebApi Breeze SPA</tags>
 		<dependencies>
-        <dependency id="Newtonsoft.Json" version="6.0.2" />
+        <dependency id="Newtonsoft.Json" version="6.0.4" />
 		</dependencies>
     </metadata>
     <files>
-        <file src="lib\portable-net45+wp80+win\*.pdb" target="lib\portable-net45+wp80+win\" />
-        <file src="lib\portable-net45+wp80+win\Breeze.Sharp.dll" target="lib\portable-net45+wp80+win" />       
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Edm.Portable.dll" target="lib\portable-net45+wp80+win\" />
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.OData.Portable.dll" target="lib\portable-net45+wp80+win\" />
-        <file src="lib\portable-net45+wp80+win\Microsoft.Data.Services.Client.Portable.dll" target="lib\portable-net45+wp80+win\" />
-        <file src="lib\portable-net45+wp80+win\System.Spatial.Portable.dll" target="lib\portable-net45+wp80+win\" /> 
+        <file src="lib\portable-net45+win+wpa81+wp80\*.pdb" target="lib\portable-net45+win+wpa81+wp80\" />
+        <file src="lib\portable-net45+win+wpa81+wp80\Breeze.Sharp.dll" target="lib\portable-net45+win+wpa81+wp80" />       
+        <file src="lib\portable-net45+win+wpa81+wp80\Microsoft.Data.Edm.dll" target="lib\portable-net45+win+wpa81+wp80\" />
+        <file src="lib\portable-net45+win+wpa81+wp80\Microsoft.Data.OData.dll" target="lib\portable-net45+win+wpa81+wp80\" />
+        <file src="lib\portable-net45+win+wpa81+wp80\Microsoft.Data.Services.Client.dll" target="lib\portable-net45+win+wpa81+wp80\" />
+        <file src="lib\portable-net45+win+wpa81+wp80\System.Spatial.dll" target="lib\portable-net45+win+wpa81+wp80\" /> 
         <file src="readme.txt" target="readme.txt" />
     </files>       
         
