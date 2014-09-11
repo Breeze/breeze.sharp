@@ -1,6 +1,5 @@
 ﻿
 using System.Linq;
-using System.ServiceModel.Channels;
 using System.Threading;
 using Breeze.Sharp.Core;
 using System;
