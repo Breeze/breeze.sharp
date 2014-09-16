@@ -10,6 +10,7 @@ using System.Data.Services.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Breeze.Sharp {
 
@@ -79,9 +80,26 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityManager"></param>
     /// <returns></returns>
-    public new Task<IEnumerable<T>> Execute(EntityManager entityManager = null) {
+    public new async Task<IEnumerable<T>> Execute(EntityManager entityManager = null)
+    {
+        return await Execute(CancellationToken.None, entityManager);
+    }
+
+    /// <summary>
+    /// Executes this query, against an optionally specified EntityManager. If no EntityManager
+    /// is specified then the query is run on the EntityManager specified by the EntityManager 
+    /// property on this instance. ( <see cref="EntityQueryExtensions.With{TQuery}(TQuery, EntityManager)"/> )
+    /// If this value is null an exception will be thrown.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
+    public new Task<IEnumerable<T>> Execute(CancellationToken cancellationToken, EntityManager entityManager = null) {
       entityManager = CheckEm(entityManager);
-      return entityManager.ExecuteQuery<T>(this);
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      return entityManager.ExecuteQuery<T>(this, cancellationToken);
     }
 
     /// <summary>
@@ -397,9 +415,26 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityManager"></param>
     /// <returns></returns>
-    public Task<IEnumerable> Execute(EntityManager entityManager = null) {
+    public async Task<IEnumerable> Execute(EntityManager entityManager = null)
+    {
+        return await Execute(CancellationToken.None, entityManager);
+    }
+
+    /// <summary>
+    /// Executes this query against a remote service. 
+    /// This method requires that an EntityManager has been previously specified via the 
+    /// <see cref="EntityQueryExtensions.With(EntityManager)"/> method.
+    /// <see cref="Breeze.Sharp.EntityManager.ExecuteQuery{T}(EntityQuery{T})"/>
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="entityManager"></param>
+    /// <returns></returns>
+    public Task<IEnumerable> Execute(CancellationToken cancellationToken, EntityManager entityManager = null) {
       entityManager = CheckEm(entityManager);
-      return entityManager.ExecuteQuery(this);
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      return entityManager.ExecuteQuery(this, cancellationToken);
     }
 
     /// <summary>

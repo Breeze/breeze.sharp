@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
@@ -127,9 +128,12 @@ namespace Breeze.Sharp {
     // Only available for server retrieved metadata
     public String ServerMetadata { get; internal set; }
 
-    public async Task<String> GetAsync(String resourcePath) {
+    public async Task<String> GetAsync(String resourcePath, CancellationToken cancellationToken) {
       try {
-        var response = await _httpClient.GetAsync(resourcePath);
+        var response = await _httpClient.GetAsync(resourcePath, cancellationToken);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
         return await ReadResult(response);
       } catch (Exception e) {
         Debug.WriteLine(e);

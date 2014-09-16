@@ -192,12 +192,23 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="dataService"></param>
     /// <returns></returns>
-    public async Task<DataService> FetchMetadata(DataService dataService = null) {
+    public async Task<DataService> FetchMetadata(DataService dataService = null)
+    {
+        return await FetchMetadata(CancellationToken.None, dataService);
+    }
+    /// <summary>
+    /// Fetches the metadata associated with the EntityManager's current 'serviceName'. 
+    /// This call also occurs internally before the first query to any service if the metadata hasn't already been loaded.
+    /// </summary>
+    /// <param name="dataService"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<DataService> FetchMetadata(CancellationToken cancellationToken, DataService dataService = null) {
       dataService = dataService != null ? dataService : this.DataService;
       if (!dataService.HasServerMetadata) {
         throw new Exception("This DataService does not provide metadata: " + dataService.ServiceName);
       }
-      return await MetadataStore.FetchMetadata(dataService);
+      return await MetadataStore.FetchMetadata(dataService, cancellationToken);
     }
 
     /// <summary>
@@ -206,8 +217,21 @@ namespace Breeze.Sharp {
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query) {
-      var result = await ExecuteQuery((EntityQuery) query);
+    public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query)
+    {
+        var result = await ExecuteQuery((EntityQuery)query, CancellationToken.None);
+        return (IEnumerable<T>)result;
+    }
+
+    /// <summary>
+    /// Performs an asynchronous query and that returns a typed result.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query, CancellationToken cancellationToken) {
+      var result = await ExecuteQuery((EntityQuery) query, cancellationToken);
       return (IEnumerable<T>)result;
     }
 
@@ -216,7 +240,21 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
-    public async Task<IEnumerable> ExecuteQuery(EntityQuery query) {
+    public async Task<IEnumerable> ExecuteQuery(EntityQuery query)
+    {
+        return await ExecuteQuery(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Performs an asynchronous query and that returns an untyped result.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable> ExecuteQuery(EntityQuery query, CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
       if (query.ElementType == null) {
         throw new Exception("Cannot execute a query with a null TargetType");
       }
@@ -236,7 +274,9 @@ namespace Breeze.Sharp {
       // HACK
       resourcePath = resourcePath.Replace("/*", "");
       
-      var result = await dataService.GetAsync(resourcePath);
+      var result = await dataService.GetAsync(resourcePath, cancellationToken);
+
+      cancellationToken.ThrowIfCancellationRequested();
       
       CheckAuthorizedThreadId();
       var mergeStrategy = query.QueryOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy;
@@ -342,13 +382,28 @@ namespace Breeze.Sharp {
     /// <param name="entityKey"></param>
     /// <param name="checkLocalCacheFirst"></param>
     /// <returns></returns>
-    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false) {
+    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false)
+    {
+        return await FetchEntityByKey(entityKey, checkLocalCacheFirst);
+    }
+
+    /// <summary>
+    /// Performs an asynchronous query that optionally checks the local cache first.
+    /// </summary>
+    /// <param name="entityKey"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="checkLocalCacheFirst"></param>
+    /// <returns></returns>
+    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, CancellationToken cancellationToken, bool checkLocalCacheFirst = false) {
       IEntity entity;
+
+      cancellationToken.ThrowIfCancellationRequested();
+
       if (checkLocalCacheFirst) {
         entity = GetEntityByKey(entityKey);
         if (entity != null) return new EntityKeyFetchResult(entity, true);
       }
-      var results = await ExecuteQuery(entityKey.ToQuery());
+      var results = await ExecuteQuery(entityKey.ToQuery(), cancellationToken);
       entity = results.Cast<IEntity>().FirstOrDefault();
       return new EntityKeyFetchResult(entity, false);
     }

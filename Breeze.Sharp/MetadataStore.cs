@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
@@ -137,23 +138,43 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="dataService"></param>
     /// <returns></returns>
-    public async Task<DataService> FetchMetadata(DataService dataService) {
+    public async Task<DataService> FetchMetadata(DataService dataService)
+    {
+        return await FetchMetadata(dataService, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Fetches the metadata for a specified 'service'. This method is automatically called 
+    /// internally by an EntityManager before its first query against a new service.
+    /// </summary>
+    /// <param name="dataService"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<DataService> FetchMetadata(DataService dataService, CancellationToken cancellationToken) {
       String serviceName;
-      
+
       serviceName = dataService.ServiceName;
       var ds = GetDataService(serviceName);
       if (ds != null) return dataService;
 
       await _asyncSemaphore.WaitAsync();
+
+      cancellationToken.ThrowIfCancellationRequested();
+
       String metadata;
       try {
         ds = GetDataService(serviceName);
         if (ds != null) return dataService;
 
-        metadata = await dataService.GetAsync("Metadata");
+        metadata = await dataService.GetAsync("Metadata", cancellationToken);
 
-      } catch (Exception e) {
-        throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
+        cancellationToken.ThrowIfCancellationRequested();
+      }
+      catch (Exception e)
+      {
+          if (!(e is TaskCanceledException))
+            throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
+          throw;
       } finally {
         _asyncSemaphore.Release();
       }
