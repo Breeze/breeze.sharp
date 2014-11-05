@@ -1,4 +1,4 @@
-#![Breeze.Sharp](http://www.breezejs.com/sites/all/themes/breeze/images/BreezeSharpLogo.png "Breeze.Sharp")
+#![Breeze.Sharp](http://www.getbreezenow.com/sites/all/images/BreezeSharpB.png "Breeze.Sharp")
 
 ###Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
 
