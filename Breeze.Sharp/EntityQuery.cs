@@ -216,16 +216,37 @@ namespace Breeze.Sharp {
       // TODO: Hack to avoid DataServiceQuery from inferring the entity key
       queryResource = queryResource.Replace("$filter=true%20and%20", "$filter=");
       queryResource = queryResource.Replace("$filter=true", "");
-      queryResource = RewriteEnumFilters(queryResource);
+      // HACK
+      queryResource = RewriteResourcePath(queryResource);
 
       return queryResource;
     }
 
-    private string RewriteEnumFilters(string resourcePath) {
+    private string RewriteResourcePath(String resourcePath) {
       // This whole method is a hack to get around the fact that MS's current server OData implementations
       // do not understand the valid 'cast' operator the DataServiceQuery generates in the url.
       // So as a result we need to translate the cast query into a string query that the current server OData
       // implementation DOES understand. 
+      return RewriteEdmCastOperations(RewriteEnumFilters(resourcePath));
+    }
+
+    private string RewriteEdmCastOperations(String resourcePath) {
+      var pattern = @"(?<prefix>.*)cast\((?<propName>.*),'Edm\..*'\)(?<suffix>.*)";
+      var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
+      if (m.Success) {
+        
+        var result = m.Groups["prefix"].Value
+                   + m.Groups["propName"].Value
+                   + m.Groups["suffix"].Value;
+        // in case there is another cast in the string.
+        return RewriteResourcePath(result);
+      } else {
+        return resourcePath;
+      }
+    }
+
+    private string RewriteEnumFilters(string resourcePath) {
+
       var pattern = @"(?<prefix>.*)cast\((?<enumName>.*),.*\)%20eq%20(?<enumValue>.[^%&]*)(?<suffix>.*)";
       var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
       if (m.Success) {
@@ -240,7 +261,7 @@ namespace Breeze.Sharp {
                    + enumName + "%20eq%20" + enumString 
                    + m.Groups["suffix"].Value;
         // in case there is another cast in the string.
-        return RewriteEnumFilters(result);
+        return RewriteResourcePath(result);
       } else {
         return resourcePath;
       }

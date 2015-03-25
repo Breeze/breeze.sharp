@@ -13,7 +13,7 @@
 must therefore also be either immutable or thread safe itself. (all StructuralTypes are effectively immutable)
 
 - Unit tests are problematic because they do not run with a UI synchronization context which means that async calls within a test can return on 
-a different thread then they started on.  Howver, most unit tests run safely despite this because they don't tend to run multiple threads simulataneously.
+a different thread then they started on.  However, most unit tests run safely despite this because they don't tend to run multiple threads simulataneously.
 An exception to this is any call to Task.WhenAll or Task.WaitAll, use of these methods will require the test code to be wrapped in a UI synch context.
 
 - ComplexType inheritance not yet supported.

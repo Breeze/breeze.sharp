@@ -39,6 +39,16 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task WhereTypeRequiringCast() {
+      var em = await TestFns.NewEm(_serviceName);
+      var q1 = EntityQuery.From<OrderDetail>().Where(od => od.Quantity > 10);
+      var r1 = await em.ExecuteQuery(q1);
+      Assert.IsTrue(r1.Any());
+      Assert.IsTrue(r1.All(r => r.Quantity > 10));
+
+    }
+
+    [TestMethod]
     public async Task WhereTypeWithEnum() {
       var em = await TestFns.NewEm(_serviceName);
       var q1 = EntityQuery.From<Role>();

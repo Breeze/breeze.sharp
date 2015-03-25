@@ -12,6 +12,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Breeze.Sharp.Tests {
 
@@ -113,8 +114,8 @@ namespace Breeze.Sharp.Tests {
       // this is a legacy service that has quoted metadata.
       var serviceName = "http://sampleservice.breezejs.com/api/todos/";
       var ds = new DataService(serviceName);
-          
-      var metadata = await ds.GetAsync("Metadata");
+
+      var metadata = await ds.GetAsync("Metadata", new CancellationToken(false));
 
       var metadata2 = System.Text.RegularExpressions.Regex.Unescape(metadata).Trim('"');
       var jo = (JObject) JsonConvert.DeserializeObject(metadata2);
