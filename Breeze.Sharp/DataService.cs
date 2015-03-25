@@ -128,6 +128,10 @@ namespace Breeze.Sharp {
     // Only available for server retrieved metadata
     public String ServerMetadata { get; internal set; }
 
+    public async Task<String> GetAsync(String resourcePath) {
+      return await GetAsync(resourcePath, CancellationToken.None);
+    }
+
     public async Task<String> GetAsync(String resourcePath, CancellationToken cancellationToken) {
       try {
         var response = await _httpClient.GetAsync(resourcePath, cancellationToken);

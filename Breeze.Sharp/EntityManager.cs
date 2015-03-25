@@ -384,7 +384,7 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false)
     {
-        return await FetchEntityByKey(entityKey, checkLocalCacheFirst);
+        return await FetchEntityByKey(entityKey, CancellationToken.None, checkLocalCacheFirst);
     }
 
     /// <summary>
@@ -396,7 +396,7 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, CancellationToken cancellationToken, bool checkLocalCacheFirst = false) {
       IEntity entity;
-
+      
       cancellationToken.ThrowIfCancellationRequested();
 
       if (checkLocalCacheFirst) {
