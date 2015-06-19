@@ -11,6 +11,8 @@ namespace Breeze.Sharp {
   /// </summary>
   public class SaveException : Exception {
 
+	private static readonly ReadOnlyCollection<EntityError> emptyErrors = new ReadOnlyCollection<EntityError>(new EntityError[0]); 
+
     public SaveException(EntityManager em, String json) : 
       this(em, JNode.DeserializeFrom(json)) {
     }
@@ -40,7 +42,12 @@ namespace Breeze.Sharp {
     }
 
     public ReadOnlyCollection<EntityError> EntityErrors {
-      get { return _entityErrors.ReadOnlyValues; }
+	    get
+	    {
+		    if (_entityErrors == null)
+			    return emptyErrors;
+		    return _entityErrors.ReadOnlyValues;
+	    }
     }
 
     public IEnumerable<ValidationError> ValidationErrors {
