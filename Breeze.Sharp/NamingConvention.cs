@@ -80,7 +80,7 @@ namespace Breeze.Sharp {
 
     public NamingConvention WithClientServerNamespaceMapping(IDictionary<String, String> clientServerNamespaceMap) {
       var clone = Clone();
-      clone._clientServerNamespaceMap = new Dictionary<string, string>(_clientServerNamespaceMap);
+      clone._clientServerNamespaceMap = new Dictionary<string, string>(clientServerNamespaceMap);
       _serverClientNamespaceMap = null;
       return clone;
     }
