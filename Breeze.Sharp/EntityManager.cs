@@ -117,6 +117,7 @@ namespace Breeze.Sharp {
     private static ThreadLocal<Int32> __threadLocalId;
     private static Int32 __nextThreadId = 34;
     private Int32 _authorizedThreadId;
+    private readonly object _reificationLock = new Object();
 
     #endregion
 
@@ -279,6 +280,7 @@ namespace Breeze.Sharp {
       cancellationToken.ThrowIfCancellationRequested();
       
       CheckAuthorizedThreadId();
+
       var mergeStrategy = query.QueryOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy;
 
       var mappingContext = new MappingContext() {
@@ -293,24 +295,29 @@ namespace Breeze.Sharp {
       serializer.Converters.Add(jsonConverter);
       // serializer.Converters.Add(new StringEnumConverter());
       Type rType;
-      
-      using (NewIsLoadingBlock()) {
-        var jt = JToken.Parse(result);
-        jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
-        if (resourcePath.Contains("inlinecount")) {
-          rType = typeof (QueryResult<>).MakeGenericType(query.ElementType);
-          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
-        } else if (jt is JArray) {
-          rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
-          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
-        } else {
-          rType = query.ElementType;
-          var list= (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(query.ElementType));
-          var item = serializer.Deserialize(new JTokenReader(jt), rType);
-          list.Add(item);
-          return list;
+
+      lock (_reificationLock)
+      {
+        using (NewIsLoadingBlock())
+        {
+          var jt = JToken.Parse(result);
+          jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
+          if (resourcePath.Contains("inlinecount")) {
+            rType = typeof (QueryResult<>).MakeGenericType(query.ElementType);
+            return (IEnumerable) serializer.Deserialize(new JTokenReader(jt), rType);
+          }
+          else if (jt is JArray) {
+            rType = typeof (IEnumerable<>).MakeGenericType(query.ElementType);
+            return (IEnumerable) serializer.Deserialize(new JTokenReader(jt), rType);
+          }
+          else {
+            rType = query.ElementType;
+            var list = (IList) Activator.CreateInstance(typeof (List<>).MakeGenericType(query.ElementType));
+            var item = serializer.Deserialize(new JTokenReader(jt), rType);
+            list.Add(item);
+            return list;
+          }
         }
-        
       }
     }
 
