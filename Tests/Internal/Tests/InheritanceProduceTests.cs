@@ -26,7 +26,7 @@ namespace Breeze.Sharp.Tests {
       TestFns.DefaultMetadataStore.NamingConvention =
         TestFns.DefaultMetadataStore.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Produce",
           "ProduceTPH");
-      _serviceName = "http://localhost:7150/breeze/ProduceTPH/";
+      _serviceName = TestFns.serviceRoot + "breeze/ProduceTPH/";
     }
 
     [TestCleanup]

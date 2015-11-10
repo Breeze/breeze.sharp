@@ -36,7 +36,7 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task NoClrTypes() {
       
-      var serviceName = "http://localhost:7150/breeze/NorthwindIBModel";
+      var serviceName = TestFns.serviceName;
       var ds = new DataService(serviceName);
       try {
         var ms = new MetadataStore();

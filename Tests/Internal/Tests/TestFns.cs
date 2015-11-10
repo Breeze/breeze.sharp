@@ -11,6 +11,9 @@ using System.Windows.Threading;
 namespace Breeze.Sharp.Tests {
   public static class TestFns {
 
+      public static string serviceRoot = "http://localhost:7149/breezeTests/";
+      public static string serviceName = serviceRoot + "breeze/NorthwindIBModel/";
+
     public static void RunInWpfSyncContext(Func<Task> function) {
       if (function == null) throw new ArgumentNullException("function");
       var prevCtx = SynchronizationContext.Current;

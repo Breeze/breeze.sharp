@@ -25,7 +25,7 @@ namespace Breeze.Sharp.Tests {
         _metadataStore.NamingConvention.WithClientServerNamespaceMapping("Model.Inheritance.Billing", "Inheritance.Models");
       Configuration.Instance.ProbeAssemblies(typeof(BillingDetailTPC).Assembly);
       
-      _serviceName = "http://localhost:7150/breeze/Inheritance/";
+      _serviceName = TestFns.serviceRoot + "breeze/Inheritance/";
     }
 
     public async Task<EntityManager> NewEm() {
