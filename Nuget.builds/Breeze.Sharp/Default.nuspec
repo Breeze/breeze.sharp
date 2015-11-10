@@ -6,16 +6,16 @@
         <title>Breeze Sharp</title>
         <authors>Jay Traband</authors>
         <owners>IdeaBlade</owners>
-        <licenseUrl>http://www.breezejs.com/license</licenseUrl>
-        <projectUrl>http://www.breezejs.com</projectUrl>
-        <iconUrl>http://www.breezejs.com/sites/all/images/breezesharpb.png</iconUrl>
+        <licenseUrl>http://breeze.github.io/doc-main/license.html</licenseUrl>
+        <projectUrl>https://github.com/Breeze/breeze.sharp</projectUrl>
+        <iconUrl>http://breeze.github.io/images/logos/BreezeSharpB.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>The files and references that are essential for a Breeze Sharp client</description>
         <summary>Breeze Sharp. This package is the .NET client for any Breeze server.</summary>
-        <copyright>Copyright IdeaBlade 2012, 2013, 2014</copyright>
+        <copyright>Copyright IdeaBlade 2012, 2013, 2014, 2015</copyright>
         <language>en-US</language>
-        <releaseNotes>Please review the BreezeSharp release notes at http://www.breezejs.com/documentation/download</releaseNotes>        
-        <tags>javascript WebApi Breeze SPA</tags>
+        <releaseNotes>Please review the BreezeSharp release notes at http://breeze.github.io/doc-cs/release-notes.html</releaseNotes>        
+        <tags>Breeze DotNet Portable OData CSharp WebApi SPA WPF Xamarin</tags>
 		<dependencies>
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
       <dependency id="Microsoft.Data.Services.Client" version="5.6.3" />

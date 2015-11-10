@@ -1,2 +1,2 @@
-Please visit http://www.breezesharp.com/documentation/start-nuget to learn more.
+Please visit http://breeze.github.io/doc-cs/nuget.html to learn more.
 
