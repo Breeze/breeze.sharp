@@ -764,6 +764,137 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task DeleteFromNavCollection()
+    {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var cust1 = new Customer();
+      var order1 = new Order();
+      var order2 = new Order();
+      em1.AddEntity(cust1);
+      var orders = cust1.Orders;
+      orders.Add(order1);
+      orders.Add(order2);
+      em1.AcceptChanges();
+
+      var collectionChangedList = new List<NotifyCollectionChangedEventArgs>();
+      orders.CollectionChanged += (s, e) =>
+      {
+        collectionChangedList.Add(e);
+      };
+      var propChangedList = new List<PropertyChangedEventArgs>();
+      ((INotifyPropertyChanged)order1).PropertyChanged += (s, e) =>
+      {
+        propChangedList.Add(e);
+      };
+      var entityChangedList = new List<EntityChangedEventArgs>();
+      em1.EntityChanged += (s, e) =>
+      {
+        entityChangedList.Add(e);
+      };
+      order1.EntityAspect.Delete();
+
+      Assert.IsTrue(collectionChangedList.Last().Action == NotifyCollectionChangedAction.Remove, "should have removed from collection");
+      Assert.IsTrue(collectionChangedList.Last().OldItems.Contains(order1), "change event should contain order1");
+
+      //Assert.IsTrue(propChangedList.Count == 0, "Deleting an entity will not create a propertyChange event");
+
+      Assert.IsTrue(!orders.Contains(order1), "order1 should have been removed");
+      Assert.IsTrue(order1.Customer == null, "Customer should be null");
+      Assert.IsTrue(order1.CustomerID == cust1.CustomerID, "customerID should NOT be cleared when detached - just the Customer");
+      Assert.IsTrue(order1.EntityAspect.EntityState.IsDeleted(), "state should be deleted");
+      Assert.IsTrue(orders.Count == 1, "count should be 1");
+
+      collectionChangedList.Clear();
+      propChangedList.Clear();
+      order1.EntityAspect.RejectChanges();
+      Assert.IsTrue(collectionChangedList.Last().Action == NotifyCollectionChangedAction.Add, "should have added to collection");
+      Assert.IsTrue(collectionChangedList.Last().NewItems.Contains(order1), "change event should contain order1");
+      Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "Customer"), "propChange should mention Customer");
+      // Not needed because CustomerID is not cleared.
+      // Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "CustomerID"), "propChange should mention CustomerID");
+
+      Assert.IsTrue(orders.Contains(order1), "order1 should be back");
+      Assert.IsTrue(order1.Customer == cust1, "Customer should be back");
+      Assert.IsTrue(order1.CustomerID == cust1.CustomerID, "CustomerID should not have changed"); // null because not required.
+      Assert.IsTrue(order1.EntityAspect.EntityState.IsUnchanged(), "State should be unchanged but is " + order1.EntityAspect.EntityState);
+      Assert.IsTrue(orders.Count == 2, "count should be 2");
+
+    }
+
+    [TestMethod]
+    public async Task DeleteFromNavCollection2()
+    {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var emp1 = new Employee();
+      var et1 = new EmployeeTerritory();
+      var et2 = new EmployeeTerritory();
+      var ter1 = new Territory() { TerritoryID = 11 };
+      var ter2 = new Territory() { TerritoryID = 22 };
+
+      em1.AddEntity(emp1);
+      em1.AddEntity(ter1);
+      em1.AddEntity(ter2);
+      em1.AddEntity(et1);
+      em1.AddEntity(et2);
+
+      et1.Territory = ter1;
+      et2.Territory = ter2;
+      var empterrs = emp1.EmployeeTerritories;
+      empterrs.Add(et1);
+      empterrs.Add(et2);
+      em1.AcceptChanges();
+
+      var collectionChangedList = new List<NotifyCollectionChangedEventArgs>();
+      empterrs.CollectionChanged += (s, e) =>
+      {
+        collectionChangedList.Add(e);
+      };
+      var propChangedList = new List<PropertyChangedEventArgs>();
+      ((INotifyPropertyChanged)et1).PropertyChanged += (s, e) =>
+      {
+        propChangedList.Add(e);
+      };
+      var entityChangedList = new List<EntityChangedEventArgs>();
+      em1.EntityChanged += (s, e) =>
+      {
+        entityChangedList.Add(e);
+      };
+      et1.EntityAspect.Delete();
+
+      Assert.IsTrue(collectionChangedList.Last().Action == NotifyCollectionChangedAction.Remove, "should have removed from collection");
+      Assert.IsTrue(collectionChangedList.Last().OldItems.Contains(et1), "change event should contain et1");
+
+      //Assert.IsTrue(propChangedList.Count == 0, "Deleting an entity will not create a propertyChange event");
+
+      Assert.IsTrue(!empterrs.Contains(et1), "et1 should have been removed");
+      Assert.IsTrue(et1.Employee == null, "Employee should be null");
+      Assert.IsTrue(et1.Territory == null, "Territory should be null");
+      Assert.IsTrue(et1.EmployeeID == emp1.EmployeeID, "EmployeeID should NOT be cleared when detached - just the Employee");
+      Assert.IsTrue(et1.TerritoryID == ter1.TerritoryID, "TerritoryID should NOT be cleared when detached - just the Territory");
+      Assert.IsTrue(et1.EntityAspect.EntityState.IsDeleted(), "state should be deleted");
+      Assert.IsTrue(empterrs.Count == 1, "count should be 1");
+
+      collectionChangedList.Clear();
+      propChangedList.Clear();
+      et1.EntityAspect.RejectChanges();
+      Assert.IsTrue(collectionChangedList.Last().Action == NotifyCollectionChangedAction.Add, "should have added to collection");
+      Assert.IsTrue(collectionChangedList.Last().NewItems.Contains(et1), "change event should contain order1");
+      Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "Customer"), "propChange should mention Customer");
+      // Not needed because CustomerID is not cleared.
+      // Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "CustomerID"), "propChange should mention CustomerID");
+      
+      Assert.IsTrue(empterrs.Contains(et1), "et1 should be back");
+      Assert.IsTrue(et1.Employee == emp1, "Employee should be back");
+      Assert.IsTrue(et1.Territory == ter1, "Territory should be back");
+      Assert.IsTrue(et1.EmployeeID == emp1.EmployeeID, "EmployeeID should not have changed"); // null because not required.
+      Assert.IsTrue(et1.EntityAspect.EntityState.IsUnchanged(), "State should be unchanged but is " + et1.EntityAspect.EntityState);
+      Assert.IsTrue(empterrs.Count == 2, "count should be 2");
+
+    }
+
+    [TestMethod]
     public async Task ChangeParent1ToN() {
       var em1 = await TestFns.NewEm(_serviceName);
 
