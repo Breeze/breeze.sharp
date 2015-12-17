@@ -217,12 +217,30 @@ namespace Foo {
 
   public partial class EmployeeTerritory : BaseEntity {
 
-    public int ID { get; set; }
-    public int EmployeeID { get; set; }
-    public int TerritoryID { get; set; }
-    public int RowVersion { get; set; }
-    public Employee Employee { get; set; }
-    public Territory Territory { get; set; }
+    public int ID {
+      get { return GetValue<int>(); }
+      set { SetValue(value); }
+    }
+    public int EmployeeID {
+      get { return GetValue<int>(); }
+      set { SetValue(value); }
+    }
+    public int TerritoryID {
+      get { return GetValue<int>(); }
+      set { SetValue(value); }
+    }
+    public int RowVersion {
+      get { return GetValue<int>(); }
+      set { SetValue(value); }
+    }
+    public Employee Employee {
+      get { return GetValue<Employee>(); }
+      set { SetValue(value); }
+    }
+    public Territory Territory {
+      get { return GetValue<Territory>(); }
+      set { SetValue(value); }
+    }
 
   }
 

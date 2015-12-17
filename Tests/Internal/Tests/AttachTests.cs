@@ -834,10 +834,10 @@ namespace Breeze.Sharp.Tests {
       var ter2 = new Territory() { TerritoryID = 22 };
 
       em1.AddEntity(emp1);
-      em1.AddEntity(ter1);
-      em1.AddEntity(ter2);
-      em1.AddEntity(et1);
-      em1.AddEntity(et2);
+      //em1.AddEntity(ter1);
+      //em1.AddEntity(ter2);
+      //em1.AddEntity(et1);
+      //em1.AddEntity(et2);
 
       et1.Territory = ter1;
       et2.Territory = ter2;
@@ -845,6 +845,10 @@ namespace Breeze.Sharp.Tests {
       empterrs.Add(et1);
       empterrs.Add(et2);
       em1.AcceptChanges();
+      Assert.IsTrue(et1.Employee == emp1, "Employee is attached to EmployeeTerritory");
+      Assert.IsTrue(emp1.EmployeeTerritories.Count == 2, "Employee has EmployeeTerritories");
+      Assert.IsTrue(et1.Territory == ter1, "Territory is attached to EmployeeTerritory");
+      Assert.IsTrue(ter1.EmployeeTerritories.Count == 1, "Territory has EmployeeTerritories");
 
       var collectionChangedList = new List<NotifyCollectionChangedEventArgs>();
       empterrs.CollectionChanged += (s, e) =>
@@ -880,8 +884,9 @@ namespace Breeze.Sharp.Tests {
       propChangedList.Clear();
       et1.EntityAspect.RejectChanges();
       Assert.IsTrue(collectionChangedList.Last().Action == NotifyCollectionChangedAction.Add, "should have added to collection");
-      Assert.IsTrue(collectionChangedList.Last().NewItems.Contains(et1), "change event should contain order1");
-      Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "Customer"), "propChange should mention Customer");
+      Assert.IsTrue(collectionChangedList.Last().NewItems.Contains(et1), "change event should contain employeeTerritory");
+      Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "Employee"), "propChange should mention Employee");
+      Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "Territory"), "propChange should mention Territory");
       // Not needed because CustomerID is not cleared.
       // Assert.IsTrue(propChangedList.Any(args => args.PropertyName == "CustomerID"), "propChange should mention CustomerID");
       
