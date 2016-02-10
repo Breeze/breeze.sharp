@@ -310,8 +310,13 @@ namespace Breeze.Sharp {
 
     public TextWriter SerializeTo(TextWriter textWriter) {
       var serializer = new JsonSerializer();
-      // TODO: change to Formatting.None in production
+      serializer.Converters.Add(new StringEnumConverter());
+
+#if DEBUG
       serializer.Formatting = Formatting.Indented;
+#else
+      serializer.Formatting = Formatting.None;
+#endif
       
       using (var jtw = new JsonTextWriter(textWriter)) {
         serializer.Serialize(jtw, _jo);

@@ -23,7 +23,8 @@ namespace Breeze.Sharp.Tests {
     private String _serviceName;
 
     [TestInitialize]
-    public void TestInitializeMethod() {
+    public void TestInitializeMethod()
+    {
       Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       _serviceName = TestFns.serviceName;
     }
@@ -68,6 +69,28 @@ namespace Breeze.Sharp.Tests {
       File.WriteAllText("c:/temp/emExport.txt", exportedEntities);
 
     }
+
+	[TestMethod]
+	public async Task ExpImpEntitiesWithEnum()
+	{
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var q = new EntityQuery<Foo.Role>("Roles").Take(5);
+
+      var results = await q.Execute(em1);
+
+      Assert.IsTrue(results.Any());
+      var exportedEntities = em1.ExportEntities();
+
+      File.WriteAllText("c:/temp/emExportWithEnum.txt", exportedEntities);
+
+      var em2 = new EntityManager(em1);
+
+      em2.ImportEntities(exportedEntities);
+      var roleTypes = em2.GetEntities<Role>().Select(x => x.RoleType).ToList();
+
+	  Assert.IsTrue(roleTypes.Count == 5, "should have imported 5 entities");
+	}
 
     [TestMethod]
     public async Task ExpEntitiesWithChanges() {
