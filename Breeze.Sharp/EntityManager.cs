@@ -1293,6 +1293,14 @@ namespace Breeze.Sharp {
       }
 
       object nextTempId = KeyGenerator.GetNextTempId(entityProperty);
+
+      // check for collision with any existing temporary key (could happen as a result of import)
+      var nextTempKey = new EntityKey(aspect.EntityType, new object[1] { nextTempId });
+      while (aspect.EntityGroup.KeyMapContains(nextTempKey)) {
+        nextTempId = KeyGenerator.GetNextTempId(entityProperty);
+        nextTempKey.Values[0] = nextTempId;
+      }
+
       aspect.SetDpValue(entityProperty, nextTempId);
       var aUniqueId = new UniqueId(entityProperty, nextTempId);
       // don't add to tempId's collection until the entity itself is added.

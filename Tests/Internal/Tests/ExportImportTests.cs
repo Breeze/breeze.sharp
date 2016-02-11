@@ -381,6 +381,109 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(c2x.CompanyName == c2.CompanyName, "company names should match");
     }
 
+    private void ResetTempKeyGeneratorSeed()
+    {
+      // A relaunch of the client would reset the temporary key generator
+      // Simulate that for test purposes ONLY with an internal seed reset
+      // that no one should know about or ever use.
+      // SHHHHHHHH!
+      // NEVER DO THIS IN YOUR PRODUCTION CODE
+      Breeze.Sharp.DataType.NextNumber = -1;
+    }
+
+    [TestMethod]
+    public async Task TemporaryKeyNotPreservedOnImport()
+    {
+      // If an earlier test has already created an entity, a new entity will not be assigned a key value of -1
+      // Simulate initial launch of the client app
+      ResetTempKeyGeneratorSeed();
+
+      var manager1 = new EntityManager(_serviceName);
+      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      await manager1.FetchMetadata(); // Metadata must be fetched before CreateEntity() can be called
+
+      // Create a new Order. The Order key is store-generated.
+      // Until saved, the new Order has a temporary key such as '-1'.
+      var acme1 = manager1.CreateEntity<Order>(new { ShipName = "Acme" });
+      Assert.AreEqual(-1, acme1.OrderID, "Initial entity not assigned temp key -1");
+
+      // export without metadata
+      var exported = manager1.ExportEntities(new IEntity[] { acme1 }, false);
+
+      // ... much time passes 
+      // ... the client app is re-launched
+      // ... the seed for the temporary id generator was reset
+      ResetTempKeyGeneratorSeed();
+
+      // Create a new manager2 with metadata
+      var manager2 = new EntityManager(manager1);
+
+      // Add a new order to manager2
+      // This new order has a temporary key.
+      // That key could be '-1' ... the same key as acme1!!!
+      var beta = (Order)manager2.CreateEntity(typeof(Order), new { ShipName = "Beta" });
+
+      // Its key will be '-1' ... the same key as acme1!!!
+      Assert.AreEqual(-1, beta.OrderID);
+
+      // Import the the exported acme1 from manager1
+      // and get the newly merged instance from manager2
+      var imported = manager2.ImportEntities(exported);
+      var acme2 = imported.ImportedEntities.Cast<Order>().First();
+
+      // compare the "same" order as it is in managers #1 and #2  
+      var isSameName = acme1.ShipName == acme2.ShipName; // true
+      Assert.IsTrue(isSameName, "ShipNames should be the same");
+
+      // breeze had to update the acme key in manager2 because 'beta' already has ID==-1   
+      var isSameId = acme1.OrderID == acme2.OrderID; // false; temporary keys are different
+      Assert.IsFalse(isSameId, "OrderIDs (temporary keys) should be different");
+    }
+
+    [TestMethod]
+    public async Task TemporaryKeyGeneratedAfterImport()
+    {
+      // If an earlier test has already created an entity, a new entity will not be assigned a key value of -1
+      // Simulate initial launch of the client app
+      ResetTempKeyGeneratorSeed();
+
+      var manager1 = new EntityManager(_serviceName);
+      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      await manager1.FetchMetadata(); // Metadata must be fetched before CreateEntity() can be called
+
+      // Create a new Order. The Order key is store-generated.
+      // Until saved, the new Order has a temporary key such as '-1'.
+      var acme1 = manager1.CreateEntity<Order>(new { ShipName = "Acme" });
+      Assert.AreEqual(-1, acme1.OrderID, "Initial entity not assigned temp key -1");
+
+      // export without metadata
+      var exported = manager1.ExportEntities(new IEntity[] { acme1 }, false);
+
+      // ... much time passes 
+      // ... the client app is re-launched
+      // ... the seed for the temporary id generator was reset
+      ResetTempKeyGeneratorSeed();
+
+      // Create a new manager2 with metadata
+      var manager2 = new EntityManager(manager1);
+
+      // Import the the exported acme1 from manager1
+      // and get the newly merged instance from manager2
+      var imported = manager2.ImportEntities(exported);
+      var acme2 = imported.ImportedEntities.Cast<Order>().First();
+
+      // compare the "same" order as it is in managers #1 and #2  
+      var isSameName = acme1.ShipName == acme2.ShipName; // true
+      Assert.IsTrue(isSameName, "ShipNames should be the same");
+
+      // Add a new order to manager2
+      // This new order has a temporary key.
+      // That key could be '-1' ... the same key as acme1!!!
+      var beta = (Order)manager2.CreateEntity(typeof(Order), new { ShipName = "Beta" });
+
+      var isSameId = beta.OrderID == acme2.OrderID;
+      Assert.IsFalse(isSameId, "OrderIDs (temporary keys) should not be the same");
+    }
     
   }
 }

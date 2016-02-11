@@ -247,6 +247,10 @@ namespace Breeze.Sharp {
       });
     }
 
+    internal bool KeyMapContains(EntityKey key) {
+      EntityAspect val;
+      return _entityKeyMap.TryGetValue(key, out val);
+    }
     #endregion
 
     #region private and protected
