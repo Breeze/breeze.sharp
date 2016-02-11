@@ -719,7 +719,7 @@ namespace Breeze.Sharp {
 
     private JNode ExportAspect(StructuralAspect aspect, IEnumerable<DataProperty> dps) {
       var jn = new JNode();
-      dps.ForEach( (dp) => {
+      dps.ForEach(dp => {
         var propName = dp.Name;
         var value = aspect.GetRawValue(propName);
         var co = value as IComplexObject;
@@ -1253,12 +1253,12 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Generates a temporary ID for an <see cref="IEntity"/>.  The temporary ID will be mapped to a real ID when
     /// <see cref="SaveChanges"/> is called.
-    /// <seealso cref="IIdGenerator"/>
+    /// <seealso cref="IKeyGenerator"/>
     /// </summary>
     /// <param name="entity">The Entity object for which the new ID will be generated</param>
     /// <param name="entityProperty">The EntityProperty in which the new ID will be set </param>
     /// <remarks>
-    /// You must implement the <see cref="IIdGenerator"/> interface to use ID generation.  See the
+    /// You must implement the <see cref="IKeyGenerator"/> interface to use ID generation.  See the
     /// <b>DevForce Developer's Guide</b> for more information on custom ID generation.
     /// <para>
     /// If you are using a SQL Server <b>Identity</b> property you do not need to call <b>GenerateId</b>

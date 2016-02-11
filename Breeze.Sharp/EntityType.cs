@@ -282,20 +282,6 @@ namespace Breeze.Sharp {
       UpdateCollection( _inverseForeignKeyProperties, dp, true);
     }
 
-    protected void UpdateCollection(SafeList<DataProperty> list, DataProperty dp, bool add) {
-
-      var isSet = list.Contains(dp);
-      if (add) {
-        if (!isSet) {
-          list.Add(dp);
-        }
-      } else {
-        if (isSet) {
-          list.Remove(dp);
-        }
-      }
-    }
-
     private bool UpdateNavigationProperty(NavigationProperty np) {
       var entityType = np.EntityType;
 

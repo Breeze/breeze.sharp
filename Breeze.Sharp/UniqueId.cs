@@ -12,7 +12,7 @@ namespace Breeze.Sharp {
   /// <seealso cref="IKeyGenerator"/>
   /// <seealso cref="UniqueIdCollection"/>
   /// </summary>
-  /// <remarks><b>UniqueIds</b> are used when implementing the <see cref="IIdGenerator"/> interface.
+  /// <remarks><b>UniqueIds</b> are used when implementing the <see cref="IKeyGenerator"/> interface.
   /// </remarks>
   public class UniqueId : IComparable {
 
@@ -146,10 +146,9 @@ namespace Breeze.Sharp {
   /// <summary>
   /// A strongly typed dictionary mapping <see cref="UniqueId"/> keys containing temporary identifiers
   /// to values for the permanent identifiers.
-  /// <seealso cref="IIdGenerator"/>
+  /// <seealso cref="IKeyGenerator"/>
   /// </summary>
-  /// <remarks>Used in the <see cref="IIdGenerator"/> method <see cref="IIdGenerator.GetRealIdMap"/>
-  /// when mapping temporary to real identifiers.</remarks>
+  /// <remarks>Used when mapping temporary to real identifiers.</remarks>
   public class UniqueIdMap : Dictionary<UniqueId, Object> {
 
     /// <summary>

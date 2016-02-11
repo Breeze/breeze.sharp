@@ -17,8 +17,6 @@ namespace Breeze.Sharp {
     /// <summary>
     /// For internal use only.
     /// </summary>
-    /// <param name="cacheQueryOptions"></param>
-    /// <param name="entityManagerParameterExpr"></param>
     private  CacheQueryExpressionVisitor(EntityQuery query, CacheQueryOptions cacheQueryOptions )
       : base() {
         _query = query;

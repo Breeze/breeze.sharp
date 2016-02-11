@@ -18,14 +18,14 @@ namespace Breeze.Sharp.Core {
     #region Ctors 
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
+    /// Initializes a new instance of the class.
     /// </summary>
     public NotifiableCollection() {
       
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
+    /// Initializes a new instance of the class.
     /// </summary>
     /// <param name="collection">The collection whose elements are copied to the new set.</param>
     public NotifiableCollection(IEnumerable<T> collection)  {
@@ -33,7 +33,7 @@ namespace Breeze.Sharp.Core {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
+    /// Initializes a new instance of the class.
     /// </summary>
     /// <param name="comparer">The IEqualityComparer&lt;T&gt; implementation to use when comparing values in the set, or null to use the default EqualityComparer&lt;T&gt; implementation for the set type.</param>
     public NotifiableCollection(IEqualityComparer<T> comparer) : base(comparer) {
@@ -41,7 +41,7 @@ namespace Breeze.Sharp.Core {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObservableHashSet&lt;T&gt;"/> class.
+    /// Initializes a new instance of the class.
     /// </summary>
     /// <param name="collection">The collection whose elements are copied to the new set.</param>
     /// <param name="comparer">The IEqualityComparer&lt;T&gt; implementation to use when comparing values in the set, or null to use the default EqualityComparer&lt;T&gt; implementation for the set type.</param>

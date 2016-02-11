@@ -19,8 +19,6 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Constructs a new EntityKey. Each entity within an EntityManager will have a unique EntityKey.
     /// </summary>
-    /// <param name="clrType"></param>
-    /// <param name="values"></param>
     public EntityKey(Type clrType, MetadataStore metadataStore, params Object[] values) {
       ClrType = clrType;
       EntityType = metadataStore.GetEntityType(ClrType);

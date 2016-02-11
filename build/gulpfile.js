@@ -29,17 +29,28 @@ gutil.log('LocalAppData dir: ' + process.env.LOCALAPPDATA);
  */
 gulp.task('help', require('gulp-task-listing'));
 
-
 // look for all .dll files in the nuget dir and try to find
 // the most recent production version of the same file and copy
 // it if found over the one in the nuget dir.
 gulp.task("copyDlls", ['breezeSharpBuild'], function() {
-  gutil.log('copying dlls...')
-  var fileNames = glob.sync(_nugetDir + '**/*.dll');
   var streams = [];
+  gutil.log('copying dlls...')
+  updateFiles(streams, ".dll");
+  gutil.log('copying XMLs...')
+  updateFiles(streams, ".XML");
+  gutil.log('copying PDBs...')
+  updateFiles(streams, ".pdb");
+  return eventStream.concat.apply(null, streams);
+});
+
+// for each file in nuget dir, copy existing file from the release dir.
+// @param streams[] - array that will be filled with streams
+// @param ext - file extension (with .) of files to copy.
+function updateFiles(streams, ext) {
+  var fileNames = glob.sync(_nugetDir + '**/*' + ext);
   fileNames.forEach(function(fileName) {
-    var baseName = path.basename(fileName, '.dll');
-    var src = '../' + baseName +  '/bin/release/' + baseName + '.dll'
+    var baseName = path.basename(fileName, ext);
+    var src = '../' + baseName +  '/bin/release/' + baseName + ext
     if (fs.existsSync(src)) {
       var dest = path.dirname(fileName);
       gutil.log("Processing " + fileName);
@@ -48,8 +59,7 @@ gulp.task("copyDlls", ['breezeSharpBuild'], function() {
       gutil.log("skipped: " + src);
     }
   });
-  return eventStream.concat.apply(null, streams);
-});
+}
 
 gulp.task('breezeSharpBuild', function(done) {
   var solutionFileName = '../Breeze.Sharp.sln';
