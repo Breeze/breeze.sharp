@@ -122,6 +122,8 @@ namespace Breeze.Sharp.Tests {
       TestFns.RunInWpfSyncContext( async () =>  {
         var q0 = new EntityQuery<Customer>().Where(c => c.Orders.Any()).Take(3);
         var r0 = await q0.Execute(em1);
+        var arr = r0.ToArray();
+        arr[0].City = "Modified City";
         // Task.WaitAll(r0.Select(c => c.EntityAspect.LoadNavigationProperty("Orders")).ToArray());
         await Task.WhenAll(r0.Select(c => c.EntityAspect.LoadNavigationProperty("Orders")));
         Assert.IsTrue(r0.All(c => c.Orders.Count() > 0));
@@ -134,6 +136,8 @@ namespace Breeze.Sharp.Tests {
       TestFns.RunInWpfSyncContext(async () => {
         var q0 = new EntityQuery<Order>().Where(o => o.Customer != null).Take(3);
         var r0 = await q0.Execute(em1);
+        var arr = r0.ToArray();
+        arr[1].ShipCity = "Modified City";
         // Task.WaitAll(r0.Select(o => o.EntityAspect.LoadNavigationProperty("Customer")).ToArray());
         await Task.WhenAll(r0.Select(o => o.EntityAspect.LoadNavigationProperty("Customer")));
         Assert.IsTrue(r0.All(o => o.Customer != null));

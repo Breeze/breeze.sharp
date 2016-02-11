@@ -37,10 +37,37 @@ namespace Breeze.Sharp {
       return AddWhereClause(entityQuery, keys);
     }
 
-    public static EntityQuery BuildQuery(IEntity entity, NavigationProperty np) {
-      var ekQuery = BuildQuery(entity.EntityAspect.EntityKey);
-      var q = ekQuery.ExpandNonGeneric(np.Name);
-      return q;
+    //public static EntityQuery BuildQuery(IEntity entity, NavigationProperty np) {
+    //  var ekQuery = BuildQuery(entity.EntityAspect.EntityKey);
+    //  var q = ekQuery.ExpandNonGeneric(np.Name);
+    //  return q;
+    //}
+
+    /// <summary>
+    /// Builds an <see cref="EntityQuery"/> to load the entities for the navigation property of the entity.
+    /// </summary>
+    public static EntityQuery BuildQuery(IEntity entity, NavigationProperty np)
+    {
+      if (np.IsScalar) {
+        if (np.ForeignKeyNames.Count == 0) return null;
+        var relatedKeyValues = np.ForeignKeyNames.Select(fk => entity.EntityAspect.GetValue(fk)).ToArray();
+        var entityKey = new EntityKey(np.EntityType, relatedKeyValues);
+        return BuildQuery(entityKey);
+      }
+      else {
+        var inverseNp = np.Inverse;
+        var fkNames = inverseNp != null ? inverseNp.ForeignKeyNames : np.InvForeignKeyNames;
+        if (fkNames.Count == 0) return null;
+        var keyValues = entity.EntityAspect.EntityKey.Values;
+
+        var parameterExpr = Expression.Parameter(np.EntityType.ClrType, "t");
+        var propExpressions = fkNames.Select(name => Expression.Property(parameterExpr, name));
+        var fkExpression = BuildMultiEqualExpr(propExpressions, keyValues);
+
+        var entityQuery = EntityQuery.Create(np.EntityType.ClrType);
+        var queryLambda = Expression.Lambda(fkExpression, parameterExpr);
+        return AddWhereClause(entityQuery, queryLambda);
+      }
     }
 
     /// <summary>
