@@ -56,7 +56,7 @@ namespace Breeze.Sharp.Tests {
       });
       var ds = new DataService(_serviceName, httpClient);
       var em = new EntityManager(ds);
-      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchTypes.MissingCLREntityType;
       var md = await em.FetchMetadata(ds);
       Assert.IsTrue(md != null);
 

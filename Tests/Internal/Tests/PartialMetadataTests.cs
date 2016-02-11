@@ -58,7 +58,7 @@ namespace Breeze.Sharp.Tests {
       ms.NamingConvention = new MorphedClassNamingConvention();
       var em = new EntityManager(_serviceName, ms);
 
-      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchTypes.AllAllowable;
         
       var mmargs = new List<MetadataMismatchEventArgs>();
       em.MetadataStore.MetadataMismatch += (s, e) => {
@@ -76,7 +76,7 @@ namespace Breeze.Sharp.Tests {
 
       var em = new EntityManager(_serviceName);
       em.MetadataStore.NamingConvention = new MorphedClassNamingConvention();
-      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+      em.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchTypes.AllAllowable;
       var q = new EntityQuery<PartialFoo.Customer>().Where(c => c.CompanyName.StartsWith("B"));
       var r0 = await em.ExecuteQuery(q);
       Assert.IsTrue(r0.Count() > 0);
@@ -86,7 +86,7 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task MetadataMissingClrType() {
       
-      //Configuration.Instance.AllowedMetadataMismatchTypes = MetadataMismatchType.AllAllowable;
+      //Configuration.Instance.AllowedMetadataMismatchTypes = MetadataMismatchTypes.AllAllowable;
       var serviceName = "http://sampleservice.breezejs.com/api/todos/";
 
       var em = new EntityManager(serviceName);
@@ -96,7 +96,7 @@ namespace Breeze.Sharp.Tests {
         Assert.IsTrue(e.StructuralTypeName.ToUpper().Contains("TODO"), "entityTypeName should be TODO");
         Assert.IsTrue(e.PropertyName == null, "propertyName should be null");
         Assert.IsTrue(e.Allow == false, "allow should be false");
-        e.Allow = (e.MetadataMismatchType == MetadataMismatchType.MissingCLREntityType);
+        e.Allow = (e.MetadataMismatchType == MetadataMismatchTypes.MissingCLREntityType);
       };
       var x = await em.FetchMetadata();
       Assert.IsTrue(mmargs.Count == 1, "should be only one mismatch, but found: " + mmargs.Count);

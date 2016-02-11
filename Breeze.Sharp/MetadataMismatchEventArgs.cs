@@ -15,7 +15,7 @@ namespace Breeze.Sharp {
     }
 
     public String PropertyName { get; internal set; }
-    public MetadataMismatchType MetadataMismatchType { get; set; }
+    public MetadataMismatchTypes MetadataMismatchType { get; set; }
     public String Detail { get; internal set; }
     public bool Allow { get; set; }
     public String Message {
@@ -40,7 +40,7 @@ namespace Breeze.Sharp {
   }
 
   [Flags]
-  public enum MetadataMismatchType {
+  public enum MetadataMismatchTypes {
     /// <summary>
     /// Server has metadata for a type that is not found on the client.
     /// </summary>

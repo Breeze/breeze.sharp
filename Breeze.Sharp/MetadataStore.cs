@@ -78,7 +78,7 @@ namespace Breeze.Sharp {
     /// <summary>
     /// Allowed types of metadata mismatches.
     /// </summary>
-    public MetadataMismatchType AllowedMetadataMismatchTypes {
+    public MetadataMismatchTypes AllowedMetadataMismatchTypes {
       get; set;
     }
 
@@ -87,7 +87,7 @@ namespace Breeze.Sharp {
     /// </summary>
     public event EventHandler<MetadataMismatchEventArgs> MetadataMismatch;
 
-    internal Message OnMetadataMismatch(String entityTypeName, String propertyName, MetadataMismatchType mmType, String detail = null) {
+    internal Message OnMetadataMismatch(String entityTypeName, String propertyName, MetadataMismatchTypes mmType, String detail = null) {
       EventHandler<MetadataMismatchEventArgs> handler = MetadataMismatch;
       var allow = (AllowedMetadataMismatchTypes & mmType) > 0;
       var args = new MetadataMismatchEventArgs() {
@@ -108,7 +108,7 @@ namespace Breeze.Sharp {
         }
       }
       // don't allow NotAllowable thru no matter what the dev says.
-      allow = allow && (MetadataMismatchType.NotAllowable & mmType) == 0;
+      allow = allow && (MetadataMismatchTypes.NotAllowable & mmType) == 0;
       return AddMessage(args.Message, allow ? MessageType.Message : MessageType.Error, false);
     }
 
@@ -508,7 +508,7 @@ namespace Breeze.Sharp {
       if (ncNode != null) {
         var nc = Configuration.Instance.FindOrCreateNamingConvention(ncNode);
         if (nc == null) {
-          OnMetadataMismatch(null, null, MetadataMismatchType.MissingCLRNamingConvention, ncNode.ToString());
+          OnMetadataMismatch(null, null, MetadataMismatchTypes.MissingCLRNamingConvention, ncNode.ToString());
         } else {
           // keep any preexisting ClientServerNamespaceMap info
           NamingConvention = nc.WithClientServerNamespaceMapping(this.NamingConvention.ClientServerNamespaceMap);
@@ -544,7 +544,7 @@ namespace Breeze.Sharp {
       if (stype == null) {
         var isComplexType = jNode.Get<bool>("isComplexType", false);
         OnMetadataMismatch(name, null, isComplexType ? 
-          MetadataMismatchType.MissingCLRComplexType : MetadataMismatchType.MissingCLREntityType);
+          MetadataMismatchTypes.MissingCLRComplexType : MetadataMismatchTypes.MissingCLREntityType);
         return;
       }
       

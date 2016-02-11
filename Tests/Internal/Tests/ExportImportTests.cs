@@ -399,7 +399,7 @@ namespace Breeze.Sharp.Tests {
       ResetTempKeyGeneratorSeed();
 
       var manager1 = new EntityManager(_serviceName);
-      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchTypes.MissingCLREntityType;
       await manager1.FetchMetadata(); // Metadata must be fetched before CreateEntity() can be called
 
       // Create a new Order. The Order key is store-generated.
@@ -448,7 +448,7 @@ namespace Breeze.Sharp.Tests {
       ResetTempKeyGeneratorSeed();
 
       var manager1 = new EntityManager(_serviceName);
-      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchType.MissingCLREntityType;
+      manager1.MetadataStore.AllowedMetadataMismatchTypes = MetadataMismatchTypes.MissingCLREntityType;
       await manager1.FetchMetadata(); // Metadata must be fetched before CreateEntity() can be called
 
       // Create a new Order. The Order key is store-generated.
