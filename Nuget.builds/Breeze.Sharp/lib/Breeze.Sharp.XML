@@ -1,0 +1,3630 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Breeze.Sharp</name>
+    </assembly>
+    <members>
+        <member name="T:Breeze.Sharp.BaseComplexObject">
+            <summary>
+            Default base class implementation of <see cref="T:Breeze.Sharp.IComplexObject"/>.
+            All complex objects should inherit from this class either directly or indirectly.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.BaseComplexObject.#ctor">
+            <summary>
+            Protected ctor.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.BaseComplexObject.Initialize">
+            <inheritdoc />
+        </member>
+        <member name="P:Breeze.Sharp.BaseComplexObject.ComplexAspect">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.Core.MethodReflector.GetMethodByExample``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Type[])">
+            <summary>
+            For internal use only.
+            </summary>
+            <typeparam name="TIn"></typeparam>
+            <typeparam name="TOut"></typeparam>
+            <param name="prototypeLambda"></param>
+            <param name="resolvedTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.Core.NotifiableCollection`1">
+            <summary>
+            Represents an observable set of unique values.
+            </summary>
+            <typeparam name="T">The type of elements in the hash set.</typeparam>    
+        </member>
+        <member name="M:Breeze.Sharp.Core.NotifiableCollection`1.#ctor">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.NotifiableCollection`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="collection">The collection whose elements are copied to the new set.</param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.NotifiableCollection`1.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="comparer">The IEqualityComparer&lt;T&gt; implementation to use when comparing values in the set, or null to use the default EqualityComparer&lt;T&gt; implementation for the set type.</param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.NotifiableCollection`1.#ctor(System.Collections.Generic.IEnumerable{`0},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the class.
+            </summary>
+            <param name="collection">The collection whose elements are copied to the new set.</param>
+            <param name="comparer">The IEqualityComparer&lt;T&gt; implementation to use when comparing values in the set, or null to use the default EqualityComparer&lt;T&gt; implementation for the set type.</param>
+        </member>
+        <member name="E:Breeze.Sharp.Core.NotifiableCollection`1.CollectionChanged">
+            <summary>
+            Raised when the collection changes.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.Core.NotifiableCollection`1.PropertyChanged">
+            <summary>
+            Raised when a property value changes.
+            </summary>       
+        </member>
+        <member name="T:Breeze.Sharp.Core.PredicateBuilder">
+            <summary>
+            Enables the efficient, dynamic composition of query predicates.
+            From: http://petemontgomery.wordpress.com/2011/02/10/a-universal-predicatebuilder/
+            with minor mods.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.True``1">
+            <summary>
+            Creates a predicate that evaluates to true.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.False``1">
+            <summary>
+            Creates a predicate that evaluates to false.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.Create``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Creates a predicate expression from the specified lambda expression.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.And``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines the first predicate with the second using the logical "and".
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines the first predicate with the second using the logical "or".
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.Not``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Negates the predicate.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.PredicateBuilder.Compose``1(System.Linq.Expressions.Expression{``0},System.Linq.Expressions.Expression{``0},System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression,System.Linq.Expressions.Expression})">
+            <summary>
+            Combines the first expression with the second using the specified merge function.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.Core.DynamicComparer`2">
+            <summary>
+            Dynamic implementation of an IEqualityComparer.  
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="M:Breeze.Sharp.Core.DynamicComparer`2.#ctor(System.Func{`0,`1})">
+            <summary>
+            Ctor. The selector func is used to project the comparison object from the compared object.
+            </summary>
+            <param name="selector"></param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.DynamicComparer`2.Equals(`0,`0)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.DynamicComparer`2.GetHashCode(`0)">
+            <summary>
+            
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.Core.EnumerableFns">
+            <summary>
+            Provides a set of static methods for querying objects that implement <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
+            <seealso cref="N:System.Linq"/>
+            </summary>
+            <remarks>
+            To use these extensions, add a using statement (Imports in Visual Basic) for this namespace
+            to your class.  
+            <para>
+            Since the methods here are extensions, you cannot use them in queries which will be sent to the data source,
+            </para>
+            <para>
+            For more information on extension methods, see <b>Extension Methods (C# Programming Guide)</b>
+            or <b>Extension Methods (Visual Basic)</b> in the Visual Studio documentation.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Enumerate a cached collection performing the specified action on each item.
+            </summary>
+            <typeparam name="T" />
+            <param name="items" />
+            <param name="action" />
+            <!-- Failed to insert some or all of included XML --><include file="EnumerableFns.Examples.xml" path="//Class[@name=&quot;EnumerableFns&quot;]/method[@name=&quot;ForEach&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Int32})">
+            <summary>
+            Enumerate an indexed collection in cache performing the specified action on each item.
+            </summary>
+            <typeparam name="T" />
+            <param name="items" />
+            <param name="action">Delegate taking a T and an index value</param>
+            <!-- Failed to insert some or all of included XML --><include file="EnumerableFns.Examples.xml" path="//Class[@name=&quot;EnumerableFns&quot;]/method[@name=&quot;ForEach2&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.IndexOf``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            Returns the index of the first item in the sequence matching a condition, or -1 if no match found.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items"></param>
+            <param name="predicate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.ToHashSet``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Returns a <see cref="T:System.Collections.Generic.HashSet`1"/> of the specified collection.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.GetAggregateHashCode(System.Collections.IEnumerable)">
+            <summary>
+            Returns a hashcode for a collection that 
+            uses a similar algorithm to that used by the .NET Tuple class.
+            Order matters.
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.ToAggregateString(System.Collections.IEnumerable,System.String)">
+            <summary>
+            Concatenates the string version of each element in a collection using the delimiter provided.
+            </summary>
+            <param name="items">The enumerated items whose string formated elements will be concatenated</param>
+            <param name="delimiter">Delimiter</param>
+            <returns>A delimited string</returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.Partition``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items"></param>
+            <param name="batchSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.Distinct``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+             Returns distinct elements from a sequence by using a specified selector function to project objects to compare.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="source"></param>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.Union``2(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Produces the set union of two sequences by using a specified selector function to project objects to compare.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="first"></param>
+            <param name="second"></param>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.Intersect``2(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Produces the set intersection of two sequences by using a specified selector function to project objects to compare.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="first"></param>
+            <param name="second"></param>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.Except``2(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Produces the set difference of two sequences by using a specified selector function to compare values.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="first"></param>
+            <param name="second"></param>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.AllEqual``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Returns true if all items in a cached collection are equal.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.EnumerableFns.AllEqual``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Returns true if all items in a cached collection have the same projected value.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="U"></typeparam>
+            <param name="items"></param>
+            <param name="selector"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.Core.TypeFns">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.GetDefaultValue(System.Type)">
+            <summary>
+            Gets the default value for a specified type.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.ConvertType(System.Object,System.Type,System.Boolean)">
+            <summary>
+            Try and convert a value to the specified conversion type.
+            </summary>
+            <param name="value"></param>
+            <param name="conversionType"></param>
+            <param name="throwIfError"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.CreateGenericInstance(System.Type,System.Type[])">
+            <summary>
+            Constructs a generic instance.
+            </summary>
+            <param name="genericType"></param>
+            <param name="argTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.GetGenericArgument(System.Type)">
+            <summary>
+            Gets a single generic argument from a specified type.
+            </summary>
+            <param name="type"></param>
+            <returns>null if it can't find one or result is ambiguous</returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.ConstructGenericInstance(System.Type,System.Type[])">
+            <summary>
+            Constructs a generic instance.
+            </summary>
+            <param name="genericType"></param>
+            <param name="argTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.ConstructGenericInstance(System.Type,System.Type[],System.Object[])">
+            <summary>
+            Constructs a generic instance. Can only access public constructors.
+            </summary>
+            <param name="genericType"></param>
+            <param name="argTypes"></param>
+            <param name="constructorParams"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.IsNullableType(System.Type)">
+            <summary>
+            Returns whether the specified type is a nullable generic type, i.e. Nullable{T}.
+            </summary>
+            <param name="type"></param>
+            <returns>true if the specified type is a nullable generic type; false otherwise</returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.GetNullableType(System.Type)">
+            <summary>
+            Gets the nullable type that corresponds to the given type.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.TypeFns.GetNonNullableType(System.Type)">
+            <summary>
+            Returns either the specified type or its non-nullable counterpart.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.Core.UsingBlock">
+            <summary>
+             For use with a using (Using in Visual Basic) statement to perform pre- and post- actions. 
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.UsingBlock.Create``1(``0,``0,System.Action{``0})">
+            <summary>
+            Create a <b>UsingBlock</b>.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="origValue"></param>
+            <param name="tempValue"></param>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Core.UsingBlock.#ctor(System.Action,System.Action)">
+            <summary>
+            Create a new instance with the specified actions.
+            </summary>
+            <param name="preAction"></param>
+            <param name="postAction"></param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.UsingBlock.Dispose">
+            <summary>
+            The postAction is performed at disposal of the UsingBlock instance.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.Core.UsingBlock.PostAction">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.Core.BooleanUsingBlock">
+            <summary>
+            A <see cref="T:Breeze.Sharp.Core.UsingBlock"/> for boolean values.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Core.BooleanUsingBlock.#ctor(System.Action{System.Boolean})">
+            <summary>
+            Create an instance with the specified action, defaulting the initial value to True.
+            </summary>
+            <param name="action"></param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.BooleanUsingBlock.#ctor(System.Action{System.Boolean},System.Boolean)">
+            <summary>
+            Create an instance with the specified action and initial value.
+            </summary>
+            <param name="action"></param>
+            <param name="initialValue"></param>
+            <remarks>
+            The action is performed with the initial value provided and its inverse.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.Core.BooleanUsingBlock.#ctor(System.Action{System.Boolean},System.Boolean,System.Boolean)">
+            <summary>
+             Create an instance with the specified action, initial value and revert value.
+            </summary>
+            <param name="action"></param>
+            <param name="initialValue"></param>
+            <param name="revertValue"></param>
+        </member>
+        <member name="M:Breeze.Sharp.Core.BooleanUsingBlock.Dispose">
+            <summary>
+            Performs the specified action again, with the revert value.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.Core.MapCollection`2">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="U"></typeparam>
+        </member>
+        <member name="T:Breeze.Sharp.CacheQueryExpressionVisitor">
+            <summary>
+            For internal use only. Called to convert a query to a cache only in memory query
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryExpressionVisitor.#ctor(Breeze.Sharp.EntityQuery,Breeze.Sharp.CacheQueryOptions)">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.CacheQueryOptions">
+            <summary>
+            Options that allow queries that will be run against cache to share the same semantics as the corresponding
+            query against the Entity Framework and the backend database.  Linq To Objects (CLR) and remote service queries do
+            not automatically share the same semantics.  This class allows Breeze queries against the EntityManager's cache (Linq to Objects queries)
+            to be interpreted like they will be against the remote service.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.CacheQueryOptions.None">
+            <summary>
+            To be used when standard CLR semantics should be used and no compatibility with the backend datastore is needed.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.CacheQueryOptions.DefaultSqlServerCompatibility">
+            <summary>
+            Options that represents a default SQL Server installations and settings.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.CacheQueryOptions.Default">
+            <summary>
+            The default value for CacheQueryOptions. May be modified and will affect all of the standard QueryStrategies. 
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryOptions.#ctor(System.StringComparison,System.Boolean,Breeze.Sharp.GuidOrdering)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="stringComparison"></param>
+            <param name="useSql92CompliantStringComparison"></param>
+            <param name="guidOrdering"></param>
+        </member>
+        <member name="P:Breeze.Sharp.CacheQueryOptions.IsDefault">
+            <summary>
+            Is this instance the default instance. 
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.CacheQueryOptions.StringComparison">
+            <summary>
+            Determines case sensitivity of Cache queries.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.CacheQueryOptions.UseSql92CompliantStringComparison">
+            <summary>
+            Determines whether String comparisons are performed according to the ANSI SQL92 specification.  In particular, 
+            the ANSI standard requires padding for the character strings used in comparisons so that their lengths match before comparing them.
+            </summary>
+            <remarks>
+            Note that this is typically NOT enforced for operations that rely on the SQL 'Like' operator such as 'StartsWith'
+            'EndsWith' and 'Contains'. So, for example:
+            "ABC" == "ABC  " -> true  
+            but
+            "ABC".StartsWith("ABC  ") -> false
+            </remarks>
+        </member>
+        <member name="P:Breeze.Sharp.CacheQueryOptions.GuidOrdering">
+            <summary>
+            Determines whether to use standard CLR semantics for sorting Guids or the SQL Server default mechanism 
+            in which only the last 6 bytes of a value are evaluated.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryOptions.Equals(System.Object)">
+            <summary>
+            See <see cref="M:System.Object.Equals(System.Object)"/>.
+            </summary>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryOptions.op_Equality(Breeze.Sharp.CacheQueryOptions,Breeze.Sharp.CacheQueryOptions)">
+            <summary>
+            Operator == overload.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryOptions.op_Inequality(Breeze.Sharp.CacheQueryOptions,Breeze.Sharp.CacheQueryOptions)">
+            <summary>
+            Operator != overload.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.CacheQueryOptions.GetHashCode">
+            <summary>
+            See <see cref="M:System.Object.GetHashCode"/>.
+            </summary>
+            <returns>
+            A hash code for the current <see cref="T:System.Object"></see>.
+            </returns>
+        </member>
+        <member name="T:Breeze.Sharp.GuidOrdering">
+            <summary>
+            Different semantics for ordering Guids.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.GuidOrdering.CLR">
+            <summary>
+            Standard CLR ordering
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.GuidOrdering.SqlServer">
+            <summary>
+            SQL Server ordering.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.SqlServerGuidComparer">
+            <summary>
+            A comparer that emulates SQL Server's comparison semantics for Guids.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.SqlServerGuidComparer.Compare(System.Guid,System.Guid)">
+            <summary>
+            <see cref="T:System.Collections.Generic.IComparer`1"/>
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.WebApiDataServiceAdapter">
+            <summary>
+            IDataServiceAdapter implementation that supports Microsoft's WebApi.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.MissingCLREntityType">
+            <summary>
+            Server has metadata for a type that is not found on the client.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.MissingCLRComplexType">
+            <summary>
+            Server has metadata for a type that is not found on the client.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.MissingCLRDataProperty">
+            <summary>
+            Server has metadata for a DataProperty that does not exist on the client.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.MissingCLRNavigationProperty">
+            <summary>
+            Server has metadata for a NavigationProperty that does not exist on the client.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.InconsistentCLRPropertyDefinition">
+            <summary>
+            Some fundamental part of this property does not match between client and server. 
+            Mismatches of this type will always throw an exception.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.InconsistentCLRTypeDefinition">
+            <summary>
+            Some fundamental part of this CLRType does not match between client and server. 
+            Mismatches of this type will always throw an exception.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MetadataMismatchTypes.AllAllowable">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.Configuration">
+            <summary>
+            A singleton class that provides basic registration mechanisms for a Breeze application.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.Configuration.Instance">
+            <summary>
+            The Singleton instance.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Configuration.__Reset">
+            <summary>
+            For testing purposes only. - Replaces the current instance with a new one, effectively clearing any 
+            previously cached or registered data.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.Configuration.ProbeAssemblies(System.Reflection.Assembly[])">
+            <summary>
+            Tell's Breeze to probe the specified assemblies and automatically discover any
+            Entity types, Complex types, Validators, NamingConventions and any other types 
+            for which a type discovery action is registered.
+            </summary>
+            <param name="assembliesToProbe"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Configuration.GetClrType(System.String)">
+            <summary>
+            Returns the CLR type for a specified structuralTypeName or null if not found.
+            </summary>
+            <param name="structuralTypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Configuration.IsStructuralType(System.Type)">
+            <summary>
+            Returns whether the specified CLR type is either an IEntity or a IComplexObject.
+            </summary>
+            <param name="clrType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Configuration.RegisterTypeDiscoveryAction(System.Type,System.Action{System.Type})">
+            <summary>
+            Allows for custom actions to be performed as a result of any ProbeAssemblies call.
+            </summary>
+            <param name="type"></param>
+            <param name="action"></param>
+        </member>
+        <member name="T:Breeze.Sharp.QueryResult`1">
+            <summary>
+            The actual result of any query that has an InlineCount specified.  
+            This class also implement IEnumerable{T} for the actual returned entities.
+            If you want the InlineCount for any query you will need to cast the return type
+            from the query into a QueryResult{T}). 
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:Breeze.Sharp.IHasInlineCount">
+            <summary>
+            Interface that indicates whether an object returned by a <see cref="T:Breeze.Sharp.EntityQuery`1"/> has an InlineCount property. 
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.IHasInlineCount.InlineCount">
+            <summary>
+            The actual inline count.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.BuildQuery(Breeze.Sharp.EntityKey[])">
+            <summary>
+            Builds an <see cref="T:Breeze.Sharp.EntityQuery"/> based on a collection of <see cref="T:Breeze.Sharp.EntityKey"/>s.
+            The EntityQuery returned is actually an EntityQuery{T} but T is unknown at compile time.
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.BuildQuery(System.Collections.Generic.IEnumerable{Breeze.Sharp.EntityKey})">
+            <summary>
+            Builds an <see cref="T:Breeze.Sharp.EntityQuery"/> based on a collection of <see cref="T:Breeze.Sharp.EntityKey"/>s.
+            The EntityQuery returned is actually an EntityQuery{T} but T is unknown at compile time.
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.BuildQuery(Breeze.Sharp.IEntity,Breeze.Sharp.NavigationProperty)">
+            <summary>
+            Builds an <see cref="T:Breeze.Sharp.EntityQuery"/> to load the entities for the navigation property of the entity.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.BuildEmptyQuery(System.Type)">
+            <summary>
+            Returns a query that will return an Empty enumeration of specified type when executed.
+            </summary>
+            <param name="entityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.AddWhereClause(Breeze.Sharp.EntityQuery,System.Collections.Generic.IEnumerable{Breeze.Sharp.EntityKey})">
+            <summary>
+            Builds an <see cref="T:Breeze.Sharp.EntityQuery"/> tied to a specific <see cref="T:Breeze.Sharp.EntityGroup"/> based on a collection of <see cref="T:Breeze.Sharp.EntityKey"/>s
+            </summary>
+            <param name="keys"></param>
+            <param name="entityQuery"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryBuilder.BuildWhereLambda(System.Collections.Generic.IEnumerable{Breeze.Sharp.EntityKey})">
+            <summary>
+            For internal use only. Handles both scalar and multivalued primary keys
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.IDataServiceAdapter">
+            <summary>
+            Client side interface that describes the interaction between a DataService and a remote data service.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralTypeBuilder">
+            <summary>
+            Base class that provides a fluent interface for configuring the MetadataStore.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityTypeBuilder`1">
+            <summary>
+            Provides a fluent interface for configuring an EntityType within the MetadataStore.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityTypeBuilder`1.DataProperty``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Returns null if not found
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <param name="propExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.DataPropertyBuilder">
+            <summary>
+            Provides a fluent interface for configuring an DataProperty within the MetadataStore.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.IsNullable">
+            <summary>
+            Used to defined that this DataProperty is nullable.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.IsRequired">
+            <summary>
+            Used to defined that this DataProperty is required. ( The opposite of IsNullable. )
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.IsPartOfKey(System.Boolean)">
+            <summary>
+            Used to defined that this DataProperty is part of this Entity's EntityKey.
+            </summary>
+            <param name="isPartOfKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.IsAutoIncrementing(System.Boolean)">
+            <summary>
+            Used to defined that this DataProperty is autoIncrementing.
+            </summary>
+            <param name="isAutoIncrementing"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.DefaultValue(System.Object)">
+            <summary>
+            Used to defined the default value for this DataProperty.
+            </summary>
+            <param name="defaultValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.ConcurrencyMode(Breeze.Sharp.ConcurrencyMode)">
+            <summary>
+            Used to defined the ConcurrencyMode for this DataProperty.
+            </summary>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.DataPropertyBuilder.MaxLength(System.Nullable{System.Int32})">
+            <summary>
+            Used to defined the maximum string length for this DataProperty.
+            </summary>
+            <param name="maxLength"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.DataPropertyBuilder.DataProperty">
+            <summary>
+            The DataProperty associated with this builder.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NavigationPropertyBuilder`2">
+            <summary>
+            Provides a fluent interface for configuring an NavigatiomProperty within the MetadataStore.
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <typeparam name="TTarget"></typeparam>
+        </member>
+        <member name="M:Breeze.Sharp.NavigationPropertyBuilder`2.HasForeignKey``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Used to define the foreign key property associated with this NavigationProperty.
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <param name="propExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NavigationPropertyBuilder`2.HasInverseForeignKey``1(System.Linq.Expressions.Expression{System.Func{`1,``0}})">
+            <summary>
+            Used to define the 'inverse' foreign key property associated with this NavigationProperty. This method will only
+            be needed in unusual cases.
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <param name="propExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NavigationPropertyBuilder`2.HasInverse(System.Linq.Expressions.Expression{System.Func{`1,`0}})">
+            <summary>
+            Used to define the scalar Inverse navigation property associated with this NavigationProperty.
+            </summary>
+            <param name="propExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NavigationPropertyBuilder`2.HasInverse(System.Linq.Expressions.Expression{System.Func{`1,Breeze.Sharp.NavigationSet{`0}}})">
+            <summary>
+            Used to define the nonscalar Inverse navigation property associated with this NavigationProperty.
+            </summary>
+            <param name="propExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationPropertyBuilder`2.NavigationProperty">
+            <summary>
+            The NavigationProperty associated with this builder.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NamespaceDoc">
+             <summary>
+             Welcome to the Breeze.Sharp API documentation. If this is your first time browsing the API, 
+             you might want to start with the <see cref="T:Breeze.Sharp.EntityManager"/> as this is the core class in Breeze.
+             Sample applications, videos, and additional documentation are also available.
+            
+             Ask questions in our community forum and get answers from support engineers, MVPs, and developers just like you.
+             If you prefer to use email, please contact us at breeze@ideablade.com.
+             </summary>
+        </member>
+        <member name="T:Breeze.Sharp.SaveOptions">
+            <summary>
+            A SaveOptions instance is used to specify the 'options' under which a save will occur.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.SaveException">
+            <summary>
+            SaveExceptions are thrown whenever an <see cref="M:Breeze.Sharp.EntityManager.SaveChanges(Breeze.Sharp.SaveOptions)"/> call fails for any reason.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityError">
+            <summary>
+            Information about any errors encountered on a specific entity during the course of a 
+            EntityManager.SaveChanges operation.  A collection of EntityError instances is part
+            of every <see cref="T:Breeze.Sharp.SaveException"/>
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.SaveResult">
+            <summary>
+            The result of an  <see cref="M:Breeze.Sharp.EntityManager.SaveChanges(Breeze.Sharp.SaveOptions)"/>  call
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.SaveResult.Entities">
+            <summary>
+            The saved entities - with any temporary keys converted into 'real' keys.
+            These entities are actually references to entities in the EntityManager 
+            cache that have been updated as a result of the save.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.SaveResult.KeyMappings">
+            <summary>
+            Dictionary that maps presave EntityKeys to postSave entity keys for all temporary keys where the server 
+            will have generated the new key.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IJsonSerializable">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.JNode">
+            <summary>
+            For internal use only. Wrapper over simple json object to provide serialization/deserialization services.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.JsonNodeInfo">
+            <summary>
+            This types describes the result of each <see cref="M:Breeze.Sharp.IJsonResultsAdapter.VisitNode(Newtonsoft.Json.Linq.JObject,Breeze.Sharp.MappingContext,Breeze.Sharp.NodeContext)"/> operation.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IJsonResultsAdapter">
+            <summary>
+             Instances of this interface are used to provide custom extraction and parsing logic
+             on the json results returned by any web service. This facility makes it possible for breeze
+             to talk to virtually any web service and return objects that will be first class 'breeze' citizens.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ImportResult">
+            <summary>
+            Information about the result of an EntityManager.ImportEntities operation.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ImportOptions">
+            <summary>
+            Options that mediate how imported entities should be merged into an EntityManager.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.QueryOptions">
+            <summary>
+            A QueryOptions instance is used to specify the 'options' under which a query will occur.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.QueryOptions.With(Breeze.Sharp.FetchStrategy)">
+            <summary>
+            Returns a new QueryOptions based on this QueryOptions but with the specified FetchStrategy
+            </summary>
+            <param name="fetchStrategy"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.QueryOptions.With(Breeze.Sharp.MergeStrategy)">
+            <summary>
+            Returns a new QueryOptions based on this QueryOptions but with the specified MergeStrategy
+            </summary>
+            <param name="mergeStrategy"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.PropertyCollection">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralProperty">
+            <summary>
+            Base class for both the <see cref="T:Breeze.Sharp.DataProperty"/> and the <see cref="T:Breeze.Sharp.NavigationProperty"/> classes.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ComplexAspect">
+            <summary>
+            Provides entity services to a <see cref="P:Breeze.Sharp.ComplexAspect.ComplexObject"/>.
+            </summary>
+            <remarks>
+            The <b>ComplexAspect</b> provides verification and change tracking capaibilities to the ComplexObject.
+            </remarks>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.ComplexObject">
+            <summary>
+            Returns the wrapped IComplexObject.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.Parent">
+            <summary>
+            The parent object (either an Entity or a ComplexObject) to this ComplexObject.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.ParentProperty">
+            <summary>
+            The EntityProperty of the <see cref="P:Breeze.Sharp.ComplexAspect.Parent"/> that contains this object.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.ParentEntity">
+            <summary>
+            The top level parent <see cref="T:Breeze.Sharp.IEntity"/> that owns this complex object.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.ParentEntityProperty">
+            <summary>
+            The property on the top level parent entity that owns this complex object.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.EntityManager">
+            <summary>
+            The <see cref="T:Breeze.Sharp.EntityManager"/> that manages the <see cref="P:Breeze.Sharp.ComplexAspect.ParentEntity"/>.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.ComplexAspect.System#ComponentModel#INotifyDataErrorInfo#HasErrors">
+            <summary>
+            True if there are any validation errors.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.ComplexAspect.System#ComponentModel#INotifyDataErrorInfo#ErrorsChanged">
+            <summary>
+            Raised when validation errors have changed for a property or the object.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.ComplexAspect.OnErrorsChanged(System.String)">
+            <summary>
+            Raises the ErrorsChanged event.
+            </summary>
+            <param name="propertyName"></param>
+        </member>
+        <member name="M:Breeze.Sharp.ComplexAspect.StructuralEquals(System.Object)">
+            <summary>
+            Performs an equality comparison of complex objects determined by their constituent values.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.DataService">
+            <summary>
+            A DataService instance is used to encapsulate the details of a single 'service'; 
+            this includes a serviceName, a dataService adapterInstance, and whether the service has server side metadata.
+            </summary>
+            <remarks>
+            You can construct an EntityManager with either a serviceName or a DataService instance, 
+            if you use a serviceName then a DataService is constructed for you. 
+            The same applies to the MetadataStore.FetchMetadata method, i.e. it takes either a serviceName or a DataService instance.
+            Each metadataStore contains a list of DataServices, each accessible via its ‘serviceName’. 
+            ( see MetadataStore.GetDataService and MetadataStore.addDataService). 
+            The ‘addDataService’ method is called internally anytime a MetadataStore.FetchMetadata call 
+            occurs with a new dataService ( or service name).
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.DataService.#ctor(System.String,System.Net.Http.HttpClient)">
+            <summary>
+            Constructs a new DataService with the option to use an already configured HttpClient. If one is not provided
+            then the DataService will create one internally.  In either case it will be available via the HttpClient property.
+            </summary>
+            <remarks>Note that if an HttpClient is passed in that it MUST be a different instance than that provided
+            to any other DataService.  Whether passed in or created by the DataService, the HttpClient will automatically have 
+            its BaseAddress set and will be configured to support for a 'application/json' media type request header.
+            </remarks>
+            <param name="serviceName"></param>
+            <param name="httpClient"></param>
+        </member>
+        <member name="M:Breeze.Sharp.DataService.#ctor(Breeze.Sharp.JNode)">
+            <summary>
+            For internal use only.
+            </summary>
+            <param name="jNode"></param>
+        </member>
+        <member name="P:Breeze.Sharp.DataService.HttpClient">
+            <summary>
+            Returns the HttpClient used by this data service.  This reference may be 
+            used to customize  headers, buffer sizes and timeouts.  
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataService.DefaultHttpMessageHandler">
+            <summary>
+            The Default HttpMessageHandler to be used in the event that 
+            Breeze creates the HttpClient automatically for this service.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.DataServiceRequestException">
+            <summary>
+            Exception thrown when a DataService request fails.
+            See the HttpResponse property for detailed information on the failed request.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.DataTypeInfo">
+            <summary>
+            Used to classify whether a data type is a number, an integer or a date.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NumericDataType">
+            <summary>
+            Subtype of DataType for all numeric datatypes.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.DataType">
+            <summary>
+            Metadata about any primitive data type. Each Breeze DataProperty for a primitive type (i.e. does not 
+            describe a ComplexObject) will have a DataType property.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.BaseEntity">
+            <summary>
+            Default base class implementation of <see cref="T:Breeze.Sharp.IEntity"/>.
+            All entities should inherit from this class either directly or indirectly.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.BaseEntity.#ctor">
+            <summary>
+            Protected empty ctor.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.BaseEntity.Initialize">
+            <inheritdoc />
+        </member>
+        <member name="P:Breeze.Sharp.BaseEntity.EntityAspect">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.EntityAspect">
+            <summary>
+            Provides entity services to a <see cref="T:Breeze.Sharp.IEntity"/>.  
+            <seealso cref="T:Breeze.Sharp.EntityManager"/>
+            <seealso cref="T:Breeze.Sharp.EntityQuery"/>
+            <seealso cref="T:Breeze.Sharp.IEntity"/>
+            </summary>
+            <remarks>
+            The <b>EntityAspect</b> implements interfaces to support editing, change tracking and change notification.
+            One instance of the EntityAspect class is associated with each persistable entity within a domain model.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.#ctor(Breeze.Sharp.IEntity)">
+            <summary>
+            For internal use only.
+            </summary>
+            <param name="entity"></param>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.Entity">
+            <summary>
+            The Entity that this aspect is associated with.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.IsDetached">
+            <summary>
+            Whether this entity is detached from an EntityManager. 
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.IsAttached">
+            <summary>
+            Whether this entity is attached to an EntityManager. 
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.EntityManager">
+            <summary>
+            The <see cref="T:Breeze.Sharp.EntityManager"/> that manages this entity.
+            </summary>
+            <remarks>
+            This value will be null until an object is attached to an <b>EntityManager</b> or if it was created using an EntityManager.
+            </remarks>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.EntityKey">
+            <summary>
+            Returns the EntityKey for the associated Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.EntityState">
+            <summary>
+            Returns the EntityState for the associated Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.EntityVersion">
+            <summary>
+            Returns the EntityVersion for the associated Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.IsNullEntity">
+            <summary>
+            Returns whether the current instance is a null entity.
+            </summary>
+            <remarks>
+            The EntityManager will return a NullEntity instead of a null value when
+            a requested entity is not found.
+            </remarks>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.HasTemporaryKey">
+            <summary>
+            Whether the associated Entity has a 'temporary' EntityKey. i.e. one that will change after
+            a successful save.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.StructuralType">
+            <summary>
+            The StructuralType associated with this Entity.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.Delete">
+            <summary>
+            Marks this Entity for deletion; the <see cref="P:Breeze.Sharp.EntityAspect.EntityState"/> becomes "Deleted".
+            </summary>
+            <remarks>
+            You must call <see cref="!:Breeze.Sharp.EntityManager.SaveChanges()"/> to persist this change to the 
+            backend data source.  
+            <para>
+            The <see cref="E:Breeze.Sharp.EntityManager.EntityChanging"/> and <see cref="E:Breeze.Sharp.EntityManager.EntityChanged"/> events
+            will fire during a <b>Delete</b> call with an EntityAction of <see cref="F:Breeze.Sharp.EntityAction.Delete"/>.
+            </para>  
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.Equals(System.Object)">
+            <summary>
+            <see cref="M:System.Object.Equals(System.Object)"/>.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.GetHashCode">
+            <summary>
+            <see cref="M:System.Object.GetHashCode"/>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.Attach(Breeze.Sharp.EntityState,Breeze.Sharp.EntityManager)">
+            <summary>
+            Adds a newly created entity to its associated <see cref="T:Breeze.Sharp.EntityManager"/>. 
+            </summary>
+            <remarks>The associated EntityManager will either be the EntityManager that was called to create this Entity
+            (<see cref="!:Breeze.Sharp.EntityManager.CreateEntity&lt;T&gt;()"/>) or that was used to generate its ids ( <see cref="M:Breeze.Sharp.EntityManager.GenerateId(Breeze.Sharp.IEntity,Breeze.Sharp.DataProperty)"/>)
+            If neither of these cases apply, then the <see cref="P:Breeze.Sharp.EntityAspect.EntityManager"/>'s DefaultManager"/> will be used.
+            There is no difference between <b>AddToManager</b> and 
+            <see cref="M:Breeze.Sharp.EntityManager.AddEntity(Breeze.Sharp.Entity)"/>.
+            Use either method to add a business object created by the <see cref="M:Breeze.Sharp.EntityManager.CreateEntity(System.Type)"/> method
+            to the EntityManager cache.  The object must have a "detached" <see cref="M:Breeze.Sharp.Entity.EntityState"/>, must not
+            have ever been associated with another EntityManager and must have a unique EntityKey within the EntityManager to which it will
+            be added. 
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.Detach">
+             <summary>
+             Removes the entity from the EntityManager cache.
+             </summary>
+             <remarks>The Entity will be in a "detached" state after the remove. 
+             <b>RemoveFromManager</b> and <see cref="M:Breeze.Sharp.EntityManager.RemoveEntity(Breeze.Sharp.Entity)"/>
+              can be used interchangeably. Calling <b>RemoveFromManager</b> also clears the EntityManager's <see cref="!:Breeze.Sharp.EntityManager.QueryCache"/>.
+            <para>This does not delete the object from the backend server.  To delete an entity,
+            use the <see cref="M:Breeze.Sharp.Entity.Delete"/> method.</para>
+             </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.RejectChanges">
+            <summary>
+            Rejects (rolls back) all changes to this Entity since it was queried or had <see cref="M:Breeze.Sharp.EntityAspect.AcceptChanges"/> called on it.
+            </summary>
+            <remarks>
+            Rejects any changes made to the Entity since the last save operation.
+            This will also remove the Entity from the <b>EntityManager</b> if it was an 'added' object.
+            <para>
+            The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> and <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> events
+            will fire during a <b>RejectChanges</b> call with an EntityAction of <see cref="!:EntityAction.Rollback"/>.
+            </para>
+            <seealso cref="M:Breeze.Sharp.Entity.RejectChanges"/>
+            <seealso cref="M:Breeze.Sharp.Entity.RemoveFromManager()"/>
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.HasChanges">
+            <summary>
+            Determines whether this entity has any pending changes.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.IsChanged">
+            <summary>
+            Whether any changes have been made to this entity.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.SetAdded">
+            <summary>
+            Forces this entity into the <see cref="P:Breeze.Sharp.EntityAspect.EntityState"/> of Added.
+            </summary>
+            <remarks>
+            You will usually have no reason to call this method from application code.  The EntityState
+            is automatically set to Added by the framework when a new entity is added to an EntityManager.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.SetModified">
+            <summary>
+            Forces this entity into the <see cref="P:Breeze.Sharp.EntityAspect.EntityState"/> of Modified.
+            </summary>
+            <remarks>
+            You will usually have no reason to call this method from application code.  The EntityState
+            is automatically set to Modified by the framework when any EntityProperty of the entity is changed.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.System#ComponentModel#IEditableObject#BeginEdit">
+            <summary>
+            Provided to allow IEditableObject interface to be overriden in derived classes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.System#ComponentModel#IEditableObject#CancelEdit">
+            <summary>
+            Provided to allow IEditableObject interface to be overriden in derived classes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.System#ComponentModel#IEditableObject#EndEdit">
+            <summary>
+            Provided to allow IEditableObject interface to be overriden in derived classes.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.EntityAspect.EntityPropertyChanged">
+            <summary>
+            Fired whenever a property value on this Entity changes.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.EntityAspect.PropertyChanged">
+            <summary>
+            Properties on the EntityAspect that are subject to changed
+            and therefore available via the PropertyChanged notification are
+            EntityState, EntityKey, IsChanged, HasErrors, and SavingErrorMessage
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.ForceEntityPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
+            <summary>
+            Forces a PropertyChanged event to be fired. 
+            </summary>
+            <param name="args">A <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> or null</param>
+            <remarks>
+            An Empty value or a null reference (<c>Nothing</c> in Visual Basic) for the propertyName parameter of 
+            PropertyChangedEventArgs indicates that all of the properties have changed, causing 
+            the .NET framework to also fire a ListChangedEventArgs.ListChangedType of "Reset" if the event
+            propagates to a list that supports the ListChanged event.
+            <para>
+            Passing a null value to this method will
+            insure that a valid (dynamically created) property name is passed on to any listeners.
+            </para>
+            <para>
+            This method should only be needed in situations where changes to calculated fields or other properties 
+            not backed by an <see cref="T:Breeze.Sharp.StructuralProperty"/> must be made known.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityAspect.System#IComparable#CompareTo(System.Object)">
+            <summary>
+            Base implementation of <see cref="M:System.IComparable.CompareTo(System.Object)"/>.
+            </summary>
+            <param name="obj">Object to compare with this instance</param>
+            <returns></returns>
+            <remarks>This will compare Entities by <see cref="P:Breeze.Sharp.EntityAspect.EntityKey"/>.  Derived classes
+            can override this implementation as needed to modify the default sort order of objects of this type.
+            </remarks>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAspect.AllErrors">
+            <summary>
+            'Magic' string that can be used to return all errors from <see cref="M:System.ComponentModel.INotifyDataErrorInfo.GetErrors(System.String)"/>.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityAspect.System#ComponentModel#INotifyDataErrorInfo#HasErrors">
+            <summary>
+            True if there are any validation errors.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.EntityAspect.System#ComponentModel#INotifyDataErrorInfo#ErrorsChanged">
+            <summary>
+            Raised when validation errors have changed for a property or the object.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityChangeEventArgs">
+            <summary>
+            Base class for all Entity Changing/Changed event args.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityChangeEventArgs.#ctor(Breeze.Sharp.IEntity,Breeze.Sharp.EntityAction,System.EventArgs)">
+            <summary>
+            Create an instance of this class.
+            </summary>
+            <param name="entity"></param>
+            <param name="entityAction"></param>
+            <param name="actionEventArgs"></param>
+        </member>
+        <member name="P:Breeze.Sharp.EntityChangeEventArgs.EntityAspect">
+            <summary>
+            Returns the EntityAspect for the entity involved in the event.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityChangeEventArgs.Entity">
+            <summary>
+             The object that is changing or has been changed.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityChangeEventArgs.Action">
+            <summary>
+            Action that caused this change.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityChangeEventArgs.ActionEventArgs">
+            <summary>
+            The EventArgs ( if any) that are associated with this specified EntityAction.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityChangingEventArgs">
+            <summary>
+            Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event.
+            </summary>
+            <remarks>
+            The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> event fires whenever an action
+            is about to take place on an entity.
+            You can set the <see cref="P:Breeze.Sharp.EntityChangingEventArgs.Cancel"/> property to true in your handler to stop further 
+            processing of the change.  See the <see cref="T:Breeze.Sharp.EntityAction"/> for the action to
+            be performed.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityChangingEventArgs.#ctor(Breeze.Sharp.IEntity,Breeze.Sharp.EntityAction,System.EventArgs)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="entity"></param>
+            <param name="action"></param>
+            <param name="actionEventArgs"></param>
+        </member>
+        <member name="P:Breeze.Sharp.EntityChangingEventArgs.Cancel">
+            <summary>
+            Gets or sets a value indicating whether the event should be canceled.
+            </summary>
+            <value>True if the event should be canceled; otherwise, False.</value>
+        </member>
+        <member name="T:Breeze.Sharp.EntityChangedEventArgs">
+            <summary>
+            Provides information to the <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event.
+            </summary>
+            <remarks>
+            The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> event fires whenever an action
+            has taken place on an entity. See the <see cref="T:Breeze.Sharp.EntityAction"/> for the action performed.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityChangedEventArgs.#ctor(Breeze.Sharp.IEntity,Breeze.Sharp.EntityAction,System.EventArgs)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="entity"></param>
+            <param name="action"></param>
+            <param name="actionEventArgs"></param>
+        </member>
+        <member name="T:Breeze.Sharp.EntityState">
+            <summary>
+            The state of an <see cref="T:Breeze.Sharp.IEntity"/>.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.Detached">
+            <summary>
+            The entity has been created but is not part of any EntityGroup.
+            A Entity is in this state immediately after it has been created
+            and before it is added to the EntityManager, or if it has been removed from the
+            EntityManager.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.Unchanged">
+            <summary>
+                The entity has not changed since last queried or saved.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.Added">
+            <summary>
+                The entity has been added to the EntityManager.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.Deleted">
+            <summary>
+                The entity was deleted using the Entity.Delete() method.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.Modified">
+            <summary>
+                The entity has been modified and EntityManager.SaveChanges() has not
+                been called.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.AnyAddedModifiedOrDeleted">
+            <summary>
+            Added or Modified or Deleted.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityState.AllButDetached">
+             <summary>
+            All states except detached. 
+             </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityStateFns">
+            <summary>
+            Provides a set of static methods extending an <see cref="T:Breeze.Sharp.IEntity"/> to provide
+            information about the <see cref="T:Breeze.Sharp.EntityState"/>.
+            <seealso cref="N:System.Linq"/>
+            </summary>
+            <remarks>
+            To use these extensions, add a using statement (Imports in Visual Basic) for this namespace
+            to your class.  
+            <para>
+            For more information on extension methods, see <b>Extension Methods (C# Programming Guide)</b>
+            or <b>Extension Methods (Visual Basic)</b> in the Visual Studio 2008 documentation.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsUnchanged(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity is unchanged.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsAdded(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been added.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsModified(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been modified.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsDetached(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been detached (either not yet attached or removed via RemoveFromManager).
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsDeleted(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been deleted (but the change has not yet been persisted to the data source).
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsAddedOrModified(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been either added or modified.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsAddedOrModifiedOrDeleted(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been added, modified or deleted.
+            </summary>
+            <param name="es"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsDeletedOrDetached(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been either deleted or detached.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityStateFns.IsDeletedOrModified(Breeze.Sharp.EntityState)">
+            <summary>
+            Whether this Entity has been either deleted or modified
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityVersion">
+            <summary>
+               Describes the version of an Entity.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityVersion.Default">
+            <summary>
+                The default version for the state of the entity. For an <see cref="T:Breeze.Sharp.EntityState"/> value
+                of Added, Modified or Unchanged,  the default version is Current. For an EntityState of Deleted the
+                default version is Original. For an entity in IEditableObject.Edit state the version is Proposed. 
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityVersion.Original">
+            <summary>
+               The entity contains its original values.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityVersion.Current">
+            <summary>
+               The entity contains current values.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityVersion.Proposed">
+            <summary>
+               The entity contains a proposed value.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityAction">
+            <summary>
+               Describes an action performed on an Entity.
+            </summary>
+            <remarks>
+            The <see cref="E:Breeze.Sharp.EntityGroup.EntityChanging"/> and <see cref="E:Breeze.Sharp.EntityGroup.EntityChanged"/> events
+            both receive arguments containing the <b>EntityAction</b>.
+            </remarks>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAction.AttachOnQuery">
+            <summary>
+            Entity was attached as a result of a query.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAction.AttachOnImport">
+            <summary>
+            AttachOnImport - Entity was attached as a result of an import.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAction.Detach">
+            <summary>
+            AttachOnQuery - Entity was detached.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAction.Delete">
+            <summary>
+            Delete - Entity was marked for deletion
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.EntityAction.MergeOnQuery">
+            <summary>
+            MergeOnQuery - Properties on the entity were merged as a result of a query.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.Create(System.Type,Breeze.Sharp.EntityManager)">
+            <summary>
+            Creates an instance of an EntityGroup for a specific entity type.
+            </summary>
+            <param name="clrEntityType"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.EntityType">
+            <summary>
+            The type of Entity contained within this group.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.EntityManager">
+            <summary>
+            The <see cref="T:Breeze.Sharp.EntityManager"/> which manages this EntityGroup.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.QueryableType">
+            <summary>
+            The type being queried. (same as EntityType for an EntityGroup)
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.Name">
+            <summary>
+            The name of this group.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.ChangeNotificationEnabled">
+            <summary>
+            Used to suppress change events during the modification of entities within this group.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.SelfAndSubtypeGroups">
+            <summary>
+            Returns a list of groups for this entity type and all sub-types.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.Entities">
+            <summary>
+            Returns a collection of entities of given entity type and sub-types.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityGroup.CurrentEntities">
+            <summary>
+            Returns the currently live (i.e not deleted or detached) entities for the given entity type and its subtypes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.GetNameFor(System.Type)">
+            <summary>
+            Returns the EntityGroup name corresponding to any <see cref="T:Breeze.Sharp.IEntity"/> subtype.
+            </summary>
+            <param name="entityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.GetChanges(Breeze.Sharp.EntityState)">
+            <summary>
+            Returns all of the entities within this group with the specified state or states.
+            </summary>
+            <param name="state"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.AcceptChanges">
+            <summary>
+            Calls <see cref="M:Breeze.Sharp.EntityAspect.AcceptChanges"/> on all entities in this group.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.RejectChanges">
+            <summary>
+            Calls <see cref="M:Breeze.Sharp.EntityAspect.RejectChanges"/> on all entities in this group.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityGroup.HasChanges">
+            <summary>
+            Determines whether any entity in this group has pending changes.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.EntityKey">
+            <summary>
+            Represents the primary key for an <see cref="T:Breeze.Sharp.IEntity"/>.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.#ctor(System.Type,Breeze.Sharp.MetadataStore,System.Object[])">
+            <summary>
+            Constructs a new EntityKey. Each entity within an EntityManager will have a unique EntityKey.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.#ctor(Breeze.Sharp.EntityType,System.Object[])">
+            <summary>
+            Constructs a new EntityKey. Each entity within an EntityManager will have a unique EntityKey.
+            </summary>
+            <param name="entityType">The Entity type</param>
+            <param name="values">The values of the primary key properties</param>
+        </member>
+        <member name="P:Breeze.Sharp.EntityKey.EntityType">
+            <summary>
+            The <see cref="T:Breeze.Sharp.IEntity"/> type associated with this primary key.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityKey.Values">
+            <summary>
+            An array of values associated with individual properties of the key.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.ToQuery">
+            <summary>
+            Constructs an untyped EntityQuery for a single entity based on this EntityKey.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.ToQuery``1">
+            <summary>
+            Constructs a typed EntityQuery for a single entity based on this EntityKey.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.Equals(System.Object)">
+            <summary>
+            Determines whether two primary keys refer to the same entity.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.CompareTo(System.Object)">
+            <summary>
+            See <see cref="M:System.IComparable.CompareTo(System.Object)"/>.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.GetHashCode">
+            <summary>
+            See <see cref="M:System.Object.GetHashCode"/>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.op_Equality(Breeze.Sharp.EntityKey,Breeze.Sharp.EntityKey)">
+            <summary>
+            
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.op_Inequality(Breeze.Sharp.EntityKey,Breeze.Sharp.EntityKey)">
+            <summary>
+            
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityKey.ToString">
+            <summary>
+            Returns a human readable representation of this Primary Key.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.EntityManagerCreatedEventArgs">
+            <summary>
+            Arguments to the <see cref="E:EntityManager.EntityManagerCreated"/> event.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManagerCreatedEventArgs.#ctor(Breeze.Sharp.EntityManager)">
+            <summary>
+            Initialize a new instance of this class.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManagerCreatedEventArgs.EntityManager">
+            <summary>
+            The EntityManager involved in this event.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityManagerHasChangesChangedEventArgs">
+            <summary>
+            Arguments to the EntityManager's <see cref="E:EntityManager.HasChangesChanged"/> event.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManagerHasChangesChangedEventArgs.#ctor(Breeze.Sharp.EntityManager)">
+            <summary>
+            Initialize a new instance of this class.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManagerHasChangesChangedEventArgs.EntityManager">
+            <summary>
+            The EntityManager involved in this event.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityQuery`1">
+            <summary>
+            An EntityQuery instance is used to query entities either from a remote datasource or from a local EntityManager.
+            EntityQueries are immutable - this means that all EntityQuery methods that return an EntityQuery actually create a new EntityQuery. 
+            Therefore EntityQueries can be 'modified' without affecting any current instances.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.#ctor(System.String)">
+            <summary>
+            Contructor for a query against a specific resource.
+            </summary>
+            <param name="resourceName"></param>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.#ctor(Breeze.Sharp.EntityQuery{`0})">
+            <summary>
+            May be called by subclasses that need to add additional behavior to a query.
+            The basic idea is to use this method to clone the query first and then add
+            or modify properties on the cloned instance. 
+            </summary>
+            <param name="query"></param>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.Clone">
+            <summary>
+            For internal use only.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.From(System.String)">
+            <summary>
+            Returns a new query with the specified resource name.
+            </summary>
+            <param name="resourceName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.Execute(Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query, against an optionally specified EntityManager. If no EntityManager
+            is specified then the query is run on the EntityManager specified by the EntityManager 
+            property on this instance. ( <see cref="M:Breeze.Sharp.EntityQueryExtensions.With``1(``0,Breeze.Sharp.EntityManager)"/> )
+            If this value is null an exception will be thrown.
+            </summary>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.Execute(System.Threading.CancellationToken,Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query, against an optionally specified EntityManager. If no EntityManager
+            is specified then the query is run on the EntityManager specified by the EntityManager 
+            property on this instance. ( <see cref="M:Breeze.Sharp.EntityQueryExtensions.With``1(``0,Breeze.Sharp.EntityManager)"/> )
+            If this value is null an exception will be thrown.
+            </summary>
+            <param name="cancellationToken"></param>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.ExecuteLocally(Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query against the EntityManager's local cache, with an optionally specfied EntityManager.
+            If no EntityManager
+            is specified then the query is run on the EntityManager specified by the EntityManager 
+            property on this instance. ( <see cref="M:Breeze.Sharp.EntityQueryExtensions.With``1(``0,Breeze.Sharp.EntityManager)"/> )
+            If this value is null an exception will be thrown.
+            </summary>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.Expand``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Returns a new query that will return related entities nested within its results. 
+            The Expand method allows you to identify related entities, via navigation property names such 
+            that a graph of entities may be retrieved with a single request. Any filtering occurs before
+            the results are 'expanded'.
+            </summary>
+            <typeparam name="TTarget"></typeparam>
+            <param name="navigationPropertyFn"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.Expand(System.String)">
+            <summary>
+            Returns a new query that will return related entities nested within its results. 
+            The Expand method allows you to identify related entities, via navigation property names such 
+            that a graph of entities may be retrieved with a single request. Any filtering occurs before
+            the results are 'expanded'.
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.WithParameter(System.String,System.Object)">
+            <summary>
+            Returns a new query that includes a specified parameter to pass to the server.
+            </summary>
+            <param name="name"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.WithParameters(System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Returns a new query that includes a collection of parameters to pass to the server.
+            </summary>
+            <param name="dictionary"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.InlineCount">
+            <summary>
+            Returns a query with the 'inlineCount' capability either enabled or disabled. With 
+            'InlineCount' enabled, an additional 'InlineCount' property will be returned with the 
+            query results that will contain the number of entities that would have been returned by 
+            this query with only the 'where'/'filter' clauses applied, i.e. without any 'skip'/'take'
+            operators applied. For local queries this clause is ignored.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.GetResourcePath(Breeze.Sharp.MetadataStore)">
+            <summary>
+            For internal use.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.System#Linq#IQueryProvider#CreateQuery``1(System.Linq.Expressions.Expression)">
+            <summary>
+            Internal use only - part of <see cref="T:System.Linq.IQueryProvider"/> implementation.
+            </summary>
+            <typeparam name="TElement"></typeparam>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.System#Linq#IQueryProvider#CreateQuery(System.Linq.Expressions.Expression)">
+            <summary>
+            Internal use only - part of <see cref="T:System.Linq.IQueryProvider"/> implementation.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.System#Linq#IQueryProvider#Execute``1(System.Linq.Expressions.Expression)">
+            <summary>
+            Internal use only - part of <see cref="T:System.Linq.IQueryProvider"/> implementation.
+            </summary>
+            <typeparam name="TResult"></typeparam>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery`1.System#Linq#IQueryProvider#Execute(System.Linq.Expressions.Expression)">
+            <summary>
+            Internal use only - part of <see cref="T:System.Linq.IQueryProvider"/> implementation.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery`1.ElementType">
+            <summary>
+            The element type of the IEnumerable{T} returned by this query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery`1.DataServiceQuery">
+            <summary>
+            For internal use.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityQuery">
+            <summary>
+            Base class for all EntityQueries.  This class is untyped and may be used
+            when you need to create entity queries dynamically.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.Create(System.Type)">
+            <summary>
+            Creates a new typed EntityQuery for a specific type.  Same as new EntityQuery{T}
+            but can be used where the generic parameter 'T' cannot be specified.
+            </summary>
+            <param name="clrEntityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.From``1">
+            <summary>
+            The same as calling "new EntityQuery{T}.(resourceName)".
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.From``1(System.String)">
+            <summary>
+            The same as calling "new EntityQuery{T}.(resourceName)".
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="resourceName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.From``1(System.String,``0)">
+            <summary>
+            This signature is intended to be use for queries that will return 
+            an anonymous type. An example instance of the anonymous type you want
+            returned may be passed as the 2nd argument and will be used to 
+            materialize the result of the query. 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="resourceName"></param>
+            <param name="dummy"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.Execute(Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query against a remote service. 
+            This method requires that an EntityManager has been previously specified via the 
+            <see cref="!:EntityQueryExtensions.With(EntityManager)"/> method.
+            <see cref="M:Breeze.Sharp.EntityManager.ExecuteQuery``1(Breeze.Sharp.EntityQuery{``0})"/>
+            </summary>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.Execute(System.Threading.CancellationToken,Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query against a remote service. 
+            This method requires that an EntityManager has been previously specified via the 
+            <see cref="!:EntityQueryExtensions.With(EntityManager)"/> method.
+            <see cref="M:Breeze.Sharp.EntityManager.ExecuteQuery``1(Breeze.Sharp.EntityQuery{``0})"/>
+            </summary>
+            <param name="cancellationToken"></param>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.ExecuteLocally(Breeze.Sharp.EntityManager)">
+            <summary>
+            Executes this query against the local cache. 
+            This method requires that an EntityManager has been previously specified via the 
+            <see cref="!:EntityQueryExtensions.With(EntityManager)"/> method. 
+            <seealso cref="M:Breeze.Sharp.EntityManager.ExecuteQueryLocally(Breeze.Sharp.EntityQuery)"/>
+            </summary>
+            <param name="entityManager"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.ResourceName">
+            <summary>
+            The resource name specified for this query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.ElementType">
+            <summary>
+            The element type of the IEnumerable being returned by this query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.QueryableType">
+            <summary>
+            The type being queried.  This may not be the same as the type returned in the case 
+            of a 'Select'.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.DataService">
+            <summary>
+            The DataService associated with this query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.EntityManager">
+            <summary>
+            The EntityManager associated with this query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityQuery.QueryOptions">
+            <summary>
+            The QueryOptions associated with this query. 
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQuery.Clone">
+            <summary>
+            For internal use only.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.IEntityQuery">
+            <summary>
+            Interface for all Entity queries.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityQueryExtensions">
+            <summary>
+            Extension methods for any EntityQuery.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.Where``1(Breeze.Sharp.EntityQuery{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Int32,System.Boolean}})">
+            <summary>
+            Filters a sequence of values based on a predicate.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <param name="source1"></param>
+            <param name="predicate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.Where``1(Breeze.Sharp.EntityQuery{``0},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Filters a sequence of values based on a predicate.
+            </summary>
+            <typeparam name="TSource" />
+            <param name="source1" />
+            <param name="predicate" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;Where1&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.OrderBy``2(Breeze.Sharp.EntityQuery{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sorts the elements of a sequence in ascending order.
+            </summary>
+            <typeparam name="TSource" />
+            <typeparam name="TKey" />
+            <param name="source" />
+            <param name="keySelector" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;OrderBy&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.OrderByDescending``2(Breeze.Sharp.EntityQuery{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sorts the elements of a sequence in descending order.
+            </summary>
+            <typeparam name="TSource" />
+            <typeparam name="TKey" />
+            <param name="source" />
+            <param name="keySelector" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;OrderByDescending&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.Select``2(Breeze.Sharp.EntityQuery{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Projects each element of a sequence into a new form.
+            </summary>
+            <typeparam name="TSource" />
+            <typeparam name="TResult" />
+            <param name="source" />
+            <param name="selector" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;Select1&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.Skip``1(Breeze.Sharp.EntityQuery{``0},System.Int32)">
+            <summary>
+            Bypasses a specified number of elements in a sequence and then returns the remaining elements.
+            </summary>
+            <typeparam name="TSource" />
+            <param name="source" />
+            <param name="count" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;Skip2&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.Take``1(Breeze.Sharp.EntityQuery{``0},System.Int32)">
+            <summary>
+            Returns a specified number of contiguous elements from the start of a sequence.
+            </summary>
+            <typeparam name="TSource" />
+            <param name="source" />
+            <param name="count" />
+            <returns />
+            <!-- Failed to insert some or all of included XML --><include file="EntityQueryExtensions.Examples.xml" path="//Class[@name=&quot;EntityQueryExtensions&quot;]/method[@name=&quot;Skip2&quot;]/*" />
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.With``1(``0,Breeze.Sharp.EntityManager)">
+            <summary>
+            Returns a clone of the query for the specified EntityManager.
+            </summary>
+            <typeparam name="TQuery"></typeparam>
+            <param name="query"></param>
+            <param name="em"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityQueryExtensions.With``1(``0,Breeze.Sharp.MergeStrategy)">
+            <summary>
+            Returns a clone of the query for the specified MergeStrategy
+            </summary>
+            <typeparam name="TQuery"></typeparam>
+            <param name="query"></param>
+            <param name="mergeStrategy"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.IKeyGenerator">
+            <summary>
+            Interface that generates, describes and keeps track of all of the temporary keys associated 
+            with a single EntityManager.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.IKeyGenerator.GetNextTempId(Breeze.Sharp.DataProperty)">
+            <summary>
+            Generates a new temporary ID for a specified EntityProperty.  
+            </summary>
+            <param name="property">Property for which a new ID should be generated</param>
+            <returns>A new temporary ID</returns>
+            <remarks>The definition of a "temporary" ID is user-defined.  In the sample code for a "LongIdGenerator"
+            negative integers are used as temporary IDs. 
+            <para>This method should also store the temporary IDs generated in a <see cref="T:Breeze.Sharp.UniqueIdCollection"/>.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.IKeyGenerator.IsTempId(Breeze.Sharp.UniqueId)">
+            <summary>
+            Determines whether a given ID is temporary.
+            </summary>
+            <param name="uniqueId">ID to be analyzed</param>
+            <returns>true if the ID is temporary; otherwise false</returns>
+            <remarks>The <see cref="P:Breeze.Sharp.UniqueId.Value"/> contains the ID to be tested.
+            You can use the <see cref="!:StructuralProperty.EntityType"/> property of the <see cref="P:Breeze.Sharp.UniqueId.Property"/>
+            to determine the <see cref="T:Breeze.Sharp.IEntity"/> type.
+            </remarks>
+        </member>
+        <member name="P:Breeze.Sharp.IKeyGenerator.TempIds">
+            <summary>
+            Returns the temporary IDs generated since instantiation of this class or the last <see cref="M:Breeze.Sharp.IKeyGenerator.Reset"/>.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.IKeyGenerator.Reset">
+            <summary>
+            Reset temporary ID generation back to its initial state. 
+            </summary>
+            <remarks>Called by the <see cref="T:Breeze.Sharp.EntityManager"/> after Id fixup
+            during <see cref="M:Breeze.Sharp.EntityManager.SaveChanges(Breeze.Sharp.SaveOptions)"/> processing.
+            </remarks>
+        </member>
+        <member name="T:Breeze.Sharp.DefaultKeyGenerator">
+            <summary>
+            Default implementation of IKeyGenerator that automatically generates temporary ids for most common datatypes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.DefaultKeyGenerator.#ctor">
+            <summary>
+            Ctor.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.DefaultKeyGenerator.GetNextTempId(Breeze.Sharp.DataProperty)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.DefaultKeyGenerator.IsTempId(Breeze.Sharp.UniqueId)">
+            <inheritdoc />
+        </member>
+        <member name="P:Breeze.Sharp.DefaultKeyGenerator.TempIds">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.DefaultKeyGenerator.Reset">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.INavigationSet">
+            <summary>
+            The interface that describes the type for any nonscalar navigation property on an Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.INavigationSet.ParentEntity">
+            <summary>
+            The parent <see cref="T:Breeze.Sharp.IEntity"/> associated with this collection.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.INavigationSet.NavigationProperty">
+            <summary>
+            The <see cref="P:Breeze.Sharp.INavigationSet.NavigationProperty"/> associated with this collection;
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.INavigationSet.Add(Breeze.Sharp.IEntity)">
+            <summary>
+            Adds an IEntity to this collection - if an entity is added that is already in the collection, the add is ignored.
+            </summary>
+            <param name="entity"></param>
+        </member>
+        <member name="M:Breeze.Sharp.INavigationSet.Remove(Breeze.Sharp.IEntity)">
+            <summary>
+            Removes an IEntity from this collection.
+            </summary>
+            <param name="entity"></param>
+        </member>
+        <member name="M:Breeze.Sharp.INavigationSet.Contains(Breeze.Sharp.IEntity)">
+            <summary>
+            Returns whether an IEntity is part of this collection.
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.INavigationSet.Clear">
+            <summary>
+            Clears this collection.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.INavigationSet.Count">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.NavigationSet`1">
+            <summary>
+            Concrete strongly typed implementation of the INavigationSet interface.  Used, by default, for
+            as the return type for all nonscalar navigation properties.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Breeze.Sharp.NavigationSet`1.#ctor">
+            <summary>
+            Ctor.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IEntity">
+            <summary>
+            Interface that describes an Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.IEntity.EntityAspect">
+            <summary>
+            Returns the <see cref="P:Breeze.Sharp.IEntity.EntityAspect"/> associated with this IEntity.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IComplexObject">
+            <summary>
+            Interface that describes a ComplexObject
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.IComplexObject.ComplexAspect">
+            <summary>
+            Returns the <see cref="P:Breeze.Sharp.IComplexObject.ComplexAspect"/> associated with this IComplexObject.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IStructuralObject">
+            <summary>
+            Interface implemented by by <see cref="T:Breeze.Sharp.IEntity"/> and <see cref="T:Breeze.Sharp.IComplexObject"/>. 
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.IStructuralObject.Initialize">
+            <summary>
+             Method that is automatically called after the materialization of any 
+            <see cref="T:Breeze.Sharp.IEntity"/> or <see cref="T:Breeze.Sharp.IComplexObject"/> after being retrieved from a remote data service.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralObjectExtensions">
+            <summary>
+            Extension methods for any <see cref="T:Breeze.Sharp.IStructuralObject"/>.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.StructuralObjectExtensions.GetStructuralAspect(Breeze.Sharp.IStructuralObject)">
+            <summary>
+            Returns either a EntityAspect or ComplexAspect for the associated IStructuralObject.
+            </summary>
+            <param name="so"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.MappingContext">
+            <summary>
+            Used by the <see cref="F:Breeze.Sharp.MappingContext.JsonResultsAdapter"/> to provide information regarding the overall context 
+            of the currently executing operation.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NodeContext">
+            <summary>
+            Used by the <see cref="T:Breeze.Sharp.IJsonResultsAdapter"/> to provide information about the current node being processed. 
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.LoadingOperation">
+            <summary>
+            Enum that is used to describe the current operation being performed while
+            a JsonResultsAdapter is executing.  Referenced by <see cref="T:Breeze.Sharp.MappingContext"/>
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.JsonEntityConverter">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.FetchStrategy">
+            <summary>
+            An enum used when retrieving entities to determine where to look
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.FetchStrategy.FromLocalCache">
+            <summary>
+            Retrieve entities from the cache only.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.FetchStrategy.FromServer">
+            <summary>
+            Retrieve entities from the back-end data source only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.MergeStrategy">
+            <summary>
+            Strategy to control how Entities are merged into an EntityManager's cache.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MergeStrategy.Disallowed">
+            <summary>
+            Do not allow merging
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MergeStrategy.OverwriteChanges">
+            <summary>
+            Overwrites the cached entity with incoming data and uses the EntityState of the incoming entity (will be 
+            Unchanged if the incoming entity is from the data source).
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.MergeStrategy.PreserveChanges">
+            <summary>
+            Preserves (does not overwrite) any existing entities that have been changed (modified, added or deleted).
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.BackupValuesMap">
+            <summary>
+            Class that is used to track property changes on an Entity or ComplexObject.  Instances of this type are used 
+            for both the EntityAspect.OriginalValuesMap as well as to track IEditableObject changes on an entity.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.IHasBackingStore">
+            <summary>
+            Interface for the backing information for any IEntity or IComplexObject.  
+            Implemented via an explicit interface.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralAspect">
+            <summary>
+            Base class for both <see cref="T:Breeze.Sharp.EntityAspect"/> and <see cref="T:Breeze.Sharp.ComplexAspect"/>.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.TypeNameInfo">
+            <summary>
+            Class used to describe, parse and convert between EntityType/ComplexType names and CLR type names.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.TypeNameInfo.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="shortName"></param>
+            <param name="ns"></param>
+            <param name="isAnonymous"></param>
+        </member>
+        <member name="M:Breeze.Sharp.TypeNameInfo.FromClrType(System.Type)">
+            <summary>
+            /// Returns the TypeNameInfo for a specified CLR type.
+            </summary>
+            <param name="clrType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.TypeNameInfo.FromClrTypeName(System.String)">
+            <summary>
+            Returns the TypeNameInfo for a specified CLR type name.
+            </summary>
+            <param name="clrTypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.TypeNameInfo.FromStructuralTypeName(System.String)">
+            <summary>
+            Returns the TypeNameInfo for a specified structural type (EntityType or ComplexType) name.
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.TypeNameInfo.ToStructuralTypeName(System.String,System.String)">
+            <summary>
+            Returns the structual type name for a specified shortName and namespace. 
+            </summary>
+            <param name="shortName"></param>
+            <param name="ns"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralTypeCollection">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.StructuralType">
+            <summary>
+            Base class for both <see cref="T:Breeze.Sharp.EntityType"/> and <see cref="T:Breeze.Sharp.ComplexType"/> classes.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ComplexType">
+            <summary>
+            Metadata information about a complex type.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ComplexTypeCollection">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.EntityType">
+            <summary>
+            Container for all of the metadata about a specific type of Entity.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.BaseEntityType">
+            <summary>
+            The base EntityType (if any) for this EntityType.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.AutoGeneratedKeyType">
+            <summary>
+            The AutoGeneratedKeyType for this EntityType.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.IsEntityType">
+            <summary>
+            Always true - property is defined at the StructuralType level.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.DefaultResourceName">
+            <summary>
+            The default resource name associated with this EntityType. An EntityType may be queried 
+            via a variety of 'resource names' but this one is used as the default when no resource name 
+            is provided. This will occur when calling loadNavigationProperty or when executing any 
+            EntityQuery that was created via an EntityKey.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.SelfAndSubEntityTypes">
+            <summary>
+            All EntityTypes that are subtypes of this EntityType.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.Properties">
+            <summary>
+            All of the data and navigation properties on this EntityType.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.NavigationProperties">
+            <summary>
+            The <see cref="T:Breeze.Sharp.NavigationProperty"/>'s associated with this EntityType.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.KeyProperties">
+            <summary>
+            The DataProperties associated with this EntityType that make up it's EntityKey.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.ForeignKeyProperties">
+            <summary>
+            The DataProperties associated with this EntityType that are foreign key properties.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.InverseForeignKeyProperties">
+            <summary>
+            The DataProperties on other EntityTypes that are foriegn key properties associated with this EntityType. 
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityType.ConcurrencyProperties">
+            <summary>
+            The DataProperties associated with this EntityType that are concurrency properties.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityType.CreateEntity">
+            <summary>
+            Creates an entity with this EntityType.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityType.GetProperty(System.String)">
+            <summary>
+            Returns either the DataProperty or the NavigationProperty with the specified name. 
+            Returns null if none is found.
+            </summary>
+            <param name="propertyName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityType.GetNavigationProperty(System.String)">
+            <summary>
+            Returns the NavigationProperty with the specified name. 
+            Returns null if none is found.
+            </summary>
+            <param name="npName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityType.ToString">
+            <summary>
+            Returns the 'Name' of this EntityType.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.EntityTypeCollection">
+            <summary>
+            Unique collection of <see cref="T:Breeze.Sharp.EntityType"/>s.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.AutoGeneratedKeyType">
+            <summary>
+            AutoGeneratedKeyType is an enum containing all of the valid states for an automatically generated key.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NamingConvention">
+            <summary>
+            A NamingConvention instance is used to specify the naming conventions under 
+            which the MetadataStore will translate type and property names between the server and the .NET client.
+            The default NamingConvention does not perform any translation, it simply passes property names thru unchanged.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.NamingConvention.ServerTypeNameToClient(Breeze.Sharp.TypeNameInfo)">
+            <summary>
+            Translates a server <see cref="T:Breeze.Sharp.TypeNameInfo"/> into a client TypeNameInfo.
+            </summary>
+            <param name="serverNameInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NamingConvention.ServerPropertyNameToClient(System.String,Breeze.Sharp.StructuralType)">
+            <summary>
+            Translates a server property name into a client property name. 
+            </summary>
+            <param name="serverPropertyName"></param>
+            <param name="parentType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NamingConvention.ClientTypeNameToServer(Breeze.Sharp.TypeNameInfo)">
+            <summary>
+             Translates a client <see cref="T:Breeze.Sharp.TypeNameInfo"/> into a server TypeNameInfo.
+            </summary>
+            <param name="clientNameInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.NamingConvention.ClientPropertyNameToServer(System.String,Breeze.Sharp.StructuralType)">
+            <summary>
+            Translates a server property name into a client property name. 
+            </summary>
+            <param name="clientPropertyName"></param>
+            <param name="parentType"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Breeze.Sharp.NamingConvention.Default">
+            <summary>
+            The 'Default' NamingConvention. - Basically does nothing to either type or property names.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.NamingConvention.CamelCaseProperties">
+            <summary>
+            A NamingConvention that causes properties to be camelCased on the client.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.CamelCasePropertiesNamingConvention">
+            <summary>
+            The "camelCase" naming convention - This implementation only lowercases the first character
+             of the server property name but leaves the rest of the property name intact. 
+            If a more complicated version is needed then another type should be created that 
+            inherits from NamingConvention.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NavigationPropertyCollection">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.NavigationProperty">
+            <summary>
+            A NavigationProperty describes the metadata for a single property of an 
+            EntityType that return instances of other EntityTypes.
+            Instances of the NavigationProperty class are constructed automatically during Metadata retrieval. 
+            However it is also possible to construct them directly via the constructor.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.EntityType">
+            <summary>
+            The EntityType returned by this property.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.ClrType">
+            <summary>
+            The CLR type, possibly enumerable, returned by this property.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.AssociationName">
+            <summary>
+            The name of the association to which that this property belongs. 
+            This associationName will be shared with this properties 'Inverse', if it exists.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.Inverse">
+            <summary>
+            The inverse of this NavigationProperty. The NavigationProperty that 
+            represents a navigation in the opposite direction to this NavigationProperty.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.RelatedDataProperties">
+            <summary>
+            The 'foreign key' DataProperties associated with this NavigationProperty. 
+            There will usually only be a single DataProperty associated with a Navigation property
+            except in the case of entities with multipart keys.
+            </summary>
+            <remarks>Only exists if there is a foreign key on the same parent entity type</remarks>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.ForeignKeyNames">
+            <summary>
+            The client side names of the foreign key DataProperties associated with this NavigationProperty. 
+            There will usually only be a single DataProperty associated with a Navigation property
+            except in the case of entities with multipart keys.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.NavigationProperty.InvForeignKeyNames">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.DataPropertyCollection">
+            <summary>
+            For internal use only. Unique collection of DataProperties.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.DataProperty">
+            <summary>
+            A DataProperty describes the metadata for a single property of an <see cref="P:Breeze.Sharp.DataProperty.EntityType"/> that contains simple data.
+            Instances of the DataProperty class are constructed automatically during assembly probing and 
+            and then updated via Metadata retrieval from an entity server. Itt is also possible to 
+            update/extend them directly on the client.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.DataType">
+            <summary>
+            The DataType for this property. This will be null for a ComplexType DataProperty.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.ComplexType">
+            <summary>
+            The ComplexType for this property. This will be null for a simple DataProprty.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.ClrType">
+            <summary>
+            The CLR type for this property.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.IsNullable">
+            <summary>
+            Whether this property is nullable.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.IsAutoIncrementing">
+            <summary>
+            Whether this property is autoincrementing.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.IsPartOfKey">
+            <summary>
+            Whether this property is part of this entity type's key.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.DataProperty.IsEnumType">
+            <summary>
+            Whether this property is an Enum type.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ConcurrencyMode">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.MetadataStore">
+            <summary>
+            An instance of the MetadataStore contains all of the metadata about a collection of <see cref="T:Breeze.Sharp.EntityType"/>s 
+            and <see cref="T:Breeze.Sharp.ComplexType"/>s.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.MetadataStore.EntityTypes">
+            <summary>
+            Returns a list of all of the <see cref="T:Breeze.Sharp.EntityType"/>s within this store.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.MetadataStore.ComplexTypes">
+            <summary>
+            Returns a list of all of the <see cref="T:Breeze.Sharp.ComplexType"/>s within this store.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.MetadataStore.NamingConvention">
+            <summary>
+            The NamingConvention associated with this MetadataStore.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.MetadataStore.AllowedMetadataMismatchTypes">
+            <summary>
+            Allowed types of metadata mismatches.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.MetadataStore.MetadataMismatch">
+            <summary>
+            Fired whenever an entity's state is changing in any significant manner.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.FetchMetadata(Breeze.Sharp.DataService)">
+            <summary>
+            Fetches the metadata for a specified 'service'. This method is automatically called 
+            internally by an EntityManager before its first query against a new service.
+            </summary>
+            <param name="dataService"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.FetchMetadata(Breeze.Sharp.DataService,System.Threading.CancellationToken)">
+            <summary>
+            Fetches the metadata for a specified 'service'. This method is automatically called 
+            internally by an EntityManager before its first query against a new service.
+            </summary>
+            <param name="dataService"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetDataService(System.String)">
+            <summary>
+            Returns the DataService for a specified service name or null.
+            </summary>
+            <param name="serviceName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.AddDataService(Breeze.Sharp.DataService,System.Boolean)">
+            <summary>
+            Adds a DataService to this MetadataStore. If a DataService with the same serviceName 
+            is already in the MetadataStore an exception will be thrown unless the 'shouldOverwrite'
+            parameter is set to 'true'.
+            </summary>
+            <param name="dataService"></param>
+            <param name="shouldOverwrite"></param>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetEntityType(System.Type)">
+            <summary>
+            Returns an EntityType given its CLR type.
+            </summary>
+            <param name="clrEntityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetEntityType(System.String,System.Boolean)">
+            <summary>
+            Returns an EntityType given its name.
+            </summary>
+            <param name="etName"></param>
+            <param name="okIfNotFound"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetComplexType(System.Type)">
+            <summary>
+            Returns an ComplexType given its CLR type.
+            </summary>
+            <param name="clrComplexType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetComplexType(System.String,System.Boolean)">
+            <summary>
+            Returns an EntityType given its name.
+            </summary>
+            <param name="ctName"></param>
+            <param name="okIfNotFound"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetStructuralType(System.Type)">
+            <summary>
+            Returns an StructuralType (EntityType or ComplexType) given its CLR type.
+            </summary>
+            <param name="clrType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.SetResourceName(System.String,System.Type,System.Boolean)">
+            <summary>
+            Sets a resourceName for a specified clrType.
+            </summary>
+            <param name="resourceName"></param>
+            <param name="clrType"></param>
+            <param name="isDefault"></param>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetEntityTypeForResourceName(System.String,System.Boolean)">
+            <summary>
+            Returns the EntityType for a specified resourceName.
+            </summary>
+            <param name="resourceName"></param>
+            <param name="okIfNotFound"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetDefaultResourceName(System.Type)">
+            <summary>
+            Returns the default resource name for the specified CLR type.
+            </summary>
+            <param name="clrType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.GetDefaultResourceName(Breeze.Sharp.EntityType)">
+            <summary>
+            Returns the default resource name for the specified EntityType type.
+            </summary>
+            <param name="entityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.IsStructuralType(System.Type)">
+            <summary>
+            Returns whether the specified CLR type is either an IEntity or a IComplexObject.
+            </summary>
+            <param name="clrType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.ExportMetadata">
+            <summary>
+            Exports metadata as a string.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.ExportMetadata(System.IO.TextWriter)">
+            <summary>
+            Exports metadata via a TextWriter.
+            </summary>
+            <param name="textWriter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.ImportMetadata(System.String,System.Boolean)">
+            <summary>
+            Imports metadata from a string.
+            </summary>
+            <param name="metadata"></param>
+            <param name="isFromServer"></param>
+        </member>
+        <member name="M:Breeze.Sharp.MetadataStore.ImportMetadata(System.IO.TextReader,System.Boolean)">
+            <summary>
+            Imports metadata via a TextReader.
+            </summary>
+            <param name="textReader"></param>
+            <param name="isFromServer"></param>
+        </member>
+        <member name="T:Breeze.Sharp.UniqueId">
+            <summary>
+            Represents the combination of a specific <see cref="T:Breeze.Sharp.StructuralProperty"/> and value.
+            <seealso cref="T:Breeze.Sharp.IKeyGenerator"/>
+            <seealso cref="T:Breeze.Sharp.UniqueIdCollection"/>
+            </summary>
+            <remarks><b>UniqueIds</b> are used when implementing the <see cref="T:Breeze.Sharp.IKeyGenerator"/> interface.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueId.#ctor(Breeze.Sharp.DataProperty,System.Object)">
+            <summary>
+            Creates a new instance of UniqueId.
+            </summary>
+            <param name="property"></param>
+            <param name="value"></param>
+        </member>
+        <member name="P:Breeze.Sharp.UniqueId.Property">
+            <summary>
+            Returns the EntityProperty associated with this UniqueId.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.UniqueId.Value">
+            <summary>
+            Returns the Value associated with this UniqueId.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueId.Equals(System.Object)">
+            <summary>
+            See <see cref="M:System.Object.Equals(System.Object)"/>.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueId.GetHashCode">
+            <summary>
+            See <see cref="M:System.Object.GetHashCode"/>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueId.ToString">
+            <summary>
+            Returns a human readable representation of this UniqueId.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueId.CompareTo(System.Object)">
+            <summary>
+            <see cref="M:System.IComparable.CompareTo(System.Object)"/> implementation.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.UniqueIdCollection">
+            <summary>
+            Represents a collection of <see cref="T:Breeze.Sharp.UniqueId"/> objects.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdCollection.#ctor">
+            <summary>
+            Ctor.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdCollection.#ctor(System.Collections.Generic.IEnumerable{Breeze.Sharp.UniqueId})">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="uniqueIds"></param>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdCollection.AddRange(System.Collections.Generic.IEnumerable{Breeze.Sharp.UniqueId})">
+            <summary>
+            Adds a collection of UniqueIds to this collection.
+            </summary>
+            <param name="uniqueIds"></param>
+        </member>
+        <member name="P:Breeze.Sharp.UniqueIdCollection.ContainsIdentityIds">
+            <summary>
+            Returns whether the list contains any auto-incrementing (Identity) properties.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.UniqueIdMap">
+            <summary>
+            A strongly typed dictionary mapping <see cref="T:Breeze.Sharp.UniqueId"/> keys containing temporary identifiers
+            to values for the permanent identifiers.
+            <seealso cref="T:Breeze.Sharp.IKeyGenerator"/>
+            </summary>
+            <remarks>Used when mapping temporary to real identifiers.</remarks>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.#ctor">
+            <summary>
+            Initializes a new instance of the UniqueIdMap class.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.#ctor(Breeze.Sharp.UniqueIdCollection)">
+            <summary>
+            Initializes a new instance of the UniqueIdMap class.
+            </summary>
+            <param name="collection"></param>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.#ctor(System.Collections.Generic.IEnumerable{Breeze.Sharp.UniqueIdMap})">
+            <summary>
+             Initializes a new instance of the UniqueIdMap class.
+            </summary>
+            <param name="maps"></param>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.AddMap(Breeze.Sharp.UniqueIdMap)">
+            <summary>
+            Adds another UniqueIdMap to this one.
+            </summary>
+            <param name="map">map</param>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.AddCollection(Breeze.Sharp.UniqueIdCollection)">
+            <summary>
+            Adds a <see cref="T:Breeze.Sharp.UniqueIdCollection"/> items.
+            </summary>
+            <param name="collection"></param>
+        </member>
+        <member name="M:Breeze.Sharp.UniqueIdMap.ToCollection">
+            <summary>
+            Returns the items in the map as a <see cref="T:Breeze.Sharp.UniqueIdCollection"/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.EntityManager">
+            <summary>
+            Instances of the EntityManager contain and manage collections of entities, 
+            either retrieved from a backend datastore or created on the client. 
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.#ctor(System.String,Breeze.Sharp.MetadataStore)">
+            <summary>
+            Constructs an empty EntityManager with a specified data service name. 
+            </summary>
+            <param name="serviceName"></param>
+            <remarks><code>
+                // Example: 
+                var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
+            </code></remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.#ctor(Breeze.Sharp.DataService,Breeze.Sharp.MetadataStore)">
+            <summary>
+            /// <summary>
+            Constructs an empty EntityManager with a specified DataService. 
+            </summary>
+            </summary>
+            <param name="dataService"></param>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.#ctor(Breeze.Sharp.EntityManager)">
+            <summary>
+            Creates a new EntityManager with the same configuration as another EntityManager but without any entities.
+            </summary>
+            <param name="em"></param>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.DataService">
+            <summary>
+            The default DataService for this EntityManager.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.DefaultQueryOptions">
+            <summary>
+            Default QueryOptions for this EntityManager. These may be overriden for any specific query.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.DefaultSaveOptions">
+            <summary>
+            Default SaveOptions for this EntityManager. These may be overriden for any specific save.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.CacheQueryOptions">
+            <summary>
+            The CacheQueryOptions to be used when querying the local cache.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.ValidationOptions">
+            <summary>
+            Validation options.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.EntityManager.ChangeNotificationEnabled">
+            <summary>
+            Whether or not change notification events will be fired. This includes both EntityChange and PropertyChange events.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.FetchMetadata(Breeze.Sharp.DataService)">
+            <summary>
+            Fetches the metadata associated with the EntityManager's current 'serviceName'. 
+            This call also occurs internally before the first query to any service if the metadata hasn't already been loaded.
+            </summary>
+            <param name="dataService"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.FetchMetadata(System.Threading.CancellationToken,Breeze.Sharp.DataService)">
+            <summary>
+            Fetches the metadata associated with the EntityManager's current 'serviceName'. 
+            This call also occurs internally before the first query to any service if the metadata hasn't already been loaded.
+            </summary>
+            <param name="dataService"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQuery``1(Breeze.Sharp.EntityQuery{``0})">
+            <summary>
+            Performs an asynchronous query and that returns a typed result.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQuery``1(Breeze.Sharp.EntityQuery{``0},System.Threading.CancellationToken)">
+            <summary>
+            Performs an asynchronous query and that returns a typed result.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQuery(Breeze.Sharp.EntityQuery)">
+            <summary>
+            Performs an asynchronous query and that returns an untyped result.
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQuery(Breeze.Sharp.EntityQuery,System.Threading.CancellationToken)">
+            <summary>
+            Performs an asynchronous query and that returns an untyped result.
+            </summary>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.SaveChanges(Breeze.Sharp.SaveOptions)">
+            <summary>
+            Performs an asynchronous saves of all pending changes within this EntityManager.
+            </summary>
+            <param name="saveOptions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.SaveChanges(System.Collections.Generic.IEnumerable{Breeze.Sharp.IEntity},Breeze.Sharp.SaveOptions)">
+            <summary>
+            Performs an asynchronous save of just the specified entities within this EntityManager.
+            </summary>
+            <param name="entities"></param>
+            <param name="saveOptions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.FetchEntityByKey(Breeze.Sharp.EntityKey,System.Boolean)">
+            <summary>
+            Performs an asynchronous query that optionally checks the local cache first.
+            </summary>
+            <param name="entityKey"></param>
+            <param name="checkLocalCacheFirst"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.FetchEntityByKey(Breeze.Sharp.EntityKey,System.Threading.CancellationToken,System.Boolean)">
+            <summary>
+            Performs an asynchronous query that optionally checks the local cache first.
+            </summary>
+            <param name="entityKey"></param>
+            <param name="cancellationToken"></param>
+            <param name="checkLocalCacheFirst"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.EntityManager.EntityKeyFetchResult">
+            <summary>
+            The async result of a FetchEntityByKey call.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.EntityManager.EntityChanging">
+            <summary>
+            Fired whenever an entity's state is changing in any significant manner.
+            </summary>
+        </member>
+        <member name="E:Breeze.Sharp.EntityManager.EntityChanged">
+            <summary>
+            Fired whenever an entity's state has changed in any significant manner.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExportEntities(System.Collections.Generic.IEnumerable{Breeze.Sharp.IEntity},System.Boolean)">
+            <summary>
+            Exports a specified list of entities as a string, with the option to include metadata
+            </summary>
+            <param name="entities"></param>
+            <param name="includeMetadata">Default is 'true'</param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExportEntities(System.Collections.Generic.IEnumerable{Breeze.Sharp.IEntity},System.Boolean,System.IO.TextWriter)">
+            <summary>
+            Exports a specified list of entities via a TextWriter, with the option to include metadata
+            </summary>
+            <param name="entities"></param>
+            <param name="includeMetadata"></param>
+            <param name="textWriter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ImportEntities(System.String,Breeze.Sharp.ImportOptions)">
+            <summary>
+            Imports the string result of a previously executed ExportEntities call.
+            </summary>
+            <param name="exportedString"></param>
+            <param name="importOptions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ImportEntities(System.IO.TextReader,Breeze.Sharp.ImportOptions)">
+            <summary>
+            Imports the result of a previously executed ExportEntities call via a TextReader.
+            </summary>
+            <param name="textReader"></param>
+            <param name="importOptions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.EnableChangeNotification(System.Type,System.Boolean)">
+            <summary>
+            Turns on or off change notification events for a specific entity type.
+            </summary>
+            <param name="clrEntityType"></param>
+            <param name="enabled"></param>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.IsChangeNotificationEnabled(System.Type)">
+            <summary>
+            Whether change notification events are enabled for a specific entity type.
+            </summary>
+            <param name="clrEntityType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQueryLocally``1(Breeze.Sharp.EntityQuery{``0})">
+            <summary>
+            Executes the specified query against the local cache and returns a typed result. 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.ExecuteQueryLocally(Breeze.Sharp.EntityQuery)">
+            <summary>
+            Executes the specified query against the local cache and returns an untyped result. 
+            </summary>
+            <param name="query"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.AcceptChanges">
+            <summary>
+            Calls AcceptChanges on each Added, Deleted or Modified entity within the cache. All pending changes will be considered complete and after this call
+            the EntityManager will have no pending changes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.RejectChanges">
+            <summary>
+            Calls RejectChanges on each Added, Deleted or Modified entity within the cache.  All pending changes will be lost and after this call
+            the EntityManager will have no pending changes.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.Clear">
+            <summary>
+            Removes all entities from this EntityManager.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntities(Breeze.Sharp.EntityState)">
+            <summary>
+            Find all entities in cache having the specified entity state(s).
+            </summary>
+            <param name="entityState">EntityState(s) of entities to return</param>
+            <returns></returns>
+            <remarks>
+            As the <see cref="T:Breeze.Sharp.EntityState"/> is a flags enumeration, you can supply multiple 
+            OR'ed values to search for multiple entity states.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntities``1(Breeze.Sharp.EntityState)">
+            <summary>
+            Retrieves all entities of a specified type with the specified entity state(s) from cache as a typed enumerable.
+            </summary>
+            <typeparam name="T">The type of Entity to retrieve</typeparam>
+            <param name="entityState">EntityState(s) of entities to return</param>
+            <returns>A collection of Entities</returns>
+            <remarks>
+            As the <see cref="T:Breeze.Sharp.EntityState"/> is a flags enumeration, you can supply multiple 
+            OR'ed values to search for multiple entity states.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntities(System.Type[])">
+            <summary>
+            Retrieves all entities of the specified types from cache.
+            </summary>
+            <param name="entityTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntities(System.Collections.Generic.IEnumerable{System.Type},Breeze.Sharp.EntityState)">
+            <summary>
+            Retrieves all entities of the specified types with the specified entity state(s) from cache.
+            </summary>
+            <param name="types"></param>
+            <param name="entityState">defaults to AllButDetached</param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntities(System.Type,Breeze.Sharp.EntityState)">
+            <summary>
+            Retrieves all entities of a specified type with the specified entity state(s) from cache.
+            </summary>
+            <param name="type">The type of Entity to retrieve</param>
+            <param name="entityState">EntityState(s) of entities to return - defaults to AllButDetached</param>
+            <returns>A collection of Entities</returns>
+            <remarks>
+            As the <see cref="T:Breeze.Sharp.EntityState"/> is a flags enumeration, you can supply multiple 
+            OR'ed values to search for multiple entity states.
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetChanges(System.Type[])">
+            <summary>
+            Returns a collection of all of the pending changes within this EntityManager.
+            </summary>
+            <param name="entityTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetChanges(System.Collections.Generic.IEnumerable{System.Type})">
+            <summary>
+            Returns a collection of all of the pending changes within this EntityManager for a specified list of entity types.
+            </summary>
+            <param name="entityTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntityByKey``1(Breeze.Sharp.EntityKey)">
+            <summary>
+            Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="entityKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntityByKey``1(System.Object[])">
+            <summary>
+            Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntityByKey(Breeze.Sharp.EntityKey)">
+            <summary>
+            Attempts to return a specific entity within the local cache by its key and returns a null if not found.
+            </summary>
+            <param name="entityKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.CreateEntity``1(Breeze.Sharp.EntityState)">
+            <summary>
+            Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+            is also added to the EntityManager.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="entityState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.CreateEntity``1(System.Object,Breeze.Sharp.EntityState)">
+            <summary>
+            Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+            is also added to the EntityManager.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="initialValues"></param>
+            <param name="entityState">Default is 'Added'</param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.CreateEntity(Breeze.Sharp.EntityType,System.Object,Breeze.Sharp.EntityState)">
+            <summary>
+            Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+            is also added to the EntityManager.
+            </summary>
+            <param name="entityType"></param>
+            <param name="initialValues"></param>
+            <param name="entityState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.CreateEntity(System.Type,System.Object,Breeze.Sharp.EntityState)">
+            <summary>
+            Creates a new entity and sets its EntityState. Unless this state is Detached, the entity
+            is also added to the EntityManager.
+            </summary>
+            <param name="clrType"></param>
+            <param name="initialValues"></param>
+            <param name="entityState"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.AddEntity(Breeze.Sharp.IEntity)">
+            <summary>
+            Attaches a detached entity to this EntityManager and sets its EntityState to 'Added'.
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.AttachEntity(Breeze.Sharp.IEntity,Breeze.Sharp.EntityState,Breeze.Sharp.MergeStrategy)">
+            <summary>
+            Attaches a detached entity to this EntityManager and sets its EntityState to a specified state.
+            </summary>
+            <param name="entity"></param>
+            <param name="entityState">Defaults to 'Unchanged'</param>
+            <param name="mergeStrategy"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.DetachEntity(Breeze.Sharp.IEntity)">
+            <summary>
+            Removes a specified entity from this EntityManager. Note this is NOT a deletion.  It simply causes 
+            the EntityManager to 'forget' about this entity.
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GetEntityGroup(System.Type)">
+            <summary>
+            Returns the EntityGroup associated with a specific Entity subtype.
+            </summary>
+            <param name="clrEntityType">An <see cref="T:Breeze.Sharp.IEntity"/> subtype</param>
+            <returns>The <see cref="T:Breeze.Sharp.EntityGroup"/> associated with the specified Entity subtype</returns>
+            <exception cref="T:System.ArgumentException">Bad entity type</exception>
+            <exception cref="!:EntityServerException"/>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.GenerateId(Breeze.Sharp.IEntity,Breeze.Sharp.DataProperty)">
+            <summary>
+            Generates a temporary ID for an <see cref="T:Breeze.Sharp.IEntity"/>.  The temporary ID will be mapped to a real ID when
+            <see cref="M:Breeze.Sharp.EntityManager.SaveChanges(Breeze.Sharp.SaveOptions)"/> is called.
+            <seealso cref="T:Breeze.Sharp.IKeyGenerator"/>
+            </summary>
+            <param name="entity">The Entity object for which the new ID will be generated</param>
+            <param name="entityProperty">The EntityProperty in which the new ID will be set </param>
+            <remarks>
+            You must implement the <see cref="T:Breeze.Sharp.IKeyGenerator"/> interface to use ID generation.  See the
+            <b>DevForce Developer's Guide</b> for more information on custom ID generation.
+            <para>
+            If you are using a SQL Server <b>Identity</b> property you do not need to call <b>GenerateId</b>
+            for the property.
+            </para>
+            </remarks>
+            <exception cref="T:System.ArgumentException">Incorrect entity type/property</exception>
+            <exception cref="!:IdeaBladeException">IdGenerator not found</exception>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.UpdatePkIfNeeded(Breeze.Sharp.EntityAspect)">
+            <summary>
+            Insures that a temporary pk is set if necessary
+            </summary>
+            <param name="aspect"></param>
+        </member>
+        <member name="M:Breeze.Sharp.EntityManager.HasChanges(System.Collections.Generic.IEnumerable{System.Type})">
+            <summary>
+            Returns whether there are any pending changes for this EntityManager or for selected types within this EntityManager.
+            </summary>
+            <param name="entityTypes"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.ValidationOptions">
+            <summary>
+            A ValidationOptions instance is used to specify the conditions under which validation will be executed.
+            This may be set via the <see cref="P:Breeze.Sharp.EntityManager.ValidationOptions"/> property.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ValidationApplicability">
+            <summary>
+            An enum used to describe the conditions under which validation should occur.
+            This value is set via the <see cref="P:Breeze.Sharp.ValidationOptions.ValidationApplicability"/>.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.LocalizedMessage">
+            <summary>
+            Describes a localized message. Each localized message instance is immutable. 
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ValidationContext">
+            <summary>
+            The context under which a validation operation will occur. 
+            This includes the Entity or ComplexObject being validated, as well as the 
+            specific property, if this is a property validation.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ValidationErrorCollection">
+            <summary>
+            A collection of ValidationErrors.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.ValidationError">
+            <summary>
+            The result of a failed validation operation
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.RequiredValidator">
+            <summary>
+            Validator implementation to check that a property is not set to null.
+            Special handling for empty strings is supported.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.RequiredValidator.#ctor(System.Nullable{System.Boolean})">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="treatEmptyStringAsNull">Whether to treat empty string as null.  If not set, then the static 
+            <see cref="P:Breeze.Sharp.RequiredValidator.DefaultTreatEmptyStringAsNull" /> is used instead.</param>
+        </member>
+        <member name="M:Breeze.Sharp.RequiredValidator.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.RequiredValidator.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.MaxLengthValidator">
+            <summary>
+            Validator implementation that checks that a string does not exceed a maximum length.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.MaxLengthValidator.#ctor(System.Int32)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="maxLength"></param>
+        </member>
+        <member name="M:Breeze.Sharp.MaxLengthValidator.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.MaxLengthValidator.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.StringLengthValidator">
+            <summary>
+            Validator implementation that checks that a string's length is within a specified range.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.StringLengthValidator.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.StringLengthValidator.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.RangeValidator`1">
+            <summary>
+            Validator implementation that checks that a number falls within a specified range..
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Breeze.Sharp.RangeValidator`1.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.RangeValidator`1.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Breeze.Sharp.Int32RangeValidator">
+            <summary>
+            Specialization of the <see cref="T:Breeze.Sharp.RangeValidator`1"/> for Int32's.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.RegexValidator">
+            <summary>
+            Validator implementation that determines if a given property matches a
+            predefined regular expression pattern.
+            </summary>
+        </member>
+        <member name="M:Breeze.Sharp.RegexValidator.#ctor(System.String,System.String)">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="pattern"></param>
+            <param name="patternName"></param>
+        </member>
+        <member name="M:Breeze.Sharp.RegexValidator.#ctor(System.Text.RegularExpressions.Regex,System.String)">
+            <summary>
+            Ctor
+            </summary>
+            <param name="regex"></param>
+            <param name="patternName"></param>
+        </member>
+        <member name="M:Breeze.Sharp.RegexValidator.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Breeze.Sharp.RegexValidator.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <inheritdoc />
+        </member>
+        <member name="F:Breeze.Sharp.RegexValidator.PatternName">
+            <summary>
+            Display name for this pattern in any errorMessage.
+            </summary>
+        </member>
+        <member name="P:Breeze.Sharp.RegexValidator.Regex">
+            <summary>
+            The Regex1 pattern to match.
+            </summary>
+        </member>
+        <member name="F:Breeze.Sharp.PhoneNumberValidator.PhoneNumber">
+            <summary>
+            Matches:
+              International dialing prefix: {{}, +, 0, 0000} (with or without a trailing break character, if not '+': [-/. ])
+                > ((\+)|(0(\d+)?[-/.\s]))
+              Country code: {{}, 1, ..., 999} (with or without a trailing break character: [-/. ])
+                > [1-9]\d{,2}[-/.\s]?
+              Area code: {(0), ..., (000000), 0, ..., 000000} (with or without a trailing break character: [-/. ])
+                > ((\(\d{1,6}\)|\d{1,6})[-/.\s]?)?
+              Local: {0, ...}+ (with or without a trailing break character: [-/. ])
+                > (\d+[-/.\s]?)+\d+
+            </summary>
+            <remarks>
+            This regular expression is not complete for identifying the numerous variations that exist in phone numbers.
+            It provides basic assertions on the format and will help to eliminate most nonsense input but does not
+            guarantee validity of the value entered for any specific geography. If greater value checking is required
+            then consider: http://nuget.org/packages/libphonenumber-csharp.
+            </remarks>
+        </member>
+        <member name="F:Breeze.Sharp.UrlValidator.BaseUrlExpression">
+            <summary>
+            The base URL regular expression.
+            </summary>
+            <remarks>
+            RFC-952 describes basic name standards: http://www.ietf.org/rfc/rfc952.txt
+            KB 909264 describes Windows name standards: http://support.microsoft.com/kb/909264
+            </remarks>
+        </member>
+        <member name="F:Breeze.Sharp.UrlValidator.BaseProtocolExpression">
+            <summary>
+            The base protocol regular expression.
+            </summary>
+        </member>
+        <member name="T:Breeze.Sharp.Validator">
+            <summary>
+            Subclassed instances of the Validator class provide the logic to validate another object 
+            and provide a description of any errors encountered during the validation process. 
+            They are typically associated with a 'validators' property on the following types: 
+            EntityType, DataProperty or NavigationProperty.
+            A number of property level validators are registered automatically, i.e added to each DataProperty.Validators 
+            property based on DataProperty metadata. For example,
+                DataProperty.MaxLength -> MaxLengthValidator
+                DataProperty.IsNullable -> RequiredValidator (if not nullable)
+            </summary>
+            <remarks>
+            Validators are by convention immutable - if this convention is violated your app WILL break.
+            You can use 'With' methods to create new Validators based on an existing validator.  For example,
+            to change the message you might do the following: 
+                var newValidator = new RequiredValidator().With(new LocalizedMessage("foo"));
+            </remarks>
+        </member>
+        <member name="M:Breeze.Sharp.Validator.Validate(Breeze.Sharp.ValidationContext)">
+            <summary>
+            Performs validation given a specified context.
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Validator.ValidateCore(Breeze.Sharp.ValidationContext)">
+            <summary>
+            Provides the core validation logic to this validator. 
+            </summary>
+            <param name="context"></param>
+            <returns>true for success or false for failure</returns>
+        </member>
+        <member name="M:Breeze.Sharp.Validator.GetErrorMessage(Breeze.Sharp.ValidationContext)">
+            <summary>
+            Provides the error message associated with a failure of this validator.
+            </summary>
+            <param name="validationContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Breeze.Sharp.Validator.FindOrCreate(Breeze.Sharp.JNode)">
+            <summary>
+            For internal use only - used during validator deserialization.
+            </summary>
+            <param name="jNode"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Breeze.Sharp.ValidatorExtensions">
+            <summary>
+            Collection of extension methods for use with any <seealso cref="T:Breeze.Sharp.Validator"/>.
+            </summary>
+        </member>
+    </members>
+</doc>

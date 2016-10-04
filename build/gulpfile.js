@@ -18,7 +18,7 @@ var _tempDir = './_temp/';
 var _sourceDir = "../Breeze.Sharp/";
 var _nugetDir = '../Nuget.builds/'
 // var _msBuildCmd = 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe ';
-var _msBuildCmd = '"C:/Program Files (x86)/MSBuild/12.0/Bin/MsBuild.exe" '; // vs 2013 version of MsBuild
+var _msBuildCmd = '"C:/Program Files (x86)/MSBuild/14.0/Bin/MsBuild.exe" '; // vs 2015 version of MsBuild
 var _msBuildOptions = ' /p:Configuration=Release /verbosity:minimal ';
 
 var _versionNum = getBreezeSharpVersion();
