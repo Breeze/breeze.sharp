@@ -986,7 +986,7 @@ namespace Breeze.Sharp {
       });
     }
 
-    private void UpdateRelated(DataProperty property, object newValue, object oldValue) {
+    internal void UpdateRelated(DataProperty property, object newValue, object oldValue) {
       if (IsDetached) return;
       var relatedNavProp = property.RelatedNavigationProperty;
       if (relatedNavProp != null) {

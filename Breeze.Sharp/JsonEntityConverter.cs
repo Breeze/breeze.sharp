@@ -65,7 +65,7 @@ namespace Breeze.Sharp {
 
   public class TimeSpanConverter : JsonConverter {
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-      var ts = (TimeSpan) value;
+      var ts = (TimeSpan)value;
       var tsString = XmlConvert.ToString(ts);
       serializer.Serialize(writer, tsString);
     }
@@ -80,7 +80,7 @@ namespace Breeze.Sharp {
     }
 
     public override bool CanConvert(Type objectType) {
-      return objectType == typeof (TimeSpan) || objectType == typeof (TimeSpan?);
+      return objectType == typeof(TimeSpan) || objectType == typeof(TimeSpan?);
     }
   }
 
@@ -88,7 +88,7 @@ namespace Breeze.Sharp {
   /// For internal use only.
   /// </summary>
   public class JsonEntityConverter : JsonConverter {
-  
+
     // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
     public JsonEntityConverter(MappingContext mappingContext) {
       _mappingContext = mappingContext;
@@ -104,7 +104,7 @@ namespace Breeze.Sharp {
 
         var nodeContext = new NodeContext { Node = node, ObjectType = objectType };
         // Create target object based on JObject
-        var target = CreateAndPopulate( nodeContext);
+        var target = CreateAndPopulate(nodeContext);
         return target;
       } else {
         return null;
@@ -142,8 +142,7 @@ namespace Breeze.Sharp {
                               nodeContext.ObjectType.Name);
         }
         nodeContext.ObjectType = objectType;
-      }
-      else {
+      } else {
         objectType = nodeContext.ObjectType;
         entityType = metadataStore.GetEntityType(objectType);
       }
@@ -156,7 +155,7 @@ namespace Breeze.Sharp {
       var entityKey = EntityKey.Create(entityType, keyValues);
       var entity = _mappingContext.EntityManager.GetEntityByKey(entityKey);
       if (entity == null) {
-        entity = (IEntity) Activator.CreateInstance(objectType);
+        entity = (IEntity)Activator.CreateInstance(objectType);
         entity.EntityAspect.EntityType = entityType;
       }
       // must be called before populate
@@ -170,7 +169,7 @@ namespace Breeze.Sharp {
 
 
     protected virtual Object PopulateEntity(NodeContext nodeContext, IEntity entity) {
-      
+
       var aspect = entity.EntityAspect;
       if (aspect.EntityManager == null) {
         // new to this entityManager
@@ -178,7 +177,7 @@ namespace Breeze.Sharp {
         aspect.Initialize();
         // TODO: This is a nit.  Wierd case where a save adds a new entity will show up with
         // a AttachOnQuery operation instead of AttachOnSave
-        _mappingContext.EntityManager.AttachQueriedEntity(entity, (EntityType) nodeContext.StructuralType);
+        _mappingContext.EntityManager.AttachQueriedEntity(entity, (EntityType)nodeContext.StructuralType);
       } else if (_mappingContext.MergeStrategy == MergeStrategy.OverwriteChanges || aspect.EntityState == EntityState.Unchanged) {
         // overwrite existing entityManager
         ParseObject(nodeContext, aspect);
@@ -186,31 +185,28 @@ namespace Breeze.Sharp {
         aspect.OnEntityChanged(_mappingContext.LoadingOperation == LoadingOperation.Query ? EntityAction.MergeOnQuery : EntityAction.MergeOnSave);
       } else {
         // preserveChanges handling - we still want to handle expands.
-        ParseObject(nodeContext, null );
+        ParseObject(nodeContext, null);
       }
 
       return entity;
     }
 
-    
-
-
     private void ParseObject(NodeContext nodeContext, EntityAspect targetAspect) {
       // backingStore will be null if not allowed to overwrite the entity.
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
-      var dict = (IDictionary<String, JToken>) nodeContext.Node;
+      var dict = (IDictionary<String, JToken>)nodeContext.Node;
       var structuralType = nodeContext.StructuralType;
       // needs to be the current namingConvention
       var nc = _mappingContext.EntityManager.MetadataStore.NamingConvention;
       dict.ForEach(kvp => {
         var key = nc.ServerPropertyNameToClient(kvp.Key, structuralType);
         var prop = structuralType.GetProperty(key);
-        if (prop != null) {         
+        if (prop != null) {
           if (prop.IsDataProperty) {
             if (backingStore != null) {
               var dp = (DataProperty)prop;
               if (dp.IsComplexProperty) {
-                var newCo = (IComplexObject) kvp.Value.ToObject(dp.ClrType);
+                var newCo = (IComplexObject)kvp.Value.ToObject(dp.ClrType);
                 var co = (IComplexObject)backingStore[key];
                 var coBacking = co.ComplexAspect.BackingStore;
                 newCo.ComplexAspect.BackingStore.ForEach(kvp2 => {
@@ -221,37 +217,46 @@ namespace Breeze.Sharp {
                 if (val.Type == JTokenType.Null && dp.ClrType != typeof(String) && !TypeFns.IsNullableType(dp.ClrType)) {
                   // this can only happen if the client is nonnullable but the server is nullable.
                   backingStore[key] = dp.DefaultValue;
-                } else if (dp.IsEnumType || (dp.DataType.ClrType == typeof (TimeSpan))) {
+                } else if (dp.IsEnumType || (dp.DataType.ClrType == typeof(TimeSpan))) {
                   backingStore[key] = val.ToObject(dp.ClrType, _customSerializer);
                 } else {
-                  backingStore[key] = val.ToObject(dp.ClrType);
+                  var newValue = val.ToObject(dp.ClrType);
+                  if (dp.IsForeignKey && targetAspect != null) {
+                    var oldValue = targetAspect.GetValue(key);
+                    backingStore[key] = newValue;
+                    targetAspect.UpdateRelated(dp, newValue, oldValue);
+                    // Above is like next line but with fewer side effects
+                    // targetAspect.SetValue(key, val.ToObject(dp.ClrType));
+                  } else {
+                    backingStore[key] = newValue;
+                  }
                 }
               }
             }
           } else {
             // prop is a ComplexObject
             var np = (NavigationProperty)prop;
-            
+
             if (kvp.Value.HasValues) {
               NodeContext newContext;
               if (np.IsScalar) {
                 var nestedOb = (JObject)kvp.Value;
-                newContext = new NodeContext() { Node = nestedOb, ObjectType = prop.ClrType, StructuralProperty = np}; 
+                newContext = new NodeContext() { Node = nestedOb, ObjectType = prop.ClrType, StructuralProperty = np };
                 var entity = (IEntity)CreateAndPopulate(newContext);
                 if (backingStore != null) backingStore[key] = entity;
               } else {
                 var nestedArray = (JArray)kvp.Value;
-                var navSet = (INavigationSet) TypeFns.CreateGenericInstance(typeof(NavigationSet<>), prop.ClrType);
-                
+                var navSet = (INavigationSet)TypeFns.CreateGenericInstance(typeof(NavigationSet<>), prop.ClrType);
+
                 nestedArray.Cast<JObject>().ForEach(jo => {
-                  newContext = new NodeContext() { Node=jo, ObjectType = prop.ClrType, StructuralProperty = np};
+                  newContext = new NodeContext() { Node = jo, ObjectType = prop.ClrType, StructuralProperty = np };
                   var entity = (IEntity)CreateAndPopulate(newContext);
                   navSet.Add(entity);
                 });
                 // add to existing nav set if there is one otherwise just set it. 
                 object tmp;
                 if (backingStore.TryGetValue(key, out tmp)) {
-                  var backingNavSet = (INavigationSet) tmp;
+                  var backingNavSet = (INavigationSet)tmp;
                   navSet.Cast<IEntity>().ForEach(e => backingNavSet.Add(e));
                 } else {
                   navSet.NavigationProperty = np;
@@ -272,16 +277,16 @@ namespace Breeze.Sharp {
           if (backingStore != null) backingStore[key] = kvp.Value.ToObject<Object>();
         }
       });
-      
+
     }
 
-  
+
 
     private MappingContext _mappingContext;
     private JsonSerializer _customSerializer;
   }
 
-  
+
 
   //public static class JsonFns {
 
