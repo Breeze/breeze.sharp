@@ -1036,7 +1036,11 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public IEntity CreateEntity(Type clrType, Object initialValues = null, EntityState entityState = EntityState.Added) {
       var entity = (IEntity)Activator.CreateInstance(clrType);
+
       var et = MetadataStore.GetEntityType(clrType);
+
+      InitializeEnumProps(clrType, entity, et);
+
       entity.EntityAspect.EntityType = et;
       InitializeEntity(entity, initialValues, et);
       if (entityState == EntityState.Detached) {
@@ -1045,6 +1049,17 @@ namespace Breeze.Sharp {
         AttachEntity(entity, entityState);
       }
       return entity;
+    }
+
+    private static void InitializeEnumProps(Type clrType, IEntity entity, EntityType et) {
+      // Needed because Activator.CreateInstance does not know how to handle nonnullable enums.
+      var enumProps = clrType.GetTypeInfo().DeclaredProperties.Where(p => p.PropertyType.GetTypeInfo().IsEnum);
+      enumProps.ForEach(pi => {
+        var enumType = pi.PropertyType.GetTypeInfo();
+        var firstEnum = Enum.GetValues(pi.PropertyType).GetValue(0);
+        var prop = et.GetProperty(pi.Name);
+        entity.EntityAspect.SetValue(prop, firstEnum);
+      });
     }
 
     private static void InitializeEntity(IEntity entity, object initialValues, EntityType et) {
