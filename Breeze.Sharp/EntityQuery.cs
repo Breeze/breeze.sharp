@@ -247,7 +247,7 @@ namespace Breeze.Sharp {
 
     private string RewriteEnumFilters(string resourcePath) {
 
-      var pattern = @"(?<prefix>.*)cast\((?<enumName>.*),.*\)%20eq%20(?<enumValue>.[^%&]*)(?<suffix>.*)";
+      var pattern = @"(?<prefix>.*)cast\((?<enumName>.*),.*\)%20eq%20(?<enumValue>.[^%&)]*)(?<suffix>.*)";
       var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
       if (m.Success) {
         var enumName = m.Groups["enumName"].Value;
