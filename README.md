@@ -1,11 +1,11 @@
-#![Breeze.Sharp](http://breeze.github.io/images/logos/BreezeSharpB.png "Breeze.Sharp")
+# ![Breeze.Sharp](http://breeze.github.io/images/logos/BreezeSharpB.png "Breeze.Sharp")
 
-###Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
+### Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
 
 This repository holds the Breeze assets **for .NET and Xamarin client development**. 
 
 
-##Support
+## Support
 
 **For technical questions, please go to [StackOverflow with the tag "breeze"](http://stackoverflow.com/questions/tagged/breeze?sort=newest "Breeze.Sharp on StackOverflow").**
 
@@ -25,7 +25,7 @@ Please post your [**feature suggestions** to our User Voice site](https://breeze
 
 <a href="mailto:breeze@ideablade.com/?subject=Tell me about professional services" title="Professional Services">Learn about IdeaBlade's <strong>professional services</strong></a> from training through application development</a>.
 
-##Documentation
+## Documentation
 
 [**Samples** and Breeze-related code for server development](https://github.com/Breeze "Breeze sample repositories on github") reside in sibling Breeze repositories such as [breeze.sharp.samples](https://github.com/Breeze/breeze.sharp.samples "Breeze# samples").
 
