@@ -72,7 +72,7 @@ namespace Breeze.Sharp {
     event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged {
       // EntityAspect.PropertyChanged is a different event that tracks changes to the EntityAspect itself.
       add { EntityAspect.EntityPropertyChanged += value; }
-      remove { EntityAspect.EntityPropertyChanged += value; ; }
+      remove { EntityAspect.EntityPropertyChanged -= value; ; }
     }
 
     event EventHandler<DataErrorsChangedEventArgs> INotifyDataErrorInfo.ErrorsChanged {
