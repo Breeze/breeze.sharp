@@ -870,7 +870,7 @@ namespace Breeze.Sharp {
           }
         } else {
           // unidirectional
-          if (np.ParentType == EntityType) {
+          if (np.ParentType == EntityType && np.ParentType != np.EntityType) {
 
             parentToChildNp = np;
             if (parentToChildNp.IsScalar) {
