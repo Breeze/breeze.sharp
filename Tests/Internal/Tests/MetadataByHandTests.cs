@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -21,13 +21,13 @@ namespace Breeze.Sharp.Tests {
 
     // TODO: need Exp/Imp tests with Complex type changes.
 
-    private String _serviceName;
+    //private String _serviceName;
 
     [TestInitialize]
     public void TestInitializeMethod() {
       Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       // _serviceName = "http://localhost:7150/breeze/NorthwindIBModel/";
-      _serviceName = "http://api.edmunds.com/v1/api/"; // edmunds
+      // _serviceName = "http://api.edmunds.com/v1/api/"; // edmunds
     }
 
     [TestCleanup]
@@ -38,7 +38,7 @@ namespace Breeze.Sharp.Tests {
 
     // [TestMethod]
     
-    public async Task SimpleCall() {
+    public void SimpleCall() {
       var metadataStore = new MetadataStore();
       var orderBuilder = new EntityTypeBuilder<Order>(metadataStore);
       var dp = orderBuilder.DataProperty(o => o.ShipAddress).MaxLength(40);

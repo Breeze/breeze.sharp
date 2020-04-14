@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Breeze.Sharp</AssemblyName>
+    <RootNamespace>Breeze.Sharp</RootNamespace>
+    <Authors>Jay Traband</Authors>
+    <Company>IdeaBlade</Company>
+    <Description>Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.</Description>
+    <Copyright>IdeaBlade, 2014 - 2020</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>http://breeze.github.io/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Breeze/breeze.sharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.8.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\git\Breeze\breeze.sharp\Breeze.Sharp\Breeze.Sharp.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="LocalizedMessages.resx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -446,7 +446,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task RestoreValidatorFromMetadata() {
+    public void RestoreValidatorFromMetadata() {
       
       Configuration.Instance.ProbeAssemblies(typeof(Customer).Assembly);
       var em1 = new EntityManager(_serviceName);

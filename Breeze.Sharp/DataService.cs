@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -141,6 +141,9 @@ namespace Breeze.Sharp {
         return await ReadResult(response);
       } catch (Exception e) {
         Debug.WriteLine(e);
+        if (e is DataServiceRequestException dse) {
+          Debug.WriteLine(dse.ResponseContent);
+        }
         throw;
       }
     }

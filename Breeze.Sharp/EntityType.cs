@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,12 +35,17 @@ namespace Breeze.Sharp {
       jNode.GetJNodeArray("dataProperties").ForEach(jn => {
         var dpName = GetPropertyNameFromJNode(jn);
         var dp = et.GetDataProperty(dpName);
-        dp.UpdateFromJNode(jn, isFromServer);
-        
+        if (dp == null) {
+          throw new Exception($"Data Property {dpName} not found on type {name}");
+        }
+        dp.UpdateFromJNode(jn, isFromServer);       
       });
       jNode.GetJNodeArray("navigationProperties").ForEach(jn => {
         var npName = GetPropertyNameFromJNode(jn);
         var np = et.GetNavigationProperty(npName);
+        if (np == null) {
+          throw new Exception($"Navigation Property {npName} not found on type {name}");
+        }
         np.UpdateFromJNode(jn, isFromServer);
       });
       et._validators = new ValidatorCollection(jNode.GetJNodeArray("validators"));

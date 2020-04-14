@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
-using Model.Edmunds;
+//using Model.Edmunds;
 
 
 // Edmunds link is no longer any good - api has changed.

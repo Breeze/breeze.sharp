@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -293,11 +293,11 @@ namespace Breeze.Sharp {
       serializer.Converters.Add(jsonConverter);
       // serializer.Converters.Add(new StringEnumConverter());
       Type rType;
-      
+
       using (NewIsLoadingBlock()) {
         var jt = JToken.Parse(result);
         jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
-        if (resourcePath.Contains("inlinecount")) {
+        if (result.IndexOf("\"InlineCount\":", StringComparison.OrdinalIgnoreCase) > 0) {
           rType = typeof (QueryResult<>).MakeGenericType(query.ElementType);
           return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
         } else if (jt is JArray) {

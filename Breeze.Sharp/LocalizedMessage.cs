@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -64,10 +64,10 @@ namespace Breeze.Sharp {
               _isLocalized = _message != null;
             }
           } catch {
-            if (DefaultMessage == null) {
+            if (DefaultMessage != null) {
               _message = DefaultMessage;
             } else {
-              _message = "Unable to resource for " + this.Key;
+              _message = "Unable to get resource for " + this.Key;
             }
           }
         }
