@@ -2,8 +2,14 @@
 
 ### Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
 
-This repository holds the Breeze assets **for .NET and Xamarin client development**. 
+Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, 
+manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.
 
+This repository holds the Breeze assets **for .NET and Xamarin client development**.  
+
+`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, and `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects.
+
+Please see the [Breeze.Sharp documentation](http://breeze.github.io/doc-cs/introduction.html) to get started.
 
 ## Support
 

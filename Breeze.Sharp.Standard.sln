@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Breeze.Sharp.Standard", "Breeze.Sharp\Breeze.Sharp.Standard.csproj", "{C9E4B61A-6A94-4527-AE36-B8330D5DABFC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{81AA6310-06A8-4DBE-B758-1F5E9DA586A3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model.Northwind.Standard", "Tests\Internal\Model.Northwind.Sharp\Model.Northwind.Standard.csproj", "{019A188A-D6BB-4AD5-8639-E54FA0B96BED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Breeze.Sharp.Standard.Tests", "Tests\Internal\Tests\Breeze.Sharp.Standard.Tests.csproj", "{ACE448DD-68BC-491A-A3A7-166C51F6AFFD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model.Inheritance.Billing.Standard", "Tests\Internal\Model.Inheritance.Billing.Sharp\Model.Inheritance.Billing.Standard.csproj", "{3FABB05E-A1CC-417A-8B80-8731943AA8F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model.Inheritance.Produce.Standard", "Tests\Internal\Model.Inheritance.Produce.Sharp\Model.Inheritance.Produce.Standard.csproj", "{B4ADF22D-2432-40A9-816B-E629DBF2C3CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9E4B61A-6A94-4527-AE36-B8330D5DABFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9E4B61A-6A94-4527-AE36-B8330D5DABFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9E4B61A-6A94-4527-AE36-B8330D5DABFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9E4B61A-6A94-4527-AE36-B8330D5DABFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{019A188A-D6BB-4AD5-8639-E54FA0B96BED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{019A188A-D6BB-4AD5-8639-E54FA0B96BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{019A188A-D6BB-4AD5-8639-E54FA0B96BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{019A188A-D6BB-4AD5-8639-E54FA0B96BED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACE448DD-68BC-491A-A3A7-166C51F6AFFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACE448DD-68BC-491A-A3A7-166C51F6AFFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACE448DD-68BC-491A-A3A7-166C51F6AFFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACE448DD-68BC-491A-A3A7-166C51F6AFFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FABB05E-A1CC-417A-8B80-8731943AA8F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FABB05E-A1CC-417A-8B80-8731943AA8F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FABB05E-A1CC-417A-8B80-8731943AA8F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FABB05E-A1CC-417A-8B80-8731943AA8F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4ADF22D-2432-40A9-816B-E629DBF2C3CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4ADF22D-2432-40A9-816B-E629DBF2C3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4ADF22D-2432-40A9-816B-E629DBF2C3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4ADF22D-2432-40A9-816B-E629DBF2C3CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1192861-961B-44FC-9437-E4916B820169}
+	EndGlobalSection
+EndGlobal

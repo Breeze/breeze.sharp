@@ -1,13 +1,11 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using System.Linq;
-using Breeze.Sharp.Core;
 using Breeze.Sharp;
-using System.Collections.Generic;
+using Breeze.Sharp.Core;
 using Foo;
-using System.Threading;
-using System.Windows.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Breeze.Sharp.Tests {
 

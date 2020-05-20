@@ -1,16 +1,18 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using Breeze.Sharp.Core;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Services.Client;
-using System.Data.Services.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data.Services.Client;
+using System.Data.Services.Common;
+using Newtonsoft.Json;
+using Breeze.Sharp.Json;
 
 namespace Breeze.Sharp {
 
@@ -194,12 +196,6 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <returns></returns>
     public override String GetResourcePath(MetadataStore metadataStore) {
-      var dsq = this.DataServiceQuery;
-
-      var requestUri = dsq.RequestUri.AbsoluteUri;
-
-
-      var s2 = requestUri.Replace(__placeholderServiceName, "");
 
       var resourceName = (String.IsNullOrEmpty(ResourceName))
         ? metadataStore.GetDefaultResourceName(this.QueryableType)
@@ -208,11 +204,37 @@ namespace Breeze.Sharp {
         throw new Exception("Cannot find a default resource name for CLR type: " + this.QueryableType.FullName);
       }
 
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.JSON) {
+        return GetJsonResourcePath(resourceName);
+      } else {
+        return GetOdataResourcePath(resourceName);
+      }
+    }
+
+    /// <summary> Return the query as JSON url, e.g. "Customer?{where:{FirstName:'Maria'}}" </summary>
+    private string GetJsonResourcePath(string resourceName) {
+      var json = JsonQueryExpressionVisitor.Translate(this.Expression);
+      if (json.Length > 2) {
+        // TODO may be able to get away with not escaping the URI
+        var uri = Uri.EscapeUriString(json);
+        return resourceName + '?' + uri;
+      } else {
+        return resourceName;
+      }
+    }
+
+    /// <summary> Return the query as Odata URL, e.g. "Customer?$filter=FirstName%20eq%20'Maria'" </summary>
+    private string GetOdataResourcePath(string resourceName) {
+      var dsq = this.DataServiceQuery;
+      var requestUri = dsq.RequestUri.AbsoluteUri;
+      var s2 = requestUri.Replace(__placeholderServiceName, "");
+
+
       // if any filter conditions
       var queryResource = s2.Replace(__placeholderResourceName + "()", resourceName);
       // if no filter conditions
       queryResource = queryResource.Replace(__placeholderResourceName, resourceName);
-      
+
       // TODO: Hack to avoid DataServiceQuery from inferring the entity key
       queryResource = queryResource.Replace("$filter=true%20and%20", "$filter=");
       queryResource = queryResource.Replace("$filter=true", "");
@@ -491,7 +513,6 @@ namespace Breeze.Sharp {
       }
       return entityManager;
     }
-
 
     /// <summary>
     /// The resource name specified for this query.

@@ -1,7 +1,5 @@
 ﻿using Breeze.Sharp.Core;
-using Microsoft.Data.OData;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;

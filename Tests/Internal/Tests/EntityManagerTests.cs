@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,7 +32,7 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
-    public async Task EntityKeyNoMetadata() {
+    public void EntityKeyNoMetadata() {
 
       try {
         var ek = new EntityKey(typeof(FooEntity), MetadataStore.Detached, 7);

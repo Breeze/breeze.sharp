@@ -1,12 +1,9 @@
-﻿using Breeze.Sharp;
+using Breeze.Sharp;
 using Breeze.Sharp.Core;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 
 namespace Breeze.Sharp.Tests {
   public static class TestFns {
@@ -15,6 +12,7 @@ namespace Breeze.Sharp.Tests {
       public static string serviceName = serviceRoot + "breeze/NorthwindIBModel/";
 
     public static void RunInWpfSyncContext(Func<Task> function) {
+#if NETFRAMEWORK
       if (function == null) throw new ArgumentNullException("function");
       var prevCtx = SynchronizationContext.Current;
       try {
@@ -32,6 +30,10 @@ namespace Breeze.Sharp.Tests {
       } finally {
         SynchronizationContext.SetSynchronizationContext(prevCtx);
       }
+#else
+      var task = function();
+      if (task == null) throw new InvalidOperationException();
+#endif
     }
 
     public static MetadataStore DefaultMetadataStore = new MetadataStore();

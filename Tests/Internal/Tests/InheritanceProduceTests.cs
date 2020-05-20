@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using System.Linq;
@@ -162,7 +162,7 @@ namespace Breeze.Sharp.Tests {
 
       var q = new EntityQuery<ItemOfProduce>();
       var r0 = await em1.ExecuteQuery(q);
-      var hs = r0.Select(r => r.QuantityPerUnit).ToHashSet();
+      var hs = EnumerableFns.ToHashSet(r0.Select(r => r.QuantityPerUnit)); //.ToHashSet();
       Assert.IsTrue(hs.Count() > 2, "should be more than 2 unique values");
 
     }

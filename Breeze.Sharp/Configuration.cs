@@ -1,14 +1,18 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Breeze.Sharp {
+
+  /// <summary> How to encode query string in URL </summary>
+  public enum QueryUriStyle {
+    /// <summary> Odata-style URI, e.g. "Customer?$filter=FirstName%20eq%20'Maria'" </summary>
+    OData,
+    /// <summary> JSON-style URI, e.g. "Customer?{where:{FirstName:'Maria'}}" </summary>
+    JSON
+  }
 
   /// <summary>
   /// A singleton class that provides basic registration mechanisms for a Breeze application.
@@ -23,6 +27,7 @@ namespace Breeze.Sharp {
 
     private Configuration() {
 
+      QueryUriStyle = QueryUriStyle.OData;
       RegisterTypeDiscoveryActionCore(typeof(IEntity), (t) => RegisterStructuralType(t), true);
       RegisterTypeDiscoveryActionCore(typeof(IComplexObject), (t) => RegisterStructuralType(t), true);
       RegisterTypeDiscoveryActionCore(typeof(Validator), (t) => RegisterValidator(t), true);
@@ -52,6 +57,9 @@ namespace Breeze.Sharp {
         __instance = new Configuration();
       }
     }
+
+    /// <summary> How to encode query string in URL </summary>
+    public QueryUriStyle QueryUriStyle { get; set; }
 
     /// <summary>
     /// Tell's Breeze to probe the specified assemblies and automatically discover any

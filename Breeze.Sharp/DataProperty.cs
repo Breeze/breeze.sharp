@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 
-using Microsoft.Data.Edm.Library;
-
 namespace Breeze.Sharp {
 
   /// <summary>
