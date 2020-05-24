@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -44,6 +44,8 @@ namespace Breeze.Sharp
         public int StoreID { get; private set; }
 
         public static String MetadataVersion = "1.0.3";
+
+        private Regex regExGeneric = new Regex(@"`\d+");
 
         public static MetadataStore Detached
         {
@@ -200,6 +202,8 @@ namespace Breeze.Sharp
                 {
                     metadata = Regex.Unescape(metadata.Substring(1, metadata.Length - 2));
                 }
+
+                metadata = regExGeneric.Replace(metadata, string.Empty);
 
                 var json = (JObject)JsonConvert.DeserializeObject(metadata);
                 var schema = json["schema"];
