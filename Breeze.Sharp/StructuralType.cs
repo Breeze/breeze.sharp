@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -49,7 +49,6 @@ namespace Breeze.Sharp {
       }
       internal set {
         _nameOnServer = value;
-        Name = TypeNameInfo.FromStructuralTypeName(value).ToClient(MetadataStore).StructuralTypeName;
       }
     }
 
