@@ -296,7 +296,7 @@ namespace Breeze.Sharp {
         using (NewIsLoadingBlock()) {
           var jt = JToken.Parse(result);
           jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
-          if (jt["Results"] != null) {
+          if (result.IndexOf("\"Results\":", StringComparison.OrdinalIgnoreCase) > 0) {
             rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
             return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
           } else if (jt is JArray) {
