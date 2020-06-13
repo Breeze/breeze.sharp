@@ -94,12 +94,10 @@ namespace Breeze.Sharp {
         httpClient = DefaultHttpMessageHandler == null ? new HttpClient() : new HttpClient(DefaultHttpMessageHandler);
       }
       _httpClient = httpClient;
-      _httpClient.BaseAddress = new Uri(ServiceName);
 
       // Add an Accept header for JSON format.
       _httpClient.DefaultRequestHeaders.Accept.Add(
          new MediaTypeWithQualityHeaderValue("application/json"));
-
     }
 
     private IDataServiceAdapter GetAdapter(string adapterName) {
@@ -134,7 +132,7 @@ namespace Breeze.Sharp {
 
     public async Task<String> GetAsync(String resourcePath, CancellationToken cancellationToken) {
       try {
-        var response = await _httpClient.GetAsync(resourcePath, cancellationToken);
+        var response = await _httpClient.GetAsync($"{ServiceName}{resourcePath}", cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -158,7 +156,7 @@ namespace Breeze.Sharp {
         //        new KeyValuePair<string, string>("", "login")
         //    });
 
-        var response = await _httpClient.PostAsync(resourcePath, content);
+        var response = await _httpClient.PostAsync($"{ServiceName}{resourcePath}", content);
         return await ReadResult(response);
       } catch (Exception e) {
         Debug.WriteLine(e);
