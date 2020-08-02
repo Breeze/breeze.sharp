@@ -120,7 +120,7 @@ namespace Breeze.Sharp.Json {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "OrderByDescending") {
-        if (this.ParseOrderByExpression(m, "DESC")) {
+        if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
         }
       }
