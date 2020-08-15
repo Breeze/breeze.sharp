@@ -274,9 +274,9 @@ namespace Breeze.Sharp.Json {
         order = " " + order.Trim();
       }
 
-      //lambdaExpression = (LambdaExpression)Evaluator.PartialEval(lambdaExpression);
+      MemberExpression body = lambdaExpression.Body is MemberExpression ?
+        (MemberExpression)lambdaExpression.Body : ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
 
-      MemberExpression body = ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
       if (body != null) {
         if (OrderBy == null)
           OrderBy = new List<string>();
