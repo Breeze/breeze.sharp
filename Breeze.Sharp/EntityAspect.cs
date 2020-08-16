@@ -937,7 +937,8 @@ namespace Breeze.Sharp {
             npEntity.EntityAspect.EntityType = np.EntityType;
             // Set this Entity's fk to match np EntityKey
             // Order.CustomerID = aCustomer.CustomerID
-            npEntity.EntityAspect.EntityKey.Values.ForEach((v, i) => SetDpValue(fkProps[i], v));
+            //commented because set keys to default values
+            //npEntity.EntityAspect.EntityKey.Values.ForEach((v, i) => SetDpValue(fkProps[i], v));
           }
           return false;
         }
