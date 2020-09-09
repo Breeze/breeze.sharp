@@ -216,6 +216,7 @@ namespace Breeze.Sharp {
       var json = JsonQueryExpressionVisitor.Translate(this.Expression);
       if (json.Length > 2) {
         // TODO may be able to get away with not escaping the URI
+        System.Diagnostics.Debug.WriteLine($"json query: {json}");
         var uri = Uri.EscapeUriString(json);
         return resourceName + '?' + uri;
       } else {

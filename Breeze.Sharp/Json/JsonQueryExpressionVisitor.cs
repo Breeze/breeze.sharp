@@ -14,7 +14,7 @@ namespace Breeze.Sharp.Json {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
-    public string OrderBy { get; private set; } = null;
+    public List<string> OrderBy { get; private set; } = null;
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
     public List<string> Select { get; private set; } = null;
@@ -43,7 +43,7 @@ namespace Breeze.Sharp.Json {
       return json;
     }
 
-    private JsonQueryExpressionVisitor() {}
+    private JsonQueryExpressionVisitor() { }
 
     /// <summary> Populate this visitor's properties from the expression </summary>
     protected void VisitRoot(Expression expression) {
@@ -120,7 +120,7 @@ namespace Breeze.Sharp.Json {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "OrderByDescending") {
-        if (this.ParseOrderByExpression(m, "DESC")) {
+        if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
         }
       }
@@ -274,15 +274,15 @@ namespace Breeze.Sharp.Json {
         order = " " + order.Trim();
       }
 
-      //lambdaExpression = (LambdaExpression)Evaluator.PartialEval(lambdaExpression);
+      MemberExpression body = lambdaExpression.Body is MemberExpression ?
+        (MemberExpression)lambdaExpression.Body : ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
 
-      MemberExpression body = lambdaExpression.Body as MemberExpression;
       if (body != null) {
-        if (string.IsNullOrEmpty(OrderBy)) {
-          OrderBy = string.Format("{0}{1}", body.Member.Name, order);
-        } else {
-          OrderBy = string.Format("{0}, {1}{2}", OrderBy, body.Member.Name, order);
-        }
+        if (OrderBy == null)
+          OrderBy = new List<string>();
+
+        OrderBy.Add(string.Format("{0}{1}", body.Member.Name, order));
+
         return true;
       }
 

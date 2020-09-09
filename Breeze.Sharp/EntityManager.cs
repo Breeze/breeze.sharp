@@ -18,7 +18,7 @@ namespace Breeze.Sharp {
   /// Instances of the EntityManager contain and manage collections of entities, 
   /// either retrieved from a backend datastore or created on the client. 
   /// </summary>
-  public class EntityManager  {
+  public class EntityManager {
 
     #region Ctor 
 
@@ -30,9 +30,9 @@ namespace Breeze.Sharp {
     ///     // Example: 
     ///     var em = new EntityManager("http://localhost:7150/breeze/NorthwindIBModel/")
     /// </code></remarks>
-    public EntityManager(String serviceName, MetadataStore metadataStore = null) 
+    public EntityManager(String serviceName, MetadataStore metadataStore = null)
       : this(new DataService(serviceName), metadataStore) {
-    
+
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace Breeze.Sharp {
       TempIds = new HashSet<UniqueId>();
     }
 
-  
+
     #endregion
 
     #region Thread checking
@@ -117,6 +117,7 @@ namespace Breeze.Sharp {
     private static ThreadLocal<Int32> __threadLocalId;
     private static Int32 __nextThreadId = 34;
     private Int32 _authorizedThreadId;
+    private readonly object _reificationLock = new Object();
 
     #endregion
 
@@ -181,7 +182,7 @@ namespace Breeze.Sharp {
         this.EntityGroups.ForEach(eg => eg.ChangeNotificationEnabled = value);
       }
     }
-    
+
     #endregion
 
     #region async methods
@@ -192,9 +193,8 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="dataService"></param>
     /// <returns></returns>
-    public async Task<DataService> FetchMetadata(DataService dataService = null)
-    {
-        return await FetchMetadata(CancellationToken.None, dataService);
+    public async Task<DataService> FetchMetadata(DataService dataService = null) {
+      return await FetchMetadata(CancellationToken.None, dataService);
     }
     /// <summary>
     /// Fetches the metadata associated with the EntityManager's current 'serviceName'. 
@@ -217,10 +217,9 @@ namespace Breeze.Sharp {
     /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query)
-    {
-        var result = await ExecuteQuery((EntityQuery)query, CancellationToken.None);
-        return (IEnumerable<T>)result;
+    public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query) {
+      var result = await ExecuteQuery((EntityQuery)query, CancellationToken.None);
+      return (IEnumerable<T>)result;
     }
 
     /// <summary>
@@ -231,7 +230,7 @@ namespace Breeze.Sharp {
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public async Task<IEnumerable<T>> ExecuteQuery<T>(EntityQuery<T> query, CancellationToken cancellationToken) {
-      var result = await ExecuteQuery((EntityQuery) query, cancellationToken);
+      var result = await ExecuteQuery((EntityQuery)query, cancellationToken);
       return (IEnumerable<T>)result;
     }
 
@@ -240,9 +239,8 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
-    public async Task<IEnumerable> ExecuteQuery(EntityQuery query)
-    {
-        return await ExecuteQuery(query, CancellationToken.None);
+    public async Task<IEnumerable> ExecuteQuery(EntityQuery query) {
+      return await ExecuteQuery(query, CancellationToken.None);
     }
 
     /// <summary>
@@ -251,8 +249,7 @@ namespace Breeze.Sharp {
     /// <param name="query"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<IEnumerable> ExecuteQuery(EntityQuery query, CancellationToken cancellationToken)
-    {
+    public async Task<IEnumerable> ExecuteQuery(EntityQuery query, CancellationToken cancellationToken) {
       cancellationToken.ThrowIfCancellationRequested();
 
       if (query.ElementType == null) {
@@ -273,12 +270,13 @@ namespace Breeze.Sharp {
       var resourcePath = query.GetResourcePath(this.MetadataStore);
       // HACK
       resourcePath = resourcePath.Replace("/*", "");
-      
+
       var result = await dataService.GetAsync(resourcePath, cancellationToken);
 
       cancellationToken.ThrowIfCancellationRequested();
-      
+
       CheckAuthorizedThreadId();
+
       var mergeStrategy = query.QueryOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy;
 
       var mappingContext = new MappingContext() {
@@ -294,27 +292,28 @@ namespace Breeze.Sharp {
       // serializer.Converters.Add(new StringEnumConverter());
       Type rType;
 
-      using (NewIsLoadingBlock()) {
-        var jt = JToken.Parse(result);
-        jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
-        if (result.IndexOf("\"InlineCount\":", StringComparison.OrdinalIgnoreCase) > 0) {
-          rType = typeof (QueryResult<>).MakeGenericType(query.ElementType);
-          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
-        } else if (jt is JArray) {
-          rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
-          return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
-        } else {
-          rType = query.ElementType;
-          var list= (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(query.ElementType));
-          var item = serializer.Deserialize(new JTokenReader(jt), rType);
-          list.Add(item);
-          return list;
+      lock (_reificationLock) {
+        using (NewIsLoadingBlock()) {
+          var jt = JToken.Parse(result);
+          jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
+          if (result.IndexOf("\"Results\":", StringComparison.OrdinalIgnoreCase) > 0) {
+            rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
+            return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+          } else if (jt is JArray) {
+            rType = typeof(IEnumerable<>).MakeGenericType(query.ElementType);
+            return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
+          } else {
+            rType = query.ElementType;
+            var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(query.ElementType));
+            var item = serializer.Deserialize(new JTokenReader(jt), rType);
+            list.Add(item);
+            return list;
+          }
         }
-        
       }
     }
 
-    
+
 
     /// <summary>
     /// Performs an asynchronous saves of all pending changes within this EntityManager.
@@ -359,9 +358,9 @@ namespace Breeze.Sharp {
             return errors;
           }
         });
-       if (errs.Any()) {
-         throw new SaveException(errs);
-       };
+        if (errs.Any()) {
+          throw new SaveException(errs);
+        };
       }
       saveOptions = new SaveOptions(saveOptions ?? this.DefaultSaveOptions ?? SaveOptions.Default);
       if (saveOptions.ResourceName == null) saveOptions.ResourceName = "SaveChanges";
@@ -382,9 +381,8 @@ namespace Breeze.Sharp {
     /// <param name="entityKey"></param>
     /// <param name="checkLocalCacheFirst"></param>
     /// <returns></returns>
-    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false)
-    {
-        return await FetchEntityByKey(entityKey, CancellationToken.None, checkLocalCacheFirst);
+    public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, bool checkLocalCacheFirst = false) {
+      return await FetchEntityByKey(entityKey, CancellationToken.None, checkLocalCacheFirst);
     }
 
     /// <summary>
@@ -396,7 +394,7 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public async Task<EntityKeyFetchResult> FetchEntityByKey(EntityKey entityKey, CancellationToken cancellationToken, bool checkLocalCacheFirst = false) {
       IEntity entity;
-      
+
       cancellationToken.ThrowIfCancellationRequested();
 
       if (checkLocalCacheFirst) {
@@ -476,7 +474,7 @@ namespace Breeze.Sharp {
 
     internal void FireQueuedEvents() {
       // IsLoadingEntity will still be true when this occurs.
-      if (! _queuedEvents.Any()) return;
+      if (!_queuedEvents.Any()) return;
       var events = _queuedEvents.ToList();
       _queuedEvents.Clear();
       events.ForEach(a => a());
@@ -555,10 +553,10 @@ namespace Breeze.Sharp {
       var entityGroupNodesMap = jn.GetJNodeArrayMap("entityGroupMap");
       // tempKeyMap will have a new values where collisions will occur
       var tempKeyMap = jn.GetJNodeArray("tempKeys").Select(jnEk => new EntityKey(jnEk, this.MetadataStore)).ToDictionary(
-        ek => ek, 
-        ek => this.GetEntityByKey(ek) == null ? ek : EntityKey.Create(ek.EntityType, KeyGenerator.GetNextTempId(ek.EntityType.KeyProperties.First())) 
+        ek => ek,
+        ek => this.GetEntityByKey(ek) == null ? ek : EntityKey.Create(ek.EntityType, KeyGenerator.GetNextTempId(ek.EntityType.KeyProperties.First()))
       );
-      
+
       var mergeStrategy = (importOptions.MergeStrategy ?? this.DefaultQueryOptions.MergeStrategy ?? QueryOptions.Default.MergeStrategy).Value;
       var importedEntities = new List<IEntity>();
       using (NewIsLoadingBlock()) {
@@ -609,7 +607,7 @@ namespace Breeze.Sharp {
           }
           UpdateTempFks(targetEntity, entityAspectNode, tempKeyMap);
           AttachImportedEntity(targetEntity, entityType, entityState);
-        }       
+        }
 
         importedEntities.Add(targetEntity);
       };
@@ -906,7 +904,7 @@ namespace Breeze.Sharp {
     /// </remarks>
     public IEnumerable<IEntity> GetEntities(Type type, EntityState entityState) {
       if (type.GetTypeInfo().IsAbstract) {
-        var groups = type == typeof(IEntity) 
+        var groups = type == typeof(IEntity)
           ? this.EntityGroups
           : this.EntityGroups.Where(eg => type.IsAssignableFrom(eg.ClrType));
         return groups.SelectMany(f => f.LocalEntityAspects)
@@ -926,7 +924,7 @@ namespace Breeze.Sharp {
     /// <param name="entityTypes"></param>
     /// <returns></returns>
     public IEnumerable<IEntity> GetChanges(params Type[] entityTypes) {
-      return GetChanges((IEnumerable<Type>) entityTypes);
+      return GetChanges((IEnumerable<Type>)entityTypes);
     }
 
     /// <summary>
@@ -982,7 +980,7 @@ namespace Breeze.Sharp {
           return (eg == null) ? null : eg.FindEntityAspect(entityKey, true);
         }).FirstOrDefault(a => a != null);
       }
-      
+
       return ea == null ? null : ea.Entity;
     }
 
@@ -1010,7 +1008,7 @@ namespace Breeze.Sharp {
     /// <param name="initialValues"></param>
     /// <param name="entityState">Default is 'Added'</param>
     /// <returns></returns>
-    public T CreateEntity<T>(Object initialValues=null, EntityState entityState = EntityState.Added) {
+    public T CreateEntity<T>(Object initialValues = null, EntityState entityState = EntityState.Added) {
       return (T)CreateEntity(typeof(T), initialValues, entityState);
     }
 
@@ -1022,7 +1020,7 @@ namespace Breeze.Sharp {
     /// <param name="initialValues"></param>
     /// <param name="entityState"></param>
     /// <returns></returns>
-    public IEntity CreateEntity(EntityType entityType, Object initialValues=null, EntityState entityState = EntityState.Added) {
+    public IEntity CreateEntity(EntityType entityType, Object initialValues = null, EntityState entityState = EntityState.Added) {
       return CreateEntity(entityType.ClrType, initialValues, entityState);
     }
 
@@ -1077,11 +1075,11 @@ namespace Breeze.Sharp {
             if (prop.IsScalar) {
               entity.EntityAspect.SetValue(prop, val);
             } else {
-              var navSet = (INavigationSet) entity.EntityAspect.GetValue(prop);
+              var navSet = (INavigationSet)entity.EntityAspect.GetValue(prop);
               (val as IEnumerable).Cast<IEntity>().ForEach(e => navSet.Add(e));
             }
           }
-        } catch(Exception e) {
+        } catch (Exception e) {
           var msg = "Unable to create entity of type '{0}'.  Initialization failed on property: '{1}'";
           throw new Exception(String.Format(msg, et.Name, pi.Name), e);
         }
@@ -1115,9 +1113,9 @@ namespace Breeze.Sharp {
         }
 
         // TODO: handle mergeStrategy here
-        
+
         AttachEntityAspect(aspect, entityState);
-        
+
         aspect.EntityType.NavigationProperties.ForEach(np => {
           aspect.ProcessNpValue(np, e => AttachEntity(e, entityState, mergeStrategy));
         });
@@ -1149,7 +1147,7 @@ namespace Breeze.Sharp {
     internal EntityAspect AttachQueriedEntity(IEntity entity, EntityType entityType) {
       var aspect = entity.EntityAspect;
       aspect.EntityType = entityType;
-      AttachEntityAspect(aspect, EntityState.Unchanged); 
+      AttachEntityAspect(aspect, EntityState.Unchanged);
 
       if ((this.ValidationOptions.ValidationApplicability & ValidationApplicability.OnQuery) > 0) {
         aspect.ValidateInternal();
@@ -1163,7 +1161,7 @@ namespace Breeze.Sharp {
       var aspect = entity.EntityAspect;
       aspect.EntityType = entityType;
       AttachEntityAspect(aspect, entityState);
-      
+
       aspect.OnEntityChanged(EntityAction.AttachOnImport);
       return aspect;
     }
@@ -1205,7 +1203,7 @@ namespace Breeze.Sharp {
       // return properties that are = to defaultValues
       var keyProps = aspect.EntityType.KeyProperties;
       var keyPropsWithDefaultValues = keyProps
-        .Zip(ek.Values, (kp, kv) => Object.Equals(kp.DefaultValue,kv) ? kp : null)
+        .Zip(ek.Values, (kp, kv) => Object.Equals(kp.DefaultValue, kv) ? kp : null)
         .Where(kp => kp != null);
 
       if (keyPropsWithDefaultValues.Any()) {
@@ -1237,7 +1235,7 @@ namespace Breeze.Sharp {
       if (eg != null) {
         return eg;
       }
-      
+
       lock (this.EntityGroups) {
         // check again just in case another thread got in.
         eg = this.EntityGroups[clrEntityType];
@@ -1302,7 +1300,7 @@ namespace Breeze.Sharp {
       if (aspect.EntityGroup == null) {
         aspect.EntityGroup = GetEntityGroup(entityType);
       }
-      
+
       if (KeyGenerator == null) {
         throw new Exception("Unable to locate a KeyGenerator");
       }
@@ -1333,12 +1331,12 @@ namespace Breeze.Sharp {
     internal void UpdatePkIfNeeded(EntityAspect aspect) {
       if (KeyGenerator == null) return;
       var keyProperties = aspect.EntityType.KeyProperties;
-      
+
       foreach (var aProperty in keyProperties) {
 
         var val = aspect.GetValue(aProperty.Name);
         var aUniqueId = new UniqueId(aProperty, val);
-        
+
         // determine if a temp pk is needed.
         if (aProperty.IsAutoIncrementing) {
           if (!KeyGenerator.IsTempId(aUniqueId)) {
@@ -1418,8 +1416,8 @@ namespace Breeze.Sharp {
 
     // backdoor the "really" check for changes.
     private bool HasChangesCore(IEnumerable<Type> entityTypes) {
-      var entityGroups = (entityTypes == null) 
-        ? this.EntityGroups 
+      var entityGroups = (entityTypes == null)
+        ? this.EntityGroups
         : entityTypes.Select(et => GetEntityGroup(et));
       return entityGroups.Any(eg => eg != null && eg.HasChanges());
     }
@@ -1472,17 +1470,17 @@ namespace Breeze.Sharp {
     internal void UpdateFkVal(DataProperty fkProp, Object oldValue, Object newValue) {
       var eg = this.EntityGroups[fkProp.ParentType.ClrType];
       if (eg == null) return;
-        
+
       eg.UpdateFkVal(fkProp, oldValue, newValue);
     }
 
     internal static void CheckEntityType(Type clrEntityType) {
       var etInfo = clrEntityType.GetTypeInfo();
-      if ( typeof(IEntity).GetTypeInfo().IsAssignableFrom(etInfo) && !etInfo.IsAbstract) return;
+      if (typeof(IEntity).GetTypeInfo().IsAssignableFrom(etInfo) && !etInfo.IsAbstract) return;
       throw new ArgumentException("This operation requires a nonabstract type that implements the IEntity interface");
     }
 
-    internal LoadingBlock NewIsLoadingBlock(bool allowHasChangesAction=true) {
+    internal LoadingBlock NewIsLoadingBlock(bool allowHasChangesAction = true) {
       return new LoadingBlock(this, allowHasChangesAction);
     }
 
@@ -1512,8 +1510,8 @@ namespace Breeze.Sharp {
       private bool _wasLoadingEntity;
     }
 
-    internal bool IsLoadingEntity { get; set;  }
-    internal bool IsRejectingChanges { get; set;  }
+    internal bool IsLoadingEntity { get; set; }
+    internal bool IsRejectingChanges { get; set; }
     internal UnattachedChildrenMap UnattachedChildrenMap { get; private set; }
 
     #endregion
@@ -1540,7 +1538,7 @@ namespace Breeze.Sharp {
     #endregion
   }
 
-  
+
 
 
 }

@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -21,14 +21,14 @@ namespace Breeze.Sharp {
   public class MetadataStore : IJsonSerializable {
 
 
-     // Explicit static constructor to tell C# compiler
+    // Explicit static constructor to tell C# compiler
     // not to mark type as beforefieldinit
     static MetadataStore() {
-      
+
     }
 
     public MetadataStore() {
-      
+
       lock (__lock) {
         StoreID = __nextStoreID++;
       }
@@ -39,6 +39,8 @@ namespace Breeze.Sharp {
     public int StoreID { get; private set; }
 
     public static String MetadataVersion = "1.0.3";
+
+    private Regex regExGeneric = new Regex(@"`\d+");
 
     public static MetadataStore Detached {
       get { return __detached; }
@@ -72,7 +74,7 @@ namespace Breeze.Sharp {
     /// </summary>
     public NamingConvention NamingConvention {
       get { return _namingConvention; }
-      set { _namingConvention = value; } 
+      set { _namingConvention = value; }
     }
 
     /// <summary>
@@ -101,8 +103,7 @@ namespace Breeze.Sharp {
         try {
           handler(this, args);
           allow = args.Allow;
-        }
-        catch {
+        } catch {
           // Eat any handler exceptions but throw later. 
           allow = false;
         }
@@ -113,14 +114,14 @@ namespace Breeze.Sharp {
     }
 
     internal Message AddMessage(String message, MessageType messageType, bool throwOnError = false) {
-      
+
       var msg = new Message() { Text = message, MessageType = messageType };
       _messages.Add(msg);
       if (messageType == MessageType.Error && throwOnError) {
         throw new Exception(message);
       }
       return msg;
-      
+
     }
 
     public IEnumerable<String> GetMessages(MessageType messageType = MessageType.All) {
@@ -131,16 +132,15 @@ namespace Breeze.Sharp {
 
     #region Public methods
 
-    
+
     /// <summary>
     /// Fetches the metadata for a specified 'service'. This method is automatically called 
     /// internally by an EntityManager before its first query against a new service.
     /// </summary>
     /// <param name="dataService"></param>
     /// <returns></returns>
-    public async Task<DataService> FetchMetadata(DataService dataService)
-    {
-        return await FetchMetadata(dataService, CancellationToken.None);
+    public async Task<DataService> FetchMetadata(DataService dataService) {
+      return await FetchMetadata(dataService, CancellationToken.None);
     }
 
     /// <summary>
@@ -169,41 +169,41 @@ namespace Breeze.Sharp {
         metadata = await dataService.GetAsync("Metadata", cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
-      }
-      catch (Exception e)
-      {
-          if (!(e is TaskCanceledException))
-            throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
-          throw;
+
+        metadata = metadata.Trim();
+        // this section is needed if metadata is returned as an escaped string - ( not common but does happen ... ).
+        if (metadata.Substring(0, 1) == "\"" && metadata.Substring(metadata.Length - 1, 1) == "\"") {
+          metadata = Regex.Unescape(metadata.Substring(1, metadata.Length - 2));
+        }
+
+        metadata = regExGeneric.Replace(metadata, string.Empty);
+
+        var json = (JObject)JsonConvert.DeserializeObject(metadata);
+        var schema = json["schema"];
+        if (schema != null) {
+          // metadata returned in CSDL format
+          var metadataProcessor = new CsdlMetadataProcessor();
+          metadataProcessor.ProcessMetadata(this, json);
+        } else {
+          // metadata returned in breeze native format
+          this.ImportMetadata(metadata, true);
+
+        }
+        var errorMessages = GetMessages(MessageType.Error).ToList();
+        if (errorMessages.Any()) {
+          throw new Exception("Metadata errors encountered: \n" + errorMessages.ToAggregateString("\n"));
+        }
+
+        dataService.ServerMetadata = metadata;
+        AddDataService(dataService);
+        return dataService;
+      } catch (Exception e) {
+        if (!(e is TaskCanceledException))
+          throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
+        throw;
       } finally {
         _asyncSemaphore.Release();
       }
-      metadata = metadata.Trim();
-      // this section is needed if metadata is returned as an escaped string - ( not common but does happen ... ).
-      if (metadata.Substring(0, 1) == "\"" && metadata.Substring(metadata.Length - 1, 1) == "\"") {
-        metadata = Regex.Unescape(metadata.Substring(1, metadata.Length - 2));
-      }
-
-      var json = (JObject)JsonConvert.DeserializeObject(metadata);
-      var schema = json["schema"];
-      if (schema != null) {
-        // metadata returned in CSDL format
-        var metadataProcessor = new CsdlMetadataProcessor();
-        metadataProcessor.ProcessMetadata(this, json);
-      } else {
-        // metadata returned in breeze native format
-        this.ImportMetadata(metadata, true);
-        
-      }
-      var errorMessages = GetMessages(MessageType.Error).ToList();
-      if (errorMessages.Any()) {
-        throw new Exception("Metadata errors encountered: \n" + errorMessages.ToAggregateString("\n"));
-      }
-
-      dataService.ServerMetadata = metadata;
-      AddDataService(dataService);
-      return dataService;
-
     }
 
     /// <summary>
@@ -261,7 +261,7 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="clrComplexType"></param>
     /// <returns></returns>
-    public ComplexType GetComplexType(Type clrComplexType ) {
+    public ComplexType GetComplexType(Type clrComplexType) {
       return GetStructuralType<ComplexType>(clrComplexType);
     }
 
@@ -281,8 +281,8 @@ namespace Breeze.Sharp {
       var result = st as T;
       if (result == null) {
         throw new Exception("A type by this name exists but is not a " + typeof(T).FullName);
-      } 
-      return result; 
+      }
+      return result;
     }
 
     // T is either <ComplexType> or <EntityType>
@@ -348,7 +348,7 @@ namespace Breeze.Sharp {
       var st = stb.CreateStructuralType(clrType);
       return st;
     }
-    
+
     /// <summary>
     /// Sets a resourceName for a specified clrType.
     /// </summary>
@@ -389,7 +389,7 @@ namespace Breeze.Sharp {
           return null;
         } else {
           throw new Exception("Unable to locate a resource named: " + resourceName);
-        } 
+        }
       }
     }
 
@@ -408,7 +408,7 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityType"></param>
     /// <returns></returns>
-    public  string GetDefaultResourceName(EntityType entityType) {
+    public string GetDefaultResourceName(EntityType entityType) {
       lock (_defaultResourceNameMap) {
         String resourceName = null;
         // give the type it's base's resource name if it doesn't have its own.
@@ -472,7 +472,7 @@ namespace Breeze.Sharp {
       ImportMetadata(jNode, isFromServer);
     }
 
-    internal void ImportMetadata(JNode jNode, bool isFromServer ) {
+    internal void ImportMetadata(JNode jNode, bool isFromServer) {
       DeserializeFrom(jNode, isFromServer);
       EntityTypes.ForEach(et => {
         // cross entity/complex type fixup.
@@ -481,7 +481,7 @@ namespace Breeze.Sharp {
           .Where(cp => cp.ComplexType == null)
           .ForEach(cp => cp.ComplexType = GetComplexType(cp.ComplexType.Name));
       });
-     
+
     }
 
 
@@ -503,7 +503,7 @@ namespace Breeze.Sharp {
     private void DeserializeFrom(JNode jNode, bool isFromServer) {
       MetadataVersion = jNode.Get<String>("metadataVersion");
       // may be more than just a name
-      
+
       var ncNode = jNode.GetJNode("namingConvention");
       if (ncNode != null) {
         var nc = Configuration.Instance.FindOrCreateNamingConvention(ncNode);
@@ -527,7 +527,7 @@ namespace Breeze.Sharp {
       jNode.GetMap<String>("resourceEntityTypeMap").ForEach(kvp => {
         var stName = kvp.Value;
         if (isFromServer) {
-            stName = TypeNameInfo.FromStructuralTypeName(stName).ToClient(this).StructuralTypeName;
+          stName = TypeNameInfo.FromStructuralTypeName(stName).ToClient(this).StructuralTypeName;
         }
         // okIfNotFound because metadata may contain refs to types that were already excluded earlier in
         // UpdateStructuralTypeFromJNode
@@ -541,13 +541,15 @@ namespace Breeze.Sharp {
     private void UpdateStructuralTypeFromJNode(JNode jNode, bool isFromServer) {
       var name = GetStructuralTypeNameFromJNode(jNode, isFromServer);
       var stype = GetStructuralTypeCore(name);
+      if (isFromServer)
+        stype.NameOnServer = $"{jNode.Get<string>("shortName")}:#{jNode.Get<string>("namespace")}";
       if (stype == null) {
         var isComplexType = jNode.Get<bool>("isComplexType", false);
-        OnMetadataMismatch(name, null, isComplexType ? 
+        OnMetadataMismatch(name, null, isComplexType ?
           MetadataMismatchTypes.MissingCLRComplexType : MetadataMismatchTypes.MissingCLREntityType);
         return;
       }
-      
+
       stype.UpdateFromJNode(jNode, isFromServer);
     }
 
@@ -609,13 +611,13 @@ namespace Breeze.Sharp {
 
       }
     }
-    
+
     #endregion
 
     #region Inner classes 
 
     // inner class
- 
+
 
     private class InternCache<T> where T : Internable {
       public readonly Dictionary<String, Type> TypeMap = new Dictionary<string, Type>();
@@ -698,7 +700,7 @@ namespace Breeze.Sharp {
     private static int __nextStoreID = 1;
     // Note: the two lines above need to appear before this next one 
     private static MetadataStore __detached = new MetadataStore();
-    
+
 
     private NamingConvention _namingConvention = new NamingConvention();
 
@@ -707,14 +709,14 @@ namespace Breeze.Sharp {
 
     // lock using _dataServiceMap
     private readonly Dictionary<String, DataService> _dataServiceMap = new Dictionary<String, DataService>();
-      
-    
+
+
     private readonly HashSet<Assembly> _probedAssemblies = new HashSet<Assembly>();
     private readonly List<Tuple<Type, Action<Type>, Func<Assembly, bool>>> _typeDiscoveryActions = new List<Tuple<Type, Action<Type>, Func<Assembly, bool>>>();
 
     private readonly StructuralTypeCollection _structuralTypes = new StructuralTypeCollection();
     private readonly Dictionary<String, String> _shortNameMap = new Dictionary<string, string>();
-    
+
 
     // locked using _resourceNameEntityTypeMap
     private readonly Dictionary<EntityType, String> _defaultResourceNameMap = new Dictionary<EntityType, string>();
@@ -723,7 +725,7 @@ namespace Breeze.Sharp {
     private InternCache<Validator> _validatorCache = new InternCache<Validator>();
     private InternCache<NamingConvention> _namingConventionCache = new InternCache<NamingConvention>();
 
- 
+
     private readonly Dictionary<String, Type> _namingConventionMap = new Dictionary<string, Type>();
     private readonly Dictionary<JNode, NamingConvention> _namingConventionJNodeCache = new Dictionary<JNode, NamingConvention>();
 

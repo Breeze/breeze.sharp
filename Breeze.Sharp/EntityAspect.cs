@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -931,13 +931,14 @@ namespace Breeze.Sharp {
         var npEntity = GetValue<IEntity>(np);
         // property is already linked up
         if (npEntity != null) {
-          if (npEntity.EntityAspect.IsDetached) {
+          if (npEntity.EntityAspect.IsDetached && np.ForeignKeyProperties.Any()) {
             // need to insure that fk props match
             var fkProps = np.ForeignKeyProperties;
             npEntity.EntityAspect.EntityType = np.EntityType;
             // Set this Entity's fk to match np EntityKey
             // Order.CustomerID = aCustomer.CustomerID
-            npEntity.EntityAspect.EntityKey.Values.ForEach((v, i) => SetDpValue(fkProps[i], v));
+            //commented because set keys to default values
+            //npEntity.EntityAspect.EntityKey.Values.ForEach((v, i) => SetDpValue(fkProps[i], v));
           }
           return false;
         }

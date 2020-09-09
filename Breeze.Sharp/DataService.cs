@@ -24,7 +24,7 @@ namespace Breeze.Sharp {
   /// </remarks>
   public class DataService : IJsonSerializable {
 
-    
+
     /// <summary>
     /// Constructs a new DataService with the option to use an already configured HttpClient. If one is not provided
     /// then the DataService will create one internally.  In either case it will be available via the HttpClient property.
@@ -94,12 +94,10 @@ namespace Breeze.Sharp {
         httpClient = DefaultHttpMessageHandler == null ? new HttpClient() : new HttpClient(DefaultHttpMessageHandler);
       }
       _httpClient = httpClient;
-      _httpClient.BaseAddress = new Uri(ServiceName);
-      
+
       // Add an Accept header for JSON format.
       _httpClient.DefaultRequestHeaders.Accept.Add(
          new MediaTypeWithQualityHeaderValue("application/json"));
-
     }
 
     private IDataServiceAdapter GetAdapter(string adapterName) {
@@ -134,7 +132,7 @@ namespace Breeze.Sharp {
 
     public async Task<String> GetAsync(String resourcePath, CancellationToken cancellationToken) {
       try {
-        var response = await _httpClient.GetAsync(resourcePath, cancellationToken);
+        var response = await _httpClient.GetAsync($"{ServiceName}{resourcePath}", cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -158,10 +156,9 @@ namespace Breeze.Sharp {
         //        new KeyValuePair<string, string>("", "login")
         //    });
 
-        var response = await _httpClient.PostAsync(resourcePath, content);
+        var response = await _httpClient.PostAsync($"{ServiceName}{resourcePath}", content);
         return await ReadResult(response);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         Debug.WriteLine(e);
         throw;
       }
@@ -171,6 +168,11 @@ namespace Breeze.Sharp {
 
       var result = await response.Content.ReadAsStringAsync();
       if (!response.IsSuccessStatusCode) {
+        try {
+          var json = JNode.DeserializeFrom(result);
+          response.ReasonPhrase = json.Get<string>("Message");
+        } catch (Exception) { }
+
         throw new DataServiceRequestException(response, result);
       }
       return result;
@@ -210,7 +212,7 @@ namespace Breeze.Sharp {
 
     public String ResponseContent { get; private set; }
     public HttpResponseMessage HttpResponse { get; private set; }
-    
+
   }
 
 }
