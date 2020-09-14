@@ -16,7 +16,7 @@ using Breeze.Sharp.Json;
 
 namespace Breeze.Sharp {
 
-  
+
   // TODO: EntityQuery is currently just additive - i.e. no way to remove clauses
 
   /// <summary>
@@ -25,14 +25,14 @@ namespace Breeze.Sharp {
   /// Therefore EntityQueries can be 'modified' without affecting any current instances.
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class EntityQuery<T> : EntityQuery, IQueryable<T>, IOrderedQueryable<T>, IQueryProvider  {
+  public class EntityQuery<T> : EntityQuery, IQueryable<T>, IOrderedQueryable<T>, IQueryProvider {
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public EntityQuery( ) : base() {
+    public EntityQuery() : base() {
       var context = new DataServiceContext(new Uri(__placeholderServiceName), DataServiceProtocolVersion.V3);
-      DataServiceQuery = (DataServiceQuery<T>) context.CreateQuery<T>(__placeholderResourceName).Where(x => true);
+      DataServiceQuery = (DataServiceQuery<T>)context.CreateQuery<T>(__placeholderResourceName).Where(x => true);
       QueryableType = typeof(T);
     }
 
@@ -59,7 +59,7 @@ namespace Breeze.Sharp {
     /// For internal use only.
     /// </summary>
     /// <returns></returns>
-    public override object  Clone() {
+    public override object Clone() {
       return new EntityQuery<T>(this);
     }
 
@@ -82,9 +82,8 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityManager"></param>
     /// <returns></returns>
-    public new async Task<IEnumerable<T>> Execute(EntityManager entityManager = null)
-    {
-        return await Execute(CancellationToken.None, entityManager);
+    public new async Task<IEnumerable<T>> Execute(EntityManager entityManager = null) {
+      return await Execute(CancellationToken.None, entityManager);
     }
 
     /// <summary>
@@ -143,7 +142,7 @@ namespace Breeze.Sharp {
     /// <returns></returns>
     public EntityQuery<T> Expand(String path) {
       var q = new EntityQuery<T>(this);
-      q.DataServiceQuery = this.DataServiceQuery.Expand(path.Replace('.','/'));
+      q.DataServiceQuery = this.DataServiceQuery.Expand(path.Replace('.', '/'));
       return q;
     }
 
@@ -159,8 +158,13 @@ namespace Breeze.Sharp {
     /// <param name="value"></param>
     /// <returns></returns>
     public EntityQuery<T> WithParameter(string name, Object value) {
-      var q = new EntityQuery<T>(this);
-      q.DataServiceQuery = this.DataServiceQuery.AddQueryOption(name, value);
+      var q = this;
+
+      if (value != null) {
+        q = new EntityQuery<T>(this);
+        q.DataServiceQuery = this.DataServiceQuery.AddQueryOption(name, value);
+      }
+
       return q;
     }
 
@@ -172,11 +176,11 @@ namespace Breeze.Sharp {
     public EntityQuery<T> WithParameters(IDictionary<String, Object> dictionary) {
       var q = new EntityQuery<T>(this);
       var dsq = this.DataServiceQuery;
-      dictionary.ForEach(kvp => dsq = dsq.AddQueryOption(kvp.Key, kvp.Value));
+      dictionary.Where(kvp => kvp.Value != null).ForEach(kvp => dsq = dsq.AddQueryOption(kvp.Key, kvp.Value));
       q.DataServiceQuery = dsq;
       return q;
     }
-    
+
     /// <summary>
     /// Returns a query with the 'inlineCount' capability either enabled or disabled. With 
     /// 'InlineCount' enabled, an additional 'InlineCount' property will be returned with the 
@@ -257,7 +261,7 @@ namespace Breeze.Sharp {
       var pattern = @"(?<prefix>.*)cast\((?<propName>.*),'Edm\..*'\)(?<suffix>.*)";
       var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
       if (m.Success) {
-        
+
         var result = m.Groups["prefix"].Value
                    + m.Groups["propName"].Value
                    + m.Groups["suffix"].Value;
@@ -274,14 +278,14 @@ namespace Breeze.Sharp {
       var m = System.Text.RegularExpressions.Regex.Match(resourcePath, pattern);
       if (m.Success) {
         var enumName = m.Groups["enumName"].Value;
-        var enumValue = m.Groups["enumValue"].Value; 
+        var enumValue = m.Groups["enumValue"].Value;
         var pinfo = this.QueryableType.GetTypeInfo().GetDeclaredProperty(enumName);
         if (pinfo == null) return resourcePath;
         var enumType = TypeFns.GetNonNullableType(pinfo.PropertyType);
         if (!enumType.GetTypeInfo().IsEnum) return resourcePath;
         var enumString = "'" + Enum.GetName(enumType, Int32.Parse(enumValue)) + "'";
-        var result = m.Groups["prefix"].Value 
-                   + enumName + "%20eq%20" + enumString 
+        var result = m.Groups["prefix"].Value
+                   + enumName + "%20eq%20" + enumString
                    + m.Groups["suffix"].Value;
         // in case there is another cast in the string.
         return RewriteResourcePath(result);
@@ -318,7 +322,7 @@ namespace Breeze.Sharp {
 
     public EntityQuery(Expression expression, IQueryable queryable) {
       var oldDataServiceQuery = ((IHasDataServiceQuery)queryable).DataServiceQuery;
-      DataServiceQuery = (DataServiceQuery<T>) oldDataServiceQuery.Provider.CreateQuery<T>(expression);
+      DataServiceQuery = (DataServiceQuery<T>)oldDataServiceQuery.Provider.CreateQuery<T>(expression);
       UpdateFrom((EntityQuery)queryable);
     }
 
@@ -360,7 +364,7 @@ namespace Breeze.Sharp {
       throw new Exception("EntityQueries can only be executed asynchronously");
     }
 
-   
+
 
     /// <summary>
     /// Internal use only - part of <see cref="IQueryProvider"/> implementation.
@@ -377,23 +381,23 @@ namespace Breeze.Sharp {
     /// The element type of the IEnumerable{T} returned by this query.
     /// </summary>
     public override Type ElementType {
-      get { return typeof(T);}
+      get { return typeof(T); }
     }
 
     /// <summary>
     /// For internal use.
     /// </summary>
     protected new DataServiceQuery<T> DataServiceQuery {
-      get { return (DataServiceQuery<T>) base.DataServiceQuery;  }
-      set { base.DataServiceQuery =  value; }
+      get { return (DataServiceQuery<T>)base.DataServiceQuery; }
+      set { base.DataServiceQuery = value; }
     }
 
-    
+
     private static String __placeholderServiceName = "http://localhost:7890/breeze/Undefined/";
     private static String __placeholderResourceName = "__Undefined__";
 
   }
-  
+
   /// <summary>
   /// Base class for all EntityQueries.  This class is untyped and may be used
   /// when you need to create entity queries dynamically.
@@ -430,7 +434,7 @@ namespace Breeze.Sharp {
     /// <param name="resourceName"></param>
     /// <returns></returns>
     public static EntityQuery<T> From<T>(string resourceName) {
-      return new EntityQuery<T>(resourceName); 
+      return new EntityQuery<T>(resourceName);
     }
 
     /// <summary>
@@ -459,9 +463,8 @@ namespace Breeze.Sharp {
     /// </summary>
     /// <param name="entityManager"></param>
     /// <returns></returns>
-    public async Task<IEnumerable> Execute(EntityManager entityManager = null)
-    {
-        return await Execute(CancellationToken.None, entityManager);
+    public async Task<IEnumerable> Execute(EntityManager entityManager = null) {
+      return await Execute(CancellationToken.None, entityManager);
     }
 
     /// <summary>
@@ -565,11 +568,11 @@ namespace Breeze.Sharp {
   /// Interface for all Entity queries.
   /// </summary>
   public interface IEntityQuery {
-    DataService DataService { get;  }
-    EntityManager EntityManager { get;  }
-    QueryOptions QueryOptions { get;  }
-    String ResourceName { get;   }
-    IJsonResultsAdapter JsonResultsAdapter { get; }      
+    DataService DataService { get; }
+    EntityManager EntityManager { get; }
+    QueryOptions QueryOptions { get; }
+    String ResourceName { get; }
+    IJsonResultsAdapter JsonResultsAdapter { get; }
     Object Clone();
   }
 

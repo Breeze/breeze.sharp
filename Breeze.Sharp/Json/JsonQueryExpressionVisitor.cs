@@ -40,6 +40,12 @@ namespace Breeze.Sharp.Json {
       };
 
       var json = JsonConvert.SerializeObject(visitor, Formatting.None, jsonSettings);
+
+      //without a server-side custom model binder for 'Customer?{"parameters":{"companyName":"C"}}' I cannot have parameters with right values,
+      //so I have to use this hack
+      if (visitor.Parameters?.Count > 0)
+        json = json + "&" + string.Join("&", visitor.Parameters.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
+
       return json;
     }
 
@@ -122,6 +128,12 @@ namespace Breeze.Sharp.Json {
       } else if (methodName == "OrderByDescending") {
         if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
+        }
+      } else if (methodName == "AddQueryOption") {
+        if (this.ParseAddQueryOptionExpression(m)) {
+          var operand = ((UnaryExpression)m.Object).Operand;
+          this.Visit(operand);
+          return m;
         }
       }
 
@@ -287,6 +299,15 @@ namespace Breeze.Sharp.Json {
       }
 
       return false;
+    }
+
+    private bool ParseAddQueryOptionExpression(MethodCallExpression expression) {
+      if (Parameters == null)
+        Parameters = new Dictionary<string, string>();
+
+      Parameters.Add(((ConstantExpression)expression.Arguments[0]).Value.ToString(), ((ConstantExpression)expression.Arguments[1]).Value.ToString());
+
+      return true;
     }
 
     private bool ParseTakeExpression(MethodCallExpression expression) {
