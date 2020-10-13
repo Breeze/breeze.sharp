@@ -541,14 +541,14 @@ namespace Breeze.Sharp {
     private void UpdateStructuralTypeFromJNode(JNode jNode, bool isFromServer) {
       var name = GetStructuralTypeNameFromJNode(jNode, isFromServer);
       var stype = GetStructuralTypeCore(name);
-      if (isFromServer)
-        stype.NameOnServer = $"{jNode.Get<string>("shortName")}:#{jNode.Get<string>("namespace")}";
       if (stype == null) {
         var isComplexType = jNode.Get<bool>("isComplexType", false);
         OnMetadataMismatch(name, null, isComplexType ?
           MetadataMismatchTypes.MissingCLRComplexType : MetadataMismatchTypes.MissingCLREntityType);
         return;
       }
+      if (isFromServer)
+        stype.NameOnServer = $"{jNode.Get<string>("shortName")}:#{jNode.Get<string>("namespace")}";
 
       stype.UpdateFromJNode(jNode, isFromServer);
     }
