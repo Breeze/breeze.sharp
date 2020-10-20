@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -318,6 +318,7 @@ namespace Breeze.Sharp {
     public TextWriter SerializeTo(TextWriter textWriter) {
       var serializer = new JsonSerializer();
       serializer.Converters.Add(new StringEnumConverter());
+      serializer.Converters.Add(new TimeSpanConverter());
 
 #if DEBUG
       serializer.Formatting = Formatting.Indented;
