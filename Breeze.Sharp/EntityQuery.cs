@@ -217,12 +217,12 @@ namespace Breeze.Sharp {
 
     /// <summary> Return the query as JSON url, e.g. "Customer?{where:{FirstName:'Maria'}}" </summary>
     private string GetJsonResourcePath(string resourceName) {
-      var json = JsonQueryExpressionVisitor.Translate(this.Expression);
+      var json = JsonQueryExpressionVisitor.Translate(this.Expression, out string parameters);
       if (json.Length > 2) {
         // TODO may be able to get away with not escaping the URI
         System.Diagnostics.Debug.WriteLine($"json query: {json}");
         var uri = Uri.EscapeUriString(json);
-        return resourceName + '?' + uri;
+        return resourceName + '?' + uri + (parameters != null ? "&" + parameters : string.Empty);
       } else {
         return resourceName;
       }

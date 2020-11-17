@@ -27,7 +27,7 @@ namespace Breeze.Sharp.Json {
     private ListExpressionVisitor expandVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
-    public static string Translate(Expression expression) {
+    public static string Translate(Expression expression, out string parameters) {
 
       var visitor = new JsonQueryExpressionVisitor();
       visitor.VisitRoot(expression);
@@ -44,7 +44,9 @@ namespace Breeze.Sharp.Json {
       //without a server-side custom model binder for 'Customer?{"parameters":{"companyName":"C"}}' I cannot have parameters with right values,
       //so I have to use this hack
       if (visitor.Parameters?.Count > 0)
-        json = json + "&" + string.Join("&", visitor.Parameters.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
+        parameters = string.Join("&", visitor.Parameters.Select(kvp => string.Format("{0}={1}", kvp.Key, Uri.EscapeDataString(kvp.Value))));
+      else
+        parameters = null;
 
       return json;
     }

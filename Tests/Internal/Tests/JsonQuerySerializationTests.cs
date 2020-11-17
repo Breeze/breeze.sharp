@@ -25,7 +25,7 @@ namespace Breeze.Sharp.Tests {
 
     // TODO somehow compare JSON by structure instead of string, so whitespace changes won't matter
     private void Check(EntityQuery query, string expectedJson) {
-      var json = JsonQueryExpressionVisitor.Translate(query.Expression);
+      var json = JsonQueryExpressionVisitor.Translate(query.Expression, out string parameters);
       Assert.AreEqual(expectedJson, json);
     }
 
