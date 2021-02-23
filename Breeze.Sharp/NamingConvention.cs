@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 
 using Breeze.Sharp.Core;
 using System;
@@ -82,6 +82,13 @@ namespace Breeze.Sharp {
       var clone = Clone();
       clone._clientServerNamespaceMap = new Dictionary<string, string>(clientServerNamespaceMap);
       _serverClientNamespaceMap = null;
+      return clone;
+    }
+
+    public NamingConvention WithServerClientNamespaceMapping(IDictionary<String, String> serverClientNamespaceMap) {
+      var clone = Clone();
+      clone._serverClientNamespaceMap = new Dictionary<string, string>(serverClientNamespaceMap);
+      _clientServerNamespaceMap = null;
       return clone;
     }
 
