@@ -9,26 +9,28 @@ using System.Reflection;
 using System.Text;
 
 namespace Breeze.Sharp.Json {
-  public class JsonQueryExpressionVisitor : ExpressionVisitor {
 
+  public class JsonQueryExpressionVisitor : ExpressionVisitor {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
     public string OrderBy { get; private set; } = null;
+
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
+
     public List<string> Select { get; private set; } = null;
     public List<string> Expand { get; private set; } = null;
     public Dictionary<string, string> Parameters { get; private set; } = null;
 
     /// <summary> for building Where clause </summary>
     private StringBuilder sb;
+
     private ListExpressionVisitor selectVisitor;
     private ListExpressionVisitor expandVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
     public static string Translate(Expression expression) {
-
       var visitor = new JsonQueryExpressionVisitor();
       visitor.VisitRoot(expression);
 
@@ -43,7 +45,8 @@ namespace Breeze.Sharp.Json {
       return json;
     }
 
-    private JsonQueryExpressionVisitor() {}
+    private JsonQueryExpressionVisitor() {
+    }
 
     /// <summary> Populate this visitor's properties from the expression </summary>
     protected void VisitRoot(Expression expression) {
@@ -73,7 +76,6 @@ namespace Breeze.Sharp.Json {
     private static bool IsResourceSetExpression(Expression expr) {
       return (int)expr.NodeType == 10000;
     }
-
 
     protected override Expression VisitMethodCall(MethodCallExpression m) {
       var methodName = m.Method.Name;
@@ -123,6 +125,12 @@ namespace Breeze.Sharp.Json {
         if (this.ParseOrderByExpression(m, "DESC")) {
           return this.Visit(m.Arguments[0]);
         }
+      } else if (methodName == "Contains") {
+        return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "StartsWith") {
+        return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "EndsWith") {
+        return this.VisitStringMethod(m, methodName);
       }
 
       throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodName));
@@ -134,23 +142,18 @@ namespace Breeze.Sharp.Json {
           sb.Append(" NOT ");
           this.Visit(u.Operand);
           break;
+
         case ExpressionType.Convert:
           this.Visit(u.Operand);
           break;
+
         default:
           throw new NotSupportedException(string.Format("The unary operator '{0}' is not supported", u.NodeType));
       }
       return u;
     }
 
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="b"></param>
-    /// <returns></returns>
     protected override Expression VisitBinary(BinaryExpression b) {
-
       switch (b.NodeType) {
         case ExpressionType.And:
         case ExpressionType.AndAlso:
@@ -306,16 +309,35 @@ namespace Breeze.Sharp.Json {
       }
       return false;
     }
+
+    /// <summary>
+    /// Handles Contains/StartsWith/EndsWith
+    /// Note: Doesn't yet handle characters i.e string.Contains('c') will fail, string.Contains("C") will succeed
+    /// </summary>
+    /// <param name="m">Current Expression</param>
+    /// <param name="methodName">Method Name</param>
+    /// <returns>Passes through the MethodCallExpression</returns>
+    private MethodCallExpression VisitStringMethod(MethodCallExpression m, string methodName) {
+      sb.Append("{");
+      this.Visit(m.Object);
+      sb.Append(":{\"").Append(methodName).Append("\":");
+      this.Visit(m.Arguments[0]);
+      sb.Append("}}");
+      return m;
+    }
   }
 
   /// <summary> Convert strings to JSON without quotes </summary>
   public class PlainJsonStringConverter : JsonConverter {
+
     public override bool CanConvert(Type objectType) {
       return objectType == typeof(string);
     }
+
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       return reader.Value;
     }
+
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
       writer.WriteRawValue((string)value);
     }

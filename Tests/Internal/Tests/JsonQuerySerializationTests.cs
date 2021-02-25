@@ -6,6 +6,7 @@ using Foo;
 using Breeze.Sharp.Json;
 
 namespace Breeze.Sharp.Tests {
+
   /// <summary> Test whether EntityQuery is serialized to JSON correctly </summary>
   [TestClass]
   public class JsonQuerySerializationTests {
@@ -20,7 +21,6 @@ namespace Breeze.Sharp.Tests {
 
     [TestCleanup]
     public void TearDown() {
-
     }
 
     // TODO somehow compare JSON by structure instead of string, so whitespace changes won't matter
@@ -117,7 +117,6 @@ namespace Breeze.Sharp.Tests {
       Check(q3, "{\"select\":[\"Customer.City\"]}");
     }
 
-
     [TestMethod]
     public void WhereConstant() {
       var ord = EntityQuery.From<Order>();
@@ -169,6 +168,33 @@ namespace Breeze.Sharp.Tests {
       Check(q, "{\"where\":{\"Customer.Country\":\"England\"}}");
     }
 
+    [TestMethod]
+    public void WhereNestedPropertyAsString() {
+      var q = EntityQuery.From<Order>();
+      var country = "England";
+      q = q.Where(o => "Customer.Country" == country);
+      Check(q, "{\"where\":{\"Customer.Country\":\"England\"}}");
+    }
 
+    [TestMethod]
+    public void WhereStringContains() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.Contains("C"));
+      Check(q, "{\"where\":{\"City\":{\"Contains\":\"C\"}}}");
+    }
+
+    [TestMethod]
+    public void WhereStringStartsWith() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.StartsWith("C"));
+      Check(q, "{\"where\":{\"City\":{\"StartsWith\":\"C\"}}}");
+    }
+
+    [TestMethod]
+    public void WhereStringEndsWith() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.EndsWith("C"));
+      Check(q, "{\"where\":{\"City\":{\"EndsWith\":\"C\"}}}");
+    }
   }
 }
