@@ -214,7 +214,9 @@ namespace Breeze.Sharp.Json {
       if (c.Value == null) {
         sb.Append("null");
       } else {
-        switch (Type.GetTypeCode(c.Value.GetType())) {
+        Type type = c.Value.GetType();
+
+        switch (Type.GetTypeCode(type)) {
           case TypeCode.Boolean:
             sb.Append(((bool)c.Value) ? "true" : "false");
             break;
@@ -228,6 +230,11 @@ namespace Breeze.Sharp.Json {
             break;
 
           case TypeCode.Object:
+            if (type == typeof(Guid)) {
+              sb.Append('"').Append(c.Value).Append('"');
+              break;
+            }
+
             return base.VisitConstant(c);
 
           default:

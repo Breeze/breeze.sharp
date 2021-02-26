@@ -162,6 +162,17 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public void WhereConstantGuid() {
+      var q = EntityQuery.From<Customer>();
+      var guid = new Guid("81E6E4C0-E608-4191-A717-3372B2FAC343");
+      q = q.Where(c => c.CustomerID == guid);
+
+      // parser lowercases the guid so
+      string lowerCaseGuid = guid.ToString().ToLower();
+      Check(q, $"{{\"where\":{{\"CustomerID\":\"{lowerCaseGuid}\"}}}}");
+    }
+
+    [TestMethod]
     public void WhereNestedProperty() {
       var q = EntityQuery.From<Order>();
       q = q.Where(o => o.Customer.Country == "England");
