@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -91,8 +91,8 @@ namespace Breeze.Sharp {
       DataTypeInfo = DataTypeInfo.IsDate
     };
 
-    public static DataType Time = new DataType(typeof(TimeSpan)) {
-      Name = "Time",
+    public static DataType TimeSpan = new DataType(typeof(TimeSpan)) {
+      Name = "TimeSpan",
       DefaultValue = new TimeSpan(0),
       FmtOData = FmtTime,
     };

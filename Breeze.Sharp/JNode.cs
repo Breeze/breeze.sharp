@@ -140,7 +140,9 @@ namespace Breeze.Sharp {
       if (nonnullableType != null && nonnullableType.GetTypeInfo().IsEnum) {
         val = Enum.Parse(nonnullableType, prop.Value.ToString());
       } else {
-        val = prop.Value.ToObject(objectType);
+        var serializer = new JsonSerializer();
+        serializer.Converters.Add(new TimeSpanConverter());
+        val = prop.Value.ToObject(objectType, serializer);
       }
       return val;
     }
