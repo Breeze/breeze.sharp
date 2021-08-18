@@ -36,7 +36,8 @@ namespace Breeze.Sharp {
         var dpName = GetPropertyNameFromJNode(jn);
         var dp = et.GetDataProperty(dpName);
         if (dp == null) {
-          throw new Exception($"Data Property {dpName} not found on type {name}");
+          MetadataStore.OnMetadataMismatch(name, dpName, MetadataMismatchTypes.MissingCLRDataProperty);
+          return;
         }
         dp.UpdateFromJNode(jn, isFromServer);
       });
@@ -44,7 +45,8 @@ namespace Breeze.Sharp {
         var npName = GetPropertyNameFromJNode(jn);
         var np = et.GetNavigationProperty(npName);
         if (np == null) {
-          throw new Exception($"Navigation Property {npName} not found on type {name}");
+          MetadataStore.OnMetadataMismatch(name, npName, MetadataMismatchTypes.MissingCLRNavigationProperty);
+          return;
         }
         np.UpdateFromJNode(jn, isFromServer);
       });
@@ -78,7 +80,7 @@ namespace Breeze.Sharp {
       if (Object.Equals(v1, v2)) return;
       var msg = String.Format("EntityType metadata mismatch. EntityType: '{0}'.  Metadata property: '{1}'.  Client value: '{2}',  Server value: '{3}'",
         this.Name, name, (v1 ?? "").ToString(), (v2 ?? "").ToString());
-      MetadataStore.AddMessage(msg, MessageType.Error);
+      MetadataStore.OnMetadataMismatch(Name, null, MetadataMismatchTypes.InconsistentCLRTypeDefinition, msg);
     }
 
     #region Public properties
@@ -359,8 +361,4 @@ namespace Breeze.Sharp {
     Identity = 1,
     KeyGenerator = 2
   }
-
-
-
-
 }
