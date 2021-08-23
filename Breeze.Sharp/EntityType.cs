@@ -318,9 +318,13 @@ namespace Breeze.Sharp {
 
       // sets navigation property: relatedDataProperties and dataProperty: relatedNavigationProperty
       np.ForeignKeyProperties.ForEach(dp => {
-        //fix issue with composite keys
-        if (dp.RelatedNavigationProperty == null)
+        if (np.EntityType.KeyProperties.Count == 1)
           dp.RelatedNavigationProperty = np;
+        else {
+          dp.IsForeignKey = true;
+          np.EntityType.UpdateInverseForeignKeyProperties(dp);
+          np.UpdateWithRelatedDataProperty(dp);
+        }
       });
 
       return true;

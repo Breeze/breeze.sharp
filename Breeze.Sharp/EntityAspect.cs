@@ -1002,7 +1002,16 @@ namespace Breeze.Sharp {
         //    ==> (see set navProp above)
 
         if (newValue != null) {
-          var key = new EntityKey(relatedNavProp.EntityType, newValue);
+          var newValues = new List<object>();
+
+          foreach (var fKey in relatedNavProp.ForeignKeyProperties) {
+            if (fKey == property)
+              newValues.Add(newValue);
+            else
+              newValues.Add(GetValue(fKey));
+          }
+
+          var key = new EntityKey(relatedNavProp.EntityType, newValues.ToArray());
           var relatedEntity = EntityManager.GetEntityByKey(key);
 
           if (relatedEntity != null) {
