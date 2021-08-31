@@ -624,7 +624,7 @@ namespace Breeze.Sharp {
 
       if (this.IsAttached) {
         this.EntityType.InverseForeignKeyProperties.ForEach(invFkProp => {
-          if (invFkProp.RelatedNavigationProperty.Inverse == null) {
+          if (invFkProp.RelatedNavigationProperty != null && invFkProp.RelatedNavigationProperty.Inverse == null) {
             // this next step may be slow - it iterates over all of the entities in a group;
             // hopefully it doesn't happen often.
             EntityManager.UpdateFkVal(invFkProp, oldValue, newValue);
