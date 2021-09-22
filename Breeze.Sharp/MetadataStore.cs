@@ -191,14 +191,14 @@ namespace Breeze.Sharp {
         }
         var errorMessages = GetMessages(MessageType.Error).ToList();
         if (errorMessages.Any()) {
-          throw new Exception("Metadata errors encountered: \n" + errorMessages.ToAggregateString("\n"));
+          throw new DomainException("Metadata errors encountered: \n" + errorMessages.ToAggregateString("\n"));
         }
 
         dataService.ServerMetadata = metadata;
         AddDataService(dataService);
         return dataService;
       } catch (Exception e) {
-        if (!(e is TaskCanceledException))
+        if (!(e is DomainException))
           throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
         throw;
       } finally {
