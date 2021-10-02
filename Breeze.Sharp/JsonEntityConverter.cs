@@ -1,4 +1,3 @@
-﻿
 using System.Reflection;
 
 using Newtonsoft.Json;
@@ -16,43 +15,6 @@ using System.Xml;
 namespace Breeze.Sharp {
 
   /// <summary>
-  /// Used by the <see cref="JsonResultsAdapter"/> to provide information regarding the overall context 
-  /// of the currently executing operation.
-  /// </summary>
-  public class MappingContext {
-    public MappingContext() {
-      RefMap = new Dictionary<string, object>();
-      Entities = new List<IEntity>();
-    }
-    public EntityManager EntityManager;
-    public MergeStrategy MergeStrategy;
-    public LoadingOperation LoadingOperation;
-    public IJsonResultsAdapter JsonResultsAdapter;
-    // AllEntities is a list of all deserialized entities not just the top level ones.
-    public List<IEntity> Entities { get; private set; }
-    public JsonSerializer Serializer { get; internal set; }
-    public Dictionary<String, Object> RefMap { get; private set; }
-
-    public MetadataStore MetadataStore {
-      get { return EntityManager.MetadataStore; }
-    }
-
-    public JsonNodeInfo VisitNode(NodeContext nodeContext) {
-      return JsonResultsAdapter.VisitNode(nodeContext.Node, this, nodeContext);
-    }
-  }
-
-  /// <summary>
-  /// Used by the <see cref="IJsonResultsAdapter"/> to provide information about the current node being processed. 
-  /// </summary>
-  public class NodeContext {
-    public JObject Node;
-    public Type ObjectType;
-    public StructuralType StructuralType;
-    public StructuralProperty StructuralProperty;
-  }
-
-  /// <summary>
   /// Enum that is used to describe the current operation being performed while
   /// a JsonResultsAdapter is executing.  Referenced by <see cref="MappingContext"/>
   /// </summary>
@@ -63,33 +25,22 @@ namespace Breeze.Sharp {
     // Attach - not yet needed
   }
 
-  public class TimeSpanConverter : JsonConverter {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-      var ts = (TimeSpan)value;
-      var tsString = XmlConvert.ToString(ts);
-      serializer.Serialize(writer, tsString);
-    }
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-      if (reader.TokenType == JsonToken.Null) {
-        return null;
-      }
-
-      var value = serializer.Deserialize<String>(reader);
-      return XmlConvert.ToTimeSpan(value);
-    }
-
-    public override bool CanConvert(Type objectType) {
-      return objectType == typeof(TimeSpan) || objectType == typeof(TimeSpan?);
-    }
-  }
-
   /// <summary>
   /// For internal use only.
   /// </summary>
   public class JsonEntityConverter : JsonConverter {
 
-    // currently the normalizeTypeNmFn is only needed during saves, not during queries. 
+    #region Fields
+
+    private JsonSerializer _customSerializer;
+
+    private MappingContext _mappingContext;
+
+    #endregion Fields
+
+    #region Constructors
+
+    // currently the normalizeTypeNmFn is only needed during saves, not during queries.
     public JsonEntityConverter(MappingContext mappingContext) {
       _mappingContext = mappingContext;
       _customSerializer = new JsonSerializer();
@@ -97,6 +48,17 @@ namespace Breeze.Sharp {
       _customSerializer.Converters.Add(new TimeSpanConverter());
     }
 
+    #endregion Constructors
+
+    #region Methods
+
+    public override bool CanConvert(Type objectType) {
+      return MetadataStore.IsStructuralType(objectType);
+    }
+
+    /// <summary>
+    /// Reads Json from JsonReader into a new NodeContext and then "CreateAndPopulate" with that Node Context
+    /// </summary>
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       if (reader.TokenType != JsonToken.Null) {
         // Load JObject from stream
@@ -115,10 +77,9 @@ namespace Breeze.Sharp {
       throw new NotImplementedException();
     }
 
-    public override bool CanConvert(Type objectType) {
-      return MetadataStore.IsStructuralType(objectType);
-    }
-
+    /// <summary>
+    /// Visit Node
+    /// </summary>
     protected virtual Object CreateAndPopulate(NodeContext nodeContext) {
       var node = nodeContext.Node;
 
@@ -167,9 +128,7 @@ namespace Breeze.Sharp {
       return PopulateEntity(nodeContext, entity);
     }
 
-
     protected virtual Object PopulateEntity(NodeContext nodeContext, IEntity entity) {
-
       var aspect = entity.EntityAspect;
       if (aspect.EntityManager == null) {
         // new to this entityManager
@@ -191,6 +150,8 @@ namespace Breeze.Sharp {
       return entity;
     }
 
+    // WHY DOES ParseObject(nodeContext, null) handle PreserverChanges?? need to figure out whats wrong here -- this is when Breeze# error occurs
+    // backingStore is a dict(?) that stores the properties as Json objects for the entity -- if its null, that means we aren't allowed to overwrite
     private void ParseObject(NodeContext nodeContext, EntityAspect targetAspect) {
       // backingStore will be null if not allowed to overwrite the entity.
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
@@ -253,15 +214,17 @@ namespace Breeze.Sharp {
                   var entity = (IEntity)CreateAndPopulate(newContext);
                   navSet.Add(entity);
                 });
-                // add to existing nav set if there is one otherwise just set it. 
+                // add to existing nav set if there is one otherwise just set it.
                 object tmp;
-                if (backingStore.TryGetValue(key, out tmp)) {
-                  var backingNavSet = (INavigationSet)tmp;
-                  navSet.Cast<IEntity>().ForEach(e => backingNavSet.Add(e));
-                } else {
-                  navSet.NavigationProperty = np;
-                  navSet.ParentEntity = targetAspect.Entity;
-                  backingStore[key] = navSet;
+                if (backingStore != null) { // TSS - ADDED THIS IF STATEMENT
+                  if (backingStore.TryGetValue(key, out tmp)) {
+                    var backingNavSet = (INavigationSet)tmp;
+                    navSet.Cast<IEntity>().ForEach(e => backingNavSet.Add(e));
+                  } else {
+                    navSet.NavigationProperty = np;
+                    navSet.ParentEntity = targetAspect.Entity;
+                    backingStore[key] = navSet;
+                  }
                 }
               }
             } else {
@@ -277,23 +240,106 @@ namespace Breeze.Sharp {
           if (backingStore != null) backingStore[key] = kvp.Value.ToObject<Object>();
         }
       });
-
     }
 
-
-
-    private MappingContext _mappingContext;
-    private JsonSerializer _customSerializer;
+    #endregion Methods
   }
 
+  /// <summary>
+  /// Used by the <see cref="JsonResultsAdapter"/> to provide information regarding the overall context
+  /// of the currently executing operation.
+  /// </summary>
+  public class MappingContext {
 
+    #region Fields
+
+    public EntityManager EntityManager;
+
+    public IJsonResultsAdapter JsonResultsAdapter;
+
+    public LoadingOperation LoadingOperation;
+
+    public MergeStrategy MergeStrategy;
+
+    #endregion Fields
+
+    #region Constructors
+
+    public MappingContext() {
+      RefMap = new Dictionary<string, object>();
+      Entities = new List<IEntity>();
+    }
+
+    #endregion Constructors
+
+    #region Properties
+
+    // AllEntities is a list of all deserialized entities not just the top level ones.
+    public List<IEntity> Entities { get; private set; }
+
+    public MetadataStore MetadataStore {
+      get { return EntityManager.MetadataStore; }
+    }
+
+    public Dictionary<String, Object> RefMap { get; private set; }
+    public JsonSerializer Serializer { get; internal set; }
+
+    #endregion Properties
+
+    #region Methods
+
+    public JsonNodeInfo VisitNode(NodeContext nodeContext) {
+      return JsonResultsAdapter.VisitNode(nodeContext.Node, this, nodeContext);
+    }
+
+    #endregion Methods
+  }
+
+  /// <summary>
+  /// Used by the <see cref="IJsonResultsAdapter"/> to provide information about the current node being processed.
+  /// </summary>
+  public class NodeContext {
+
+    #region Fields
+
+    public JObject Node;
+    public Type ObjectType;
+    public StructuralProperty StructuralProperty;
+    public StructuralType StructuralType;
+
+    #endregion Fields
+  }
+
+  public class TimeSpanConverter : JsonConverter {
+
+    #region Methods
+
+    public override bool CanConvert(Type objectType) {
+      return objectType == typeof(TimeSpan) || objectType == typeof(TimeSpan?);
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+      if (reader.TokenType == JsonToken.Null) {
+        return null;
+      }
+
+      var value = serializer.Deserialize<String>(reader);
+      return XmlConvert.ToTimeSpan(value);
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+      var ts = (TimeSpan)value;
+      var tsString = XmlConvert.ToString(ts);
+      serializer.Serialize(writer, tsString);
+    }
+
+    #endregion Methods
+  }
 
   //public static class JsonFns {
-
   //  public static JsonSerializerSettings SerializerSettings {
   //    get {
   //      var settings = new JsonSerializerSettings() {
-
   //        NullValueHandling = NullValueHandling.Include,
   //        PreserveReferencesHandling = PreserveReferencesHandling.Objects,
   //        ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
@@ -306,6 +352,4 @@ namespace Breeze.Sharp {
   //    }
   //  }
   //}
-
 }
-
