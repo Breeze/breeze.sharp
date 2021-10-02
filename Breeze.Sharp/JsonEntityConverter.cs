@@ -150,9 +150,11 @@ namespace Breeze.Sharp {
       return entity;
     }
 
-    // WHY DOES ParseObject(nodeContext, null) handle PreserverChanges?? need to figure out whats wrong here -- this is when Breeze# error occurs
-    // backingStore is a dict(?) that stores the properties as Json objects for the entity -- if its null, that means we aren't allowed to overwrite
+    /// <summary>
+    /// Parse Object -- populating needed backingStore(s)
+    /// </summary>
     private void ParseObject(NodeContext nodeContext, EntityAspect targetAspect) {
+      // backingStore is a dict(?) that stores the properties as Json objects for the entity -- if its null, that means we aren't allowed to overwrite
       // backingStore will be null if not allowed to overwrite the entity.
       var backingStore = (targetAspect == null) ? null : targetAspect.BackingStore;
       var dict = (IDictionary<String, JToken>)nodeContext.Node;
