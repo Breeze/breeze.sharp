@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -11,11 +11,11 @@ namespace Breeze.Sharp {
   internal class CsdlMetadataProcessor {
 
     public CsdlMetadataProcessor() {
-      
+
     }
 
     public MetadataStore MetadataStore { get; private set; }
-    
+
     public void ProcessMetadata(MetadataStore metadataStore, JObject json) {
       MetadataStore = metadataStore;
       _schema = json["schema"];
@@ -38,7 +38,7 @@ namespace Breeze.Sharp {
         }
         et.UpdateNavigationProperties();
       });
-      
+
 
       var complexTypes = ToEnumerable(_schema["complexType"]).Cast<JObject>()
         .Select(ParseCsdlComplexType).Where(ct => ct != null).ToList();
@@ -47,10 +47,10 @@ namespace Breeze.Sharp {
       if (entityContainer != null) {
         var entitySets = ToEnumerable(entityContainer["entitySet"]).Cast<JObject>().ToList();
         entitySets.ForEach(es => {
-          var clientEtName = GetClientTypeNameFromClrTypeName((String) es["entityType"]);
+          var clientEtName = GetClientTypeNameFromClrTypeName((String)es["entityType"]);
           var entityType = MetadataStore.GetEntityType(clientEtName, true);
           if (entityType != null) {
-            var resourceName = (String) es["name"];
+            var resourceName = (String)es["name"];
             MetadataStore.SetResourceName(resourceName, entityType, true);
           }
         });
@@ -58,12 +58,12 @@ namespace Breeze.Sharp {
 
     }
 
-    
+
 
     private NamingConvention NamingConvention {
       get { return MetadataStore.NamingConvention; }
     }
-    
+
     private EntityType ParseCsdlEntityType(JObject csdlEntityType) {
       var abstractVal = (String)csdlEntityType["abstract"];
       var baseTypeVal = (String)csdlEntityType["baseType"];
@@ -75,9 +75,9 @@ namespace Breeze.Sharp {
         MetadataStore.OnMetadataMismatch(etName, null, MetadataMismatchTypes.MissingCLREntityType);
         return null;
       }
-      
+
       entityType.IsAbstract = isAbstract;
-      
+
       var baseKeyNamesOnServer = new List<string>();
       if (baseTypeVal != null) {
         var baseEtName = GetClientTypeNameFromClrTypeName(baseTypeVal);
@@ -96,7 +96,7 @@ namespace Breeze.Sharp {
       var keyNamesOnServer = keyVal == null
         ? new List<String>()
         : ToEnumerable(keyVal["propertyRef"]).Select(x => (String)x["name"]).ToList();
-      
+
       keyNamesOnServer.AddRange(baseKeyNamesOnServer);
 
       ToEnumerable(csdlEntityType["property"]).ForEach(csdlDataProp => {
@@ -135,6 +135,10 @@ namespace Breeze.Sharp {
     private DataProperty ParseCsdlSimpleProperty(StructuralType parentType, JObject csdlProperty, List<String> keyNamesOnServer) {
 
       var typeVal = (String)csdlProperty["type"];
+
+      if (typeVal == "Edm.Time")
+        typeVal = "Edm.TimeSpan";
+
       var nameVal = (String)csdlProperty["name"];
       var nullableVal = (String)csdlProperty["nullable"];
       var maxLengthVal = (String)csdlProperty["maxLength"];
@@ -146,7 +150,7 @@ namespace Breeze.Sharp {
       }
 
       var dpName = NamingConvention.ServerPropertyNameToClient(nameVal, parentType);
-      var dp = parentType.GetDataProperty( dpName);
+      var dp = parentType.GetDataProperty(dpName);
       if (dp == null) {
         MetadataStore.OnMetadataMismatch(parentType.Name, dpName, MetadataMismatchTypes.MissingCLRDataProperty);
         return null;
@@ -178,7 +182,7 @@ namespace Breeze.Sharp {
       var maxLength = (maxLengthVal == null || maxLengthVal == "Max") ? (Int64?)null : Int64.Parse(maxLengthVal);
       var concurrencyMode = concurrencyModeVal == "fixed" ? ConcurrencyMode.Fixed : ConcurrencyMode.None;
 
-      
+
 
       CheckProperty(dp, dp.DataType, dataType, "DataType");
       CheckProperty(dp, dp.IsScalar, true, "IsScalar");
@@ -187,7 +191,7 @@ namespace Breeze.Sharp {
       dp.IsNullable = isNullable;
       dp.MaxLength = maxLength;
       dp.DefaultValue = defaultValue;
-        // fixedLength: fixedLength,
+      // fixedLength: fixedLength,
       dp.ConcurrencyMode = concurrencyMode;
       dp.IsAutoIncrementing = isAutoIncrementing;
 
@@ -210,7 +214,7 @@ namespace Breeze.Sharp {
         MetadataStore.OnMetadataMismatch(parentType.Name, name, MetadataMismatchTypes.MissingCLRDataProperty);
         return null;
       }
-      
+
       if (!dp.IsComplexProperty) {
         var detail = "Defined as a ComplexProperty on the server but not on the client";
         MetadataStore.OnMetadataMismatch(parentType.Name, name, MetadataMismatchTypes.InconsistentCLRPropertyDefinition, detail);
@@ -241,7 +245,7 @@ namespace Breeze.Sharp {
         //    throw new Error("Foreign Key Associations must be turned on for this model");
         // }
       }
-      
+
       var name = NamingConvention.ServerPropertyNameToClient(nameOnServer, parentType);
       var np = parentType.GetNavigationProperty(name);
       if (np == null) {
@@ -252,8 +256,8 @@ namespace Breeze.Sharp {
       CheckProperty(np, np.EntityType.Name, dataEtName, "EntityTypeName");
       CheckProperty(np, np.IsScalar, isScalar, "IsScalar");
 
-      np.AssociationName = (String) association["name"];
-      
+      np.AssociationName = (String)association["name"];
+
       var principal = constraintVal["principal"];
       var dependent = constraintVal["dependent"];
 
@@ -361,7 +365,7 @@ namespace Breeze.Sharp {
         dp._validators.Add(new RequiredValidator());
       }
       if (dp.DataType == DataType.String && dp.MaxLength.HasValue) {
-        var vr = new MaxLengthValidator((Int32) dp.MaxLength.Value);
+        var vr = new MaxLengthValidator((Int32)dp.MaxLength.Value);
         dp._validators.Add(vr);
       }
     }
@@ -410,9 +414,9 @@ namespace Breeze.Sharp {
 
     private JToken _schema;
     private String _namespace;
-    
+
     private Dictionary<String, String> _cSpaceOSpaceMap;
-    
-    
+
+
   }
 }

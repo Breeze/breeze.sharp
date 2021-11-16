@@ -229,6 +229,8 @@ namespace Breeze.Sharp {
       return val.ToString();
     }
 
-
+    public override string ToString() {
+      return $"{nameof(DataType)}: {Name}";
+    }
   }
 }
