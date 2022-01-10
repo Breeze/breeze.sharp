@@ -14,13 +14,13 @@ namespace Breeze.Sharp.Json {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
-    public string OrderBy { get; private set; } = null;
 
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
 
     public List<string> Select { get; private set; } = null;
     public List<string> Expand { get; private set; } = null;
+    public List<string> OrderBy { get; private set; } = null;
     public Dictionary<string, string> Parameters { get; private set; } = null;
 
     /// <summary> for building Where clause </summary>
@@ -28,6 +28,7 @@ namespace Breeze.Sharp.Json {
 
     private ListExpressionVisitor selectVisitor;
     private ListExpressionVisitor expandVisitor;
+    private ListExpressionVisitor orderByVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
     public static string Translate(Expression expression) {
@@ -53,6 +54,7 @@ namespace Breeze.Sharp.Json {
       this.sb = new StringBuilder();
       this.selectVisitor = new ListExpressionVisitor();
       this.expandVisitor = new ListExpressionVisitor();
+      this.orderByVisitor = new ListExpressionVisitor();
 
       this.Visit(expression);
       if (sb.Length > 2) {
@@ -63,6 +65,9 @@ namespace Breeze.Sharp.Json {
       }
       if (this.expandVisitor.list.Count > 0) {
         this.Expand = this.expandVisitor.list;
+      }
+      if (this.orderByVisitor.list.Count > 0) {
+        this.OrderBy = this.orderByVisitor.list;
       }
     }
 
@@ -280,18 +285,15 @@ namespace Breeze.Sharp.Json {
     private bool ParseOrderByExpression(MethodCallExpression expression, string order = null) {
       UnaryExpression unary = (UnaryExpression)expression.Arguments[1];
       LambdaExpression lambdaExpression = (LambdaExpression)unary.Operand;
-      if (!string.IsNullOrEmpty(order)) {
-        order = " " + order.Trim();
-      }
 
       //lambdaExpression = (LambdaExpression)Evaluator.PartialEval(lambdaExpression);
 
       MemberExpression body = lambdaExpression.Body as MemberExpression;
       if (body != null) {
-        if (string.IsNullOrEmpty(OrderBy)) {
-          OrderBy = string.Format("{0}{1}", body.Member.Name, order);
+        if (string.IsNullOrEmpty(order)) {
+          orderByVisitor.Visit(body);
         } else {
-          OrderBy = string.Format("{0}, {1}{2}", OrderBy, body.Member.Name, order);
+          orderByVisitor.list.Add(string.Format("{0} {1}", body.Member.Name, order.Trim()));
         }
         return true;
       }
