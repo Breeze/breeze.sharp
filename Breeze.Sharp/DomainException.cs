@@ -4,8 +4,8 @@ namespace Breeze.Sharp {
   public class DomainException : Exception {
     public string Description { get; }
 
-    public DomainException(string description) : base() {
-      Description = description;
+    public DomainException(string message) : base(message) {
+      
     }
 
     public DomainException(string description, string message) : base(message) {
