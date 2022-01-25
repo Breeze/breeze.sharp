@@ -58,25 +58,29 @@ namespace Breeze.Sharp.Tests {
       var ord = EntityQuery.From<Order>();
 
       var q = ord.OrderBy(o => o.ShipCountry);
-      Check(q, "{\"orderBy\":\"ShipCountry\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).OrderBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity DESC\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC, ShipCity DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity DESC\"]}");
+
+      // TODO: Related entity OrderBy -- Test currently fails, isn't handled by JsonQueryExpressionVisitor.cs
+      q = ord.OrderBy(o => o.Customer.CompanyName);
+      Check(q, "{\"orderBy\":[\"Customer.CompanyName\"]}");
     }
 
     [TestMethod]
