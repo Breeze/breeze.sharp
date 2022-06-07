@@ -47,7 +47,7 @@ namespace Breeze.Sharp {
 
     public bool TreatEmptyStringAsNull { get; private set; }
 
-    private static bool __defaultTreatEmptyStringAsNull = true;
+    private static bool __defaultTreatEmptyStringAsNull = false;
   }
 
   /// <summary>

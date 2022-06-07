@@ -14,7 +14,7 @@ namespace Breeze.Sharp.Json {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
-    public string OrderBy { get; private set; } = null;
+    public List<string> OrderBy { get; private set; } = null;
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
     public List<string> Select { get; private set; } = null;
@@ -27,7 +27,7 @@ namespace Breeze.Sharp.Json {
     private ListExpressionVisitor expandVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
-    public static string Translate(Expression expression) {
+    public static string Translate(Expression expression, out string parameters) {
 
       var visitor = new JsonQueryExpressionVisitor();
       visitor.VisitRoot(expression);
@@ -40,10 +40,18 @@ namespace Breeze.Sharp.Json {
       };
 
       var json = JsonConvert.SerializeObject(visitor, Formatting.None, jsonSettings);
+
+      //without a server-side custom model binder for 'Customer?{"parameters":{"companyName":"C"}}' I cannot have parameters with right values,
+      //so I have to use this hack
+      if (visitor.Parameters?.Count > 0)
+        parameters = string.Join("&", visitor.Parameters.Select(kvp => string.Format("{0}={1}", kvp.Key, Uri.EscapeDataString(kvp.Value))));
+      else
+        parameters = null;
+
       return json;
     }
 
-    private JsonQueryExpressionVisitor() {}
+    private JsonQueryExpressionVisitor() { }
 
     /// <summary> Populate this visitor's properties from the expression </summary>
     protected void VisitRoot(Expression expression) {
@@ -120,8 +128,14 @@ namespace Breeze.Sharp.Json {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "OrderByDescending") {
-        if (this.ParseOrderByExpression(m, "DESC")) {
+        if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
+        }
+      } else if (methodName == "AddQueryOption") {
+        if (this.ParseAddQueryOptionExpression(m)) {
+          var operand = ((UnaryExpression)m.Object).Operand;
+          this.Visit(operand);
+          return m;
         }
       }
 
@@ -274,19 +288,36 @@ namespace Breeze.Sharp.Json {
         order = " " + order.Trim();
       }
 
-      //lambdaExpression = (LambdaExpression)Evaluator.PartialEval(lambdaExpression);
+      MemberExpression body = lambdaExpression.Body is MemberExpression ?
+        (MemberExpression)lambdaExpression.Body : ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
 
-      MemberExpression body = lambdaExpression.Body as MemberExpression;
       if (body != null) {
-        if (string.IsNullOrEmpty(OrderBy)) {
-          OrderBy = string.Format("{0}{1}", body.Member.Name, order);
-        } else {
-          OrderBy = string.Format("{0}, {1}{2}", OrderBy, body.Member.Name, order);
+        var exp = new List<string>();
+        exp.Add(body.Member.Name);
+
+        while (body.Expression is MemberExpression) {
+          body = (MemberExpression)body.Expression;
+          exp.Insert(0, body.Member.Name);
         }
+
+        if (OrderBy == null)
+          OrderBy = new List<string>();
+
+        OrderBy.Add(string.Format("{0}{1}", string.Join(".", exp), order));
+
         return true;
       }
 
       return false;
+    }
+
+    private bool ParseAddQueryOptionExpression(MethodCallExpression expression) {
+      if (Parameters == null)
+        Parameters = new Dictionary<string, string>();
+
+      Parameters.Add(((ConstantExpression)expression.Arguments[0]).Value.ToString(), ((ConstantExpression)expression.Arguments[1]).Value.ToString());
+
+      return true;
     }
 
     private bool ParseTakeExpression(MethodCallExpression expression) {
