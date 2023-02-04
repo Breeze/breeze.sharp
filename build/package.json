@@ -5,7 +5,7 @@
     "build": "node build.standard.js"
   },
   "devDependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "del": "^5.1.0",
     "fs-extra": "^9.0.0",
     "event-stream": "^4.0.1",
