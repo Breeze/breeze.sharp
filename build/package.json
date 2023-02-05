@@ -2,7 +2,8 @@
   "name": "breeze.sharp.build",
   "version": "0.0.1",
   "scripts": {
-    "build": "node build.standard.js"
+    "build": "node build.standard.js",
+    "build6": "node build.6.js"
   },
   "devDependencies": {
     "async": "^3.2.2",

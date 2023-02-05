@@ -7,7 +7,7 @@ manages the entity graph of application data, tracks changes, and performs updat
 
 This repository holds the Breeze assets **for .NET and Xamarin client development**.  
 
-`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, and `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects.
+`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects, and `Breeze.Sharp.6.sln` holds the .NET 6 projects.
 
 Please see the [Breeze.Sharp documentation](http://breeze.github.io/doc-cs/introduction.html) to get started.
 

@@ -20,7 +20,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestCleanup]
     public void TearDown() {
-
+      Configuration.Instance.QueryUriStyle = QueryUriStyle.OData;
     }
 
     // TODO somehow compare JSON by structure instead of string, so whitespace changes won't matter
