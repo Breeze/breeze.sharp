@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -316,7 +316,7 @@ namespace Breeze.Sharp {
     }
 
     public TextWriter SerializeTo(TextWriter textWriter) {
-      var serializer = new JsonSerializer();
+      var serializer = new JsonSerializer() { MaxDepth = 128 };
       serializer.Converters.Add(new StringEnumConverter());
 
 #if DEBUG
@@ -341,8 +341,7 @@ namespace Breeze.Sharp {
     }
 
     public static JNode DeserializeFrom(TextReader textReader) {
-      var serializer = new JsonSerializer();
-      var reader = new JsonTextReader(textReader);
+      var reader = new JsonTextReader(textReader) { MaxDepth = 128 };
       // needed because we need to set the DateParseHandling to work with DataTimeOffsets
       reader.DateParseHandling = DateParseHandling.DateTimeOffset;
       var jo = JObject.Load(reader);
@@ -404,6 +403,7 @@ namespace Breeze.Sharp {
 
     private static JsonSerializer CreateCamelCaseSerializer() {
       var s = new JsonSerializer() {
+        MaxDepth = 128,
         ContractResolver = new CamelCasePropertyNamesContractResolver()
       };
       s.Converters.Add(new DictionaryKeysAreNotPropertyNamesJsonConverter());
