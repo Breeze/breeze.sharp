@@ -117,7 +117,48 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(orders50.Count() >= orders100.Count(), "There should be more orders with freight > 50 than 100");
     }
 
+    // Test for https://github.com/Breeze/breeze.sharp/issues/49
+    [TestMethod]
+    public async Task RequeryModifiedExpandedEntity() {
+      var entityManager = await TestFns.NewEm(_serviceName);
 
+      var query = new EntityQuery<Order>().Where(o => o.OrderID == 10280).Expand("Customer");
+      var result = await entityManager.ExecuteQuery(query);
+      Assert.IsTrue(result.Any(), "There should be an order with OrderId 10280");
+      var orderWithCustomer = result.First();
+      Assert.IsTrue(orderWithCustomer.Customer != null, "Order has a Customer");
+
+      // modify our found Customer entity
+      orderWithCustomer.Customer.ContactName = "Modified";
+
+      // repeat the query - this throws, due to 
+      var result2 = await entityManager.ExecuteQuery(query);
+      Assert.IsTrue(result.Any(), "Repeat: There should be an order with OrderId 10280");
+      var orderWithCustomer2 = result.First();
+      Assert.IsTrue(orderWithCustomer.Customer != null, "Order has a Customer");
+    }
+
+    // Test for https://github.com/Breeze/breeze.sharp/issues/41
+    [TestMethod]
+    public async Task LoadNavigationOnModifiedEntity() {
+      var entityManager = await TestFns.NewEm(_serviceName);
+
+      var query = new EntityQuery<Order>().Where(o => o.OrderID == 10280).Expand("Customer");
+      var result = await entityManager.ExecuteQuery(query);
+      Assert.IsTrue(result.Any(), "There should be an order with OrderId 10280");
+      var orderWithCustomer = result.First();
+      Assert.IsTrue(orderWithCustomer.Customer != null, "Order has a Customer");
+
+      // modify our found Customer entity
+      orderWithCustomer.ShipName = "Modified";
+      orderWithCustomer.Customer.ContactName = "Modified";
+
+      var cust = await orderWithCustomer.EntityAspect.LoadNavigationProperty("Customer");
+
+      Assert.IsTrue(cust != null, "Customer was loaded");
+      Assert.IsTrue(orderWithCustomer.Customer != null, "Order has a Customer");
+
+    }
 
     [TestMethod]
     public async Task NoWhere() {

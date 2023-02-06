@@ -4,7 +4,8 @@ var child_process = require('child_process');
 
 var _sourceDir = "../Breeze.Sharp/";
 var _nugetDir = '../Nuget.builds/'
-var _msBuildCmd = '"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin/MSBuild.exe" '
+//var _msBuildCmd = '"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin/MSBuild.exe" '
+var _msBuildCmd = '"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin/MSBuild.exe" '
 
 // var _msBuildOptions = ' /p:Configuration=Release /verbosity:minimal ';
 var _msBuildOptions = ' /p:Configuration=Release /verbosity:minimal  /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly';
@@ -57,7 +58,7 @@ function packNuget(nuspecFileName, callback) {
 
   var destFileName = folderId + '.nuspec';
   console.log('Packing nuspec file: ' + destFileName + ' in folder ' + folderName);
-  fs.writeFileSync(destFileName, text);
+  fs.writeFileSync(folderName + '/' + destFileName, text);
   var cmd = 'nuget pack ' + destFileName;
 
   execCommands([cmd], { cwd: folderName }, callback);

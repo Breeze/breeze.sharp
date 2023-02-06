@@ -57,7 +57,7 @@ function packNuget(nuspecFileName, callback) {
 
   var destFileName = folderId + '.nuspec';
   console.log('Packing nuspec file: ' + destFileName + ' in folder ' + folderName);
-  fs.writeFileSync(destFileName, text);
+  fs.writeFileSync(folderName + '/' + destFileName, text);
   var cmd = 'nuget pack ' + destFileName;
 
   execCommands([cmd], { cwd: folderName }, callback);

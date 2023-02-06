@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
         <id>Breeze.Sharp</id>
-        <version>0.7.0.0</version>
+        <version>0.8.0</version>
         <title>Breeze Sharp</title>
         <authors>Jay Traband</authors>
         <owners>IdeaBlade</owners>
@@ -10,22 +10,26 @@
         <projectUrl>https://github.com/Breeze/breeze.sharp</projectUrl>
         <iconUrl>http://breeze.github.io/images/logos/BreezeSharpB.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>The files and references that are essential for a Breeze Sharp client</description>
+        <description>Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, 
+        manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.
+        Version 0.7.x supports .NETFramework projects, and 0.8.x supports .NETStandard projects.
+        </description>
         <summary>Breeze Sharp. This package is the .NET client for any Breeze server.</summary>
-        <copyright>Copyright IdeaBlade 2012-2016</copyright>
+        <copyright>Copyright IdeaBlade 2012-2023</copyright>
         <language>en-US</language>
         <releaseNotes>Please review the BreezeSharp release notes at http://breeze.github.io/doc-cs/release-notes.html</releaseNotes>        
-        <tags>Breeze DotNet Portable OData CSharp WebApi SPA WPF Xamarin</tags>
-		<dependencies>
-      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
-      <dependency id="Microsoft.Data.Services.Client" version="5.6.3" />
-		</dependencies>
+        <tags>Breeze DotNet DotNetCore DotNetStandard Portable OData CSharp WebApi SPA WPF Xamarin</tags>
+        <dependencies>
+          <group targetFramework=".NETStandard2.0">
+            <dependency id="Microsoft.Data.Services.Client" version="5.8.4" exclude="Build,Analyzers" />
+            <dependency id="Newtonsoft.Json" version="13.0.2" exclude="Build,Analyzers" />
+          </group>
+       </dependencies>
     </metadata>
     <files>
-        <file src="lib\Breeze.Sharp.dll" target="lib\Breeze.Sharp.dll" />
-        <file src="lib\Breeze.Sharp.pdb" target="lib\Breeze.Sharp.pdb" />
-        <file src="lib\Breeze.Sharp.XML" target="lib\Breeze.Sharp.XML" />
+        <file src="lib\netstandard2.0\Breeze.Sharp.dll" target="lib\netstandard2.0\Breeze.Sharp.dll" />
+        <file src="lib\netstandard2.0\Breeze.Sharp.pdb" target="lib\netstandard2.0\Breeze.Sharp.pdb" />
+        <file src="lib\netstandard2.0\Breeze.Sharp.XML" target="lib\netstandard2.0\Breeze.Sharp.XML" />
         <file src="readme.txt" target="readme.txt" />
     </files>       
-        
 </package>

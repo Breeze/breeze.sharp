@@ -15,14 +15,14 @@
         Version 0.7.x supports .NETFramework projects, and 0.8.x supports .NETStandard projects.
         </description>
         <summary>Breeze Sharp. This package is the .NET client for any Breeze server.</summary>
-        <copyright>Copyright IdeaBlade 2012-2020</copyright>
+        <copyright>Copyright IdeaBlade 2012-2023</copyright>
         <language>en-US</language>
         <releaseNotes>Please review the BreezeSharp release notes at http://breeze.github.io/doc-cs/release-notes.html</releaseNotes>        
         <tags>Breeze DotNet DotNetCore DotNetStandard Portable OData CSharp WebApi SPA WPF Xamarin</tags>
         <dependencies>
           <group targetFramework=".NETStandard2.0">
             <dependency id="Microsoft.Data.Services.Client" version="5.8.4" exclude="Build,Analyzers" />
-            <dependency id="Newtonsoft.Json" version="12.0.3" exclude="Build,Analyzers" />
+            <dependency id="Newtonsoft.Json" version="13.0.2" exclude="Build,Analyzers" />
           </group>
        </dependencies>
     </metadata>

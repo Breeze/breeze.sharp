@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -146,13 +146,20 @@ namespace Breeze.Sharp {
     }
 
     internal void SetFkNames(IEnumerable<String> fkNames) {
-      _fkNames.AddRange(fkNames);
+      foreach(String name in fkNames) {
+        if (!_fkNames.Contains(name)) {
+          _fkNames.Add(name);
+        }
+      }
     }
 
     internal void SetInvFkNames(IEnumerable<String> invFkNames) {
-      _invFkNames.AddRange(invFkNames);
+      foreach (String name in invFkNames) {
+        if (!_invFkNames.Contains(name)) {
+          _invFkNames.Add(name);
+        }
+      }
     }
-
 
     internal void AddInvFkName(String invFkName) {
       if (!_fkNames.Contains(invFkName)) {
