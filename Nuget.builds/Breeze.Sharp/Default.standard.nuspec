@@ -6,7 +6,7 @@
         <title>Breeze Sharp</title>
         <authors>Jay Traband</authors>
         <owners>IdeaBlade</owners>
-        <licenseUrl>http://breeze.github.io/doc-main/license.html</licenseUrl>
+        <license type="expression">MIT</license>
         <projectUrl>https://github.com/Breeze/breeze.sharp</projectUrl>
         <iconUrl>http://breeze.github.io/images/logos/BreezeSharpB.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
