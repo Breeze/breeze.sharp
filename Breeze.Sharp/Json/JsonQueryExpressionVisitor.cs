@@ -71,17 +71,6 @@ namespace Breeze.Sharp.Json {
       }
     }
 
-    private static Expression StripQuotes(Expression e) {
-      while (e.NodeType == ExpressionType.Quote) {
-        e = ((UnaryExpression)e).Operand;
-      }
-      return e;
-    }
-
-    private static bool IsResourceSetExpression(Expression expr) {
-      return (int)expr.NodeType == 10000;
-    }
-
     protected override Expression VisitMethodCall(MethodCallExpression m) {
       var methodName = m.Method.Name;
       if (m.Method.DeclaringType == typeof(Queryable) && methodName == "Where") {
@@ -195,30 +184,6 @@ namespace Breeze.Sharp.Json {
       }
     }
 
-    private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
-      sb.Append("{\"").Append(op).Append("\":[");
-      this.Visit(b.Left);
-      sb.Append(",");
-      this.Visit(b.Right);
-      sb.Append("]}");
-      return b;
-    }
-
-    private Expression VisitBinaryComparison(BinaryExpression b, string op) {
-      sb.Append('{');
-      this.Visit(b.Left);
-      if (op == "eq") {
-        sb.Append(":");
-        this.Visit(b.Right);
-      } else {
-        sb.Append(":{\"").Append(op).Append("\": ");
-        this.Visit(b.Right);
-        sb.Append("}");
-      }
-      sb.Append('}');
-      return b;
-    }
-
     protected override Expression VisitConstant(ConstantExpression c) {
       if (c.Value == null) {
         sb.Append("null");
@@ -255,11 +220,19 @@ namespace Breeze.Sharp.Json {
       return c;
     }
 
+    protected bool IsNullConstant(Expression exp) {
+      return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
+    }
+
     protected override Expression VisitMember(MemberExpression m) {
       if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
         sb.Append('"').Append(m.Member.Name).Append('"');
         return m;
       } else if (m.Expression != null) {
+        if (m.Expression is MemberExpression me) {
+          sb.Append('"').Append(me.Member.Name).Append('.').Append(m.Member.Name).Append('"');
+          return m;
+        }
         var ne = Visit(m.Expression);
         if (ne is ConstantExpression ce) {
           return VisitMemberInfo(m.Member, ce.Value);
@@ -269,6 +242,30 @@ namespace Breeze.Sharp.Json {
       }
 
       throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
+    }
+
+    private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
+      sb.Append("{\"").Append(op).Append("\":[");
+      this.Visit(b.Left);
+      sb.Append(",");
+      this.Visit(b.Right);
+      sb.Append("]}");
+      return b;
+    }
+
+    private Expression VisitBinaryComparison(BinaryExpression b, string op) {
+      sb.Append('{');
+      this.Visit(b.Left);
+      if (op == "eq") {
+        sb.Append(":");
+        this.Visit(b.Right);
+      } else {
+        sb.Append(":{\"").Append(op).Append("\": ");
+        this.Visit(b.Right);
+        sb.Append("}");
+      }
+      sb.Append('}');
+      return b;
     }
 
     private Expression VisitMemberInfo(MemberInfo memberInfo, object container) {
@@ -282,8 +279,15 @@ namespace Breeze.Sharp.Json {
       throw new NotSupportedException(string.Format("The MemberInfo '{0}' is not supported", memberInfo));
     }
 
-    protected bool IsNullConstant(Expression exp) {
-      return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
+    private static Expression StripQuotes(Expression e) {
+      while (e.NodeType == ExpressionType.Quote) {
+        e = ((UnaryExpression)e).Operand;
+      }
+      return e;
+    }
+
+    private static bool IsResourceSetExpression(Expression expr) {
+      return (int)expr.NodeType == 10000;
     }
 
     private bool ParseOrderByExpression(MethodCallExpression expression, string order = null) {
