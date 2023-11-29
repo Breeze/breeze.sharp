@@ -224,24 +224,32 @@ namespace Breeze.Sharp.Json {
       return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
     }
 
-    protected override Expression VisitMember(MemberExpression m) {
-      if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
-        sb.Append('"').Append(m.Member.Name).Append('"');
-        return m;
-      } else if (m.Expression != null) {
-        if (m.Expression is MemberExpression me) {
-          sb.Append('"').Append(me.Member.Name).Append('.').Append(m.Member.Name).Append('"');
-          return m;
+    protected override Expression VisitMember(MemberExpression node) {
+      if (node.Expression != null && node.Expression.NodeType == ExpressionType.Parameter) {
+        sb.Append('"').Append(node.Member.Name).Append('"');
+        return node;
+      } else if (node.Expression != null) {
+        if (node.Expression is MemberExpression me) {
+          try {
+            //If we can't compile expression, than it is condition that we need to use, not constant value
+            //Alternative to this hack is replacing all member expressions in predicates with constant value, which is not convenient
+            Expression.Lambda(node.Expression).Compile();
+          } catch {
+            sb.Append('"').Append(me.Member.Name).Append('.').Append(node.Member.Name).Append('"');
+            return node;
+          }
         }
-        var ne = Visit(m.Expression);
+
+        var ne = Visit(node.Expression);
         if (ne is ConstantExpression ce) {
-          return VisitMemberInfo(m.Member, ce.Value);
+          return VisitMemberInfo(node.Member, ce.Value);
         }
+
       } else {
-        return VisitMemberInfo(m.Member, null);
+        return VisitMemberInfo(node.Member, null);
       }
 
-      throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
+      throw new NotSupportedException($"The member '{node.Member.Name}' is not supported");
     }
 
     private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
