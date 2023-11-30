@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -126,6 +126,10 @@ namespace Breeze.Sharp {
 
     public static DataType FromName(String typeName) {
       var dataType = All.FirstOrDefault(dt => dt.Name == typeName);
+      if (dataType == null) {
+        // for Time:TimeSpan match
+        dataType = All.FirstOrDefault(dt => dt.ClrType.Name == typeName);
+      }
       return dataType != null ? dataType : DataType.Undefined;
     }
 

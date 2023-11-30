@@ -139,6 +139,9 @@ namespace Breeze.Sharp {
       Object val;
       if (nonnullableType != null && nonnullableType.GetTypeInfo().IsEnum) {
         val = Enum.Parse(nonnullableType, prop.Value.ToString());
+      } else if (objectType == typeof(TimeSpan) && prop.Value.ToString().StartsWith("P")) {
+        // Parse ISO 8601 Duration (e.g. "PT0S") to TimeSpan
+        val = System.Xml.XmlConvert.ToTimeSpan(prop.Value.ToString());
       } else {
         val = prop.Value.ToObject(objectType);
       }

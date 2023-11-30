@@ -49,5 +49,18 @@ namespace Model.Inheritance.Produce {
       get { return GetValue<Nullable<int>>(); }
       set { SetValue(value); }
     }
+
+    /// <summary> TPH Discriminator </summary>
+    public string ItemType {
+      get { return GetValue<string>(); }
+      set { SetValue(value); }
+    }
+
+    /// <summary> TPH Discriminator </summary>
+    public string ItemSubtype {
+      get { return GetValue<string>(); }
+      set { SetValue(value); }
+    }
+
   }
 }
