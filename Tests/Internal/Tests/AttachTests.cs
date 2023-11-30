@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Foo;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 
 namespace Breeze.Sharp.Tests {
 
@@ -130,12 +131,18 @@ namespace Breeze.Sharp.Tests {
     public async Task NullForeignKey() {
       var em1 = await TestFns.NewEm(_serviceName);
       var prod1 = new Product();
-      
+
       em1.AttachEntity(prod1);
       prod1.ProductName = "Test";
       prod1.SupplierID = null;
 
-      var q0 = new EntityQuery<Product>().Where(p => p.Supplier != null).Take(2).Expand(p => p.Supplier);
+      EntityQuery<Product> q0;
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.JSON) {
+        // server doesn't like the "p.Supplier != null" expression
+        q0 = new EntityQuery<Product>().Where(p => p.Supplier.SupplierID != 0).Take(2).Expand(p => p.Supplier);
+      } else {
+        q0 = new EntityQuery<Product>().Where(p => p.Supplier != null).Take(2).Expand(p => p.Supplier);
+      }
       var r0 = (await q0.Execute(em1)).ToList();
       Assert.IsTrue(r0.Count() == 2);
       Assert.IsTrue(r0.All(p => p.Supplier != null));

@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp;
+using Breeze.Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,6 +102,12 @@ namespace Model.Inheritance.Billing {
     public string MiscData {
       get;
       set;
+    }
+
+    /// <summary> TPH discriminator </summary>
+    public string BillingDetailType {
+      get { return GetValue<string>(); }
+      set { SetValue(value); }
     }
 
     public override void Initialize() {

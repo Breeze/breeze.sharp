@@ -6,6 +6,7 @@ using Foo;
 using Breeze.Sharp.Json;
 
 namespace Breeze.Sharp.Tests {
+
   /// <summary> Test whether EntityQuery is serialized to JSON correctly </summary>
   [TestClass]
   public class JsonQuerySerializationTests {
@@ -20,7 +21,7 @@ namespace Breeze.Sharp.Tests {
 
     [TestCleanup]
     public void TearDown() {
-      Configuration.Instance.QueryUriStyle = QueryUriStyle.OData;
+      Configuration.Instance.QueryUriStyle = TestFns.queryUriStyle;
     }
 
     // TODO somehow compare JSON by structure instead of string, so whitespace changes won't matter
@@ -58,25 +59,28 @@ namespace Breeze.Sharp.Tests {
       var ord = EntityQuery.From<Order>();
 
       var q = ord.OrderBy(o => o.ShipCountry);
-      Check(q, "{\"orderBy\":\"ShipCountry\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).OrderBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC, ShipCity\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry, ShipCity DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity DESC\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":\"ShipCountry DESC, ShipCity DESC\"}");
+      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity DESC\"]}");
+
+      q = ord.OrderBy(o => o.Customer.CompanyName);
+      Check(q, "{\"orderBy\":[\"Customer.CompanyName\"]}");
     }
 
     [TestMethod]
@@ -163,12 +167,50 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public void WhereConstantGuid() {
+      var q = EntityQuery.From<Customer>();
+      var guid = new Guid("81E6E4C0-E608-4191-A717-3372B2FAC343");
+      q = q.Where(c => c.CustomerID == guid);
+
+      // parser lowercases the guid so
+      string lowerCaseGuid = guid.ToString().ToLower();
+      Check(q, $"{{\"where\":{{\"CustomerID\":\"{lowerCaseGuid}\"}}}}");
+    }
+
+    [TestMethod]
     public void WhereNestedProperty() {
       var q = EntityQuery.From<Order>();
       q = q.Where(o => o.Customer.Country == "England");
       Check(q, "{\"where\":{\"Customer.Country\":\"England\"}}");
     }
 
+    [TestMethod]
+    public void WhereNestedPropertyAsString() {
+      var q = EntityQuery.From<Order>();
+      var country = "England";
+      q = q.Where(o => "Customer.Country" == country);
+      Check(q, "{\"where\":{\"Customer.Country\":\"England\"}}");
+    }
 
+    [TestMethod]
+    public void WhereStringContains() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.Contains("C"));
+      Check(q, "{\"where\":{\"City\":{\"Contains\":\"C\"}}}");
+    }
+
+    [TestMethod]
+    public void WhereStringStartsWith() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.StartsWith("C"));
+      Check(q, "{\"where\":{\"City\":{\"StartsWith\":\"C\"}}}");
+    }
+
+    [TestMethod]
+    public void WhereStringEndsWith() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City.EndsWith("C"));
+      Check(q, "{\"where\":{\"City\":{\"EndsWith\":\"C\"}}}");
+    }
   }
 }

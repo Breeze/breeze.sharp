@@ -8,10 +8,27 @@ using System.Threading.Tasks;
 namespace Breeze.Sharp.Tests {
   public static class TestFns {
 
-      public static string serviceRoot = "http://localhost:7149/breezeTests/";
-      public static string serviceName = serviceRoot + "breeze/NorthwindIBModel/";
+    /// <summary> URL to the Breeze server </summary>
+    public static readonly string serviceRoot;
+    /// <summary> URL for NorthwindIBModelController </summary>
+    public static readonly string serviceName;
+    /// <summary> Query encoding style used for tests.  Changing this will change the URLs above. </summary>
+    public static readonly QueryUriStyle queryUriStyle = QueryUriStyle.OData;
 
-    public static void RunInWpfSyncContext(Func<Task> function) {
+    static TestFns() {
+      Configuration.Instance.QueryUriStyle = queryUriStyle;
+
+      if (queryUriStyle == QueryUriStyle.JSON) {
+        //.NET Core server - use with QueryUriStyle.JSON
+        serviceRoot = "http://localhost:34377/";
+      } else {
+        // .NET Framework server - use with QueryUriStyle.OData
+        serviceRoot = "http://localhost:7149/breezeTests/";
+      }
+      serviceName = serviceRoot + "breeze/NorthwindIBModel/";
+  }
+
+  public static void RunInWpfSyncContext(Func<Task> function) {
 #if NETFRAMEWORK
       if (function == null) throw new ArgumentNullException("function");
       var prevCtx = SynchronizationContext.Current;

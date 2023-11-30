@@ -11,6 +11,9 @@ namespace Breeze.Sharp.Json {
       if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
         list.Add(m.Member.Name);
         return m;
+      } else if (m.Expression != null && m.Expression is MemberExpression mex) {
+        list.Add(mex.Member.Name + '.' + m.Member.Name);
+        return m;
       }
 
       throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));

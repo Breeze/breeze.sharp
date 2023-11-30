@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -435,6 +435,10 @@ namespace Foo {
       set { SetValue(value); }
     }
 
+    public Region EmpRegion {
+      get { return GetValue<Region>(); }
+      set { SetValue(value); }
+    }
   }
 
   public partial class Product : BaseEntity {
@@ -519,6 +523,10 @@ namespace Foo {
     }
     public NavigationSet<Territory> Territories {
       get { return GetValue<NavigationSet<Territory>>(); }
+      set { SetValue(value); }
+    }
+    public NavigationSet<PreviousEmployee> PreviousEmployees {
+      get { return GetValue<NavigationSet<PreviousEmployee>>(); }
       set { SetValue(value); }
     }
 
@@ -886,6 +894,30 @@ namespace Foo {
       get { return GetValue<DateTime?>(); }
       set { SetValue(value); }
     }
+
+#if NET6_0_OR_GREATER
+    public DateOnly? DateOnly {
+      get { return GetValue<DateOnly?>(); }
+      set { SetValue(value); }
+    }
+
+    public TimeOnly? TimeOnly {
+      get { return GetValue<TimeOnly?>(); }
+      set { SetValue(value); }
+    }
+#else
+    // Older .NET does not have DateOnly and TimeOnly, so just use strings for tests.
+    public string DateOnly {
+      get { return GetValue<string>(); }
+      set { SetValue(value); }
+    }
+
+    public string TimeOnly {
+      get { return GetValue<string>(); }
+      set { SetValue(value); }
+    }
+#endif
+
   }
 
 

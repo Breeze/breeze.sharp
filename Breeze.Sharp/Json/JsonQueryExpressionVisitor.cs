@@ -9,26 +9,29 @@ using System.Reflection;
 using System.Text;
 
 namespace Breeze.Sharp.Json {
-  public class JsonQueryExpressionVisitor : ExpressionVisitor {
 
+  public class JsonQueryExpressionVisitor : ExpressionVisitor {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
-    public string OrderBy { get; private set; } = null;
+
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
+
     public List<string> Select { get; private set; } = null;
     public List<string> Expand { get; private set; } = null;
-    public Dictionary<string, string> Parameters { get; private set; } = null;
+    public Stack<string> OrderBy { get; private set; } = null;
+    public Dictionary<string, object> Parameters { get; private set; } = null;
 
     /// <summary> for building Where clause </summary>
     private StringBuilder sb;
+
     private ListExpressionVisitor selectVisitor;
     private ListExpressionVisitor expandVisitor;
+    private ListExpressionVisitor orderByVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
     public static string Translate(Expression expression) {
-
       var visitor = new JsonQueryExpressionVisitor();
       visitor.VisitRoot(expression);
 
@@ -43,13 +46,15 @@ namespace Breeze.Sharp.Json {
       return json;
     }
 
-    private JsonQueryExpressionVisitor() {}
+    private JsonQueryExpressionVisitor() {
+    }
 
     /// <summary> Populate this visitor's properties from the expression </summary>
     protected void VisitRoot(Expression expression) {
       this.sb = new StringBuilder();
       this.selectVisitor = new ListExpressionVisitor();
       this.expandVisitor = new ListExpressionVisitor();
+      this.orderByVisitor = new ListExpressionVisitor();
 
       this.Visit(expression);
       if (sb.Length > 2) {
@@ -61,19 +66,10 @@ namespace Breeze.Sharp.Json {
       if (this.expandVisitor.list.Count > 0) {
         this.Expand = this.expandVisitor.list;
       }
-    }
-
-    private static Expression StripQuotes(Expression e) {
-      while (e.NodeType == ExpressionType.Quote) {
-        e = ((UnaryExpression)e).Operand;
+      if (this.orderByVisitor.list.Count > 0) {
+        this.OrderBy = new Stack<string>(this.orderByVisitor.list);
       }
-      return e;
     }
-
-    private static bool IsResourceSetExpression(Expression expr) {
-      return (int)expr.NodeType == 10000;
-    }
-
 
     protected override Expression VisitMethodCall(MethodCallExpression m) {
       var methodName = m.Method.Name;
@@ -123,9 +119,42 @@ namespace Breeze.Sharp.Json {
         if (this.ParseOrderByExpression(m, "DESC")) {
           return this.Visit(m.Arguments[0]);
         }
+      } else if (methodName == "ThenByDescending") {
+        if (this.ParseOrderByExpression(m, "DESC")) {
+          return this.Visit(m.Arguments[0]);
+        }
+      } else if (methodName == "Contains") {
+        return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "StartsWith") {
+        return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "EndsWith") {
+        return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "AddQueryOption") {
+        if (this.Parameters == null) {
+          this.Parameters = new Dictionary<string, object>();
+        }
+        this.Parameters.Add(GetValue(m.Arguments[0]).ToString(), GetValue(m.Arguments[1]));
+        return this.Visit(m.Object);
+      } else if (m.Object is MemberExpression) {
+        object result = Expression.Lambda(m).Compile().DynamicInvoke();
+        return this.VisitConstant(Expression.Constant(result));
       }
 
       throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodName));
+    }
+
+    protected object GetValue(Expression node) {
+      object value;
+      if (node.NodeType == ExpressionType.Constant) {
+        return ((ConstantExpression)node).Value;
+      } else {
+        return Expression.Lambda(node).Compile().DynamicInvoke();
+      }
+    }
+
+    protected override Expression VisitNew(NewExpression node) {
+      object result = Expression.Lambda(node).Compile().DynamicInvoke();
+      return this.VisitConstant(Expression.Constant(result));
     }
 
     protected override Expression VisitUnary(UnaryExpression u) {
@@ -134,23 +163,18 @@ namespace Breeze.Sharp.Json {
           sb.Append(" NOT ");
           this.Visit(u.Operand);
           break;
+
         case ExpressionType.Convert:
           this.Visit(u.Operand);
           break;
+
         default:
           throw new NotSupportedException(string.Format("The unary operator '{0}' is not supported", u.NodeType));
       }
       return u;
     }
 
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="b"></param>
-    /// <returns></returns>
     protected override Expression VisitBinary(BinaryExpression b) {
-
       switch (b.NodeType) {
         case ExpressionType.And:
         case ExpressionType.AndAlso:
@@ -183,6 +207,73 @@ namespace Breeze.Sharp.Json {
       }
     }
 
+    protected override Expression VisitConstant(ConstantExpression c) {
+      if (c.Value == null) {
+        sb.Append("null");
+      } else {
+        Type type = c.Value.GetType();
+#if NETSTANDARD || NETCOREAPP
+        switch (Type.GetTypeCode(type)) {
+          case TypeCode.Boolean:
+            sb.Append(((bool)c.Value) ? "true" : "false");
+            break;
+
+          case TypeCode.String:
+            sb.Append('"').Append(c.Value).Append('"');
+            break;
+
+          case TypeCode.DateTime:
+            sb.Append('"').Append(c.Value).Append('"');
+            break;
+
+          case TypeCode.Object:
+            if (type == typeof(Guid)) {
+              sb.Append('"').Append(c.Value).Append('"');
+              break;
+            }
+
+            return base.VisitConstant(c);
+
+          default:
+            if (type.IsEnum) {
+              sb.Append('"').Append(c.Value).Append('"');
+            } else {
+              sb.Append(c.Value);
+            }
+            break;
+        }
+#else
+        // reimplement for .NET Framework?
+#endif
+      }
+
+      return c;
+    }
+
+    protected bool IsNullConstant(Expression exp) {
+      return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
+    }
+
+    protected override Expression VisitMember(MemberExpression m) {
+      if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
+        sb.Append('"').Append(m.Member.Name).Append('"');
+        return m;
+      } else if (m.Expression != null) {
+        if (m.Expression is MemberExpression me && me.Expression.NodeType == ExpressionType.Parameter) {
+          sb.Append('"').Append(me.Member.Name).Append('.').Append(m.Member.Name).Append('"');
+          return m;
+        }
+        var ne = Visit(m.Expression);
+        if (ne is ConstantExpression ce) {
+          return VisitMemberInfo(m.Member, ce.Value);
+        }
+      } else {
+        return VisitMemberInfo(m.Member, null);
+      }
+
+      throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
+    }
+
     private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
       sb.Append("{\"").Append(op).Append("\":[");
       this.Visit(b.Left);
@@ -207,51 +298,6 @@ namespace Breeze.Sharp.Json {
       return b;
     }
 
-    protected override Expression VisitConstant(ConstantExpression c) {
-      if (c.Value == null) {
-        sb.Append("null");
-      } else {
-        switch (Type.GetTypeCode(c.Value.GetType())) {
-          case TypeCode.Boolean:
-            sb.Append(((bool)c.Value) ? "true" : "false");
-            break;
-
-          case TypeCode.String:
-            sb.Append('"').Append(c.Value).Append('"');
-            break;
-
-          case TypeCode.DateTime:
-            sb.Append('"').Append(c.Value).Append('"');
-            break;
-
-          case TypeCode.Object:
-            return base.VisitConstant(c);
-
-          default:
-            sb.Append(c.Value);
-            break;
-        }
-      }
-
-      return c;
-    }
-
-    protected override Expression VisitMember(MemberExpression m) {
-      if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
-        sb.Append('"').Append(m.Member.Name).Append('"');
-        return m;
-      } else if (m.Expression != null) {
-        var ne = Visit(m.Expression);
-        if (ne is ConstantExpression ce) {
-          return VisitMemberInfo(m.Member, ce.Value);
-        }
-      } else {
-        return VisitMemberInfo(m.Member, null);
-      }
-
-      throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
-    }
-
     private Expression VisitMemberInfo(MemberInfo memberInfo, object container) {
       if (memberInfo is FieldInfo fi) {
         object value = fi.GetValue(container);
@@ -263,25 +309,29 @@ namespace Breeze.Sharp.Json {
       throw new NotSupportedException(string.Format("The MemberInfo '{0}' is not supported", memberInfo));
     }
 
-    protected bool IsNullConstant(Expression exp) {
-      return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
+    private static Expression StripQuotes(Expression e) {
+      while (e.NodeType == ExpressionType.Quote) {
+        e = ((UnaryExpression)e).Operand;
+      }
+      return e;
+    }
+
+    private static bool IsResourceSetExpression(Expression expr) {
+      return (int)expr.NodeType == 10000;
     }
 
     private bool ParseOrderByExpression(MethodCallExpression expression, string order = null) {
       UnaryExpression unary = (UnaryExpression)expression.Arguments[1];
       LambdaExpression lambdaExpression = (LambdaExpression)unary.Operand;
-      if (!string.IsNullOrEmpty(order)) {
-        order = " " + order.Trim();
-      }
 
       //lambdaExpression = (LambdaExpression)Evaluator.PartialEval(lambdaExpression);
 
       MemberExpression body = lambdaExpression.Body as MemberExpression;
       if (body != null) {
-        if (string.IsNullOrEmpty(OrderBy)) {
-          OrderBy = string.Format("{0}{1}", body.Member.Name, order);
+        if (string.IsNullOrEmpty(order)) {
+          orderByVisitor.Visit(body);
         } else {
-          OrderBy = string.Format("{0}, {1}{2}", OrderBy, body.Member.Name, order);
+          orderByVisitor.list.Add(string.Format("{0} {1}", body.Member.Name, order.Trim()));
         }
         return true;
       }
@@ -306,16 +356,35 @@ namespace Breeze.Sharp.Json {
       }
       return false;
     }
+
+    /// <summary>
+    /// Handles Contains/StartsWith/EndsWith
+    /// Note: Doesn't yet handle characters i.e string.Contains('c') will fail, string.Contains("C") will succeed
+    /// </summary>
+    /// <param name="m">Current Expression</param>
+    /// <param name="methodName">Method Name</param>
+    /// <returns>Passes through the MethodCallExpression</returns>
+    private MethodCallExpression VisitStringMethod(MethodCallExpression m, string methodName) {
+      sb.Append("{");
+      this.Visit(m.Object);
+      sb.Append(":{\"").Append(methodName).Append("\":");
+      this.Visit(m.Arguments[0]);
+      sb.Append("}}");
+      return m;
+    }
   }
 
   /// <summary> Convert strings to JSON without quotes </summary>
   public class PlainJsonStringConverter : JsonConverter {
+
     public override bool CanConvert(Type objectType) {
       return objectType == typeof(string);
     }
+
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
       return reader.Value;
     }
+
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
       writer.WriteRawValue((string)value);
     }
