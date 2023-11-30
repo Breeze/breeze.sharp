@@ -907,13 +907,13 @@ namespace Foo {
     }
 #else
     // Older .NET does not have DateOnly and TimeOnly, so just use strings for tests.
-    public string? DateOnly {
-      get { return GetValue<string?>(); }
+    public string DateOnly {
+      get { return GetValue<string>(); }
       set { SetValue(value); }
     }
 
-    public string? TimeOnly {
-      get { return GetValue<string?>(); }
+    public string TimeOnly {
+      get { return GetValue<string>(); }
       set { SetValue(value); }
     }
 #endif

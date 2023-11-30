@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -213,7 +212,7 @@ namespace Breeze.Sharp.Json {
         sb.Append("null");
       } else {
         Type type = c.Value.GetType();
-
+#if NETSTANDARD || NETCOREAPP
         switch (Type.GetTypeCode(type)) {
           case TypeCode.Boolean:
             sb.Append(((bool)c.Value) ? "true" : "false");
@@ -243,6 +242,9 @@ namespace Breeze.Sharp.Json {
             }
             break;
         }
+#else
+        // reimplement for .NET Framework?
+#endif
       }
 
       return c;

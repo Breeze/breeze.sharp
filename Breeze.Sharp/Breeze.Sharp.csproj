@@ -50,6 +50,8 @@
     <Compile Include="Core\PredicateBuilder.cs" />
     <Compile Include="Core\SafeDictionary.cs" />
     <Compile Include="DataServiceAdapter.WebApi.cs" />
+    <Compile Include="Json\JsonQueryExpressionVisitor.cs" />
+    <Compile Include="Json\ListExpressionVisitor.cs" />
     <Compile Include="MetadataMismatchEventArgs.cs" />
     <Compile Include="Configuration.cs">
       <SubType>Code</SubType>
