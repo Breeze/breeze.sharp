@@ -1,9 +1,11 @@
 {
   "name": "breeze.sharp.build",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "build": "node build.standard.js",
-    "build6": "node build.6.js"
+    "build6": "node build.6.js",
+    "deploy-local": "node deploy local",
+    "deploy-remote": "node deploy remote"
   },
   "devDependencies": {
     "async": "^3.2.2",

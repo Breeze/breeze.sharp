@@ -1,15 +1,28 @@
-# ![Breeze.Sharp](http://breeze.github.io/images/logos/BreezeSharpB.png "Breeze.Sharp")
+# Breeze.Sharp
 
-## Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
+### Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
+
+**Breeze** is a library that helps you manage data in rich client applications. If you store data in a database, query and save those data as complex object graphs, and share these graphs across multiple screens of your JavaScript or C# client, Breeze is for you.
+
+Client-side querying, caching, dynamic object graphs, change tracking and notification, model validation, batch save, offline … all part of rich data management with Breeze.  Breeze clients communicate with any remote service that speaks HTTP and JSON.
+
+**Breeze** lets you develop applications using the same powerful idioms on the client and server. You can
+
+- query with a rich query syntax
+- navigate the graph of related entities
+- track changes as you add/change/delete entities
+- perform client-side validation
+- save all changes in a single transaction
+- use the same entity model on the server and client
 
 Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, 
 manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.
 
-This repository holds the Breeze assets **for .NET and Xamarin client development**.  
+## Documentation
 
-`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects, and `Breeze.Sharp.6.sln` holds the .NET 6 projects.
+[**Samples** and Breeze-related code for server development](https://github.com/Breeze "Breeze sample repositories on github") reside in Github Breeze repositories such as [breeze.sharp.samples](https://github.com/Breeze/breeze.sharp.samples "Breeze# samples").
 
-Please see the [Breeze.Sharp documentation](http://breeze.github.io/doc-cs/introduction.html) to get started.
+[**Documentation** is on the Breeze.Sharp website](http://breeze.github.io/doc-cs/ "Breeze.Sharp documentation").
 
 ## Support
 
@@ -27,17 +40,16 @@ We monitor this tag on the StackOverflow website and do our best to answer your 
 
 Please post your [**feature suggestions** to our User Voice site](https://breezejs.uservoice.com/forums/248991-2-breezesharp-feature-suggestions "Breeze.Sharp User Voice")
 
-<a href="mailto:breeze@ideablade.com/?subject=Tell me about Breeze.Sharp paid support" title="Paid Support">Learn about <strong>paid support</strong></a>.
-
 <a href="mailto:breeze@ideablade.com/?subject=Tell me about professional services" title="Professional Services">Learn about IdeaBlade's <strong>professional services</strong></a> from training through application development</a>.
 
-## Documentation
-
-[**Samples** and Breeze-related code for server development](https://github.com/Breeze "Breeze sample repositories on github") reside in sibling Breeze repositories such as [breeze.sharp.samples](https://github.com/Breeze/breeze.sharp.samples "Breeze# samples").
-
-[**Documentation** is on the Breeze.Sharp website](http://breeze.github.io/doc-cs/ "Breeze.Sharp documentation").
+## Release Notes
 
 [**Release notes** and **installation instructions**](http://breeze.github.io/doc-cs/nuget.html) are also on the Breeze.Sharp website.
+
+## Sources
+
+The sources for this package are in the [breeze.sharp](https://github.com/Breeze/breeze.sharp) repo.  Please file issues and pull requests against that repo.
+
 
 ---
 
