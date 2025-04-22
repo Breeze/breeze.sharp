@@ -285,12 +285,15 @@ namespace Breeze.Sharp {
       // cannot reuse a jsonConverter - internal mappingContext is one instance/query
       var jsonConverter = new JsonEntityConverter(mappingContext);
       var serializer = new JsonSerializer();
+      serializer.MaxDepth = 128;      
       serializer.Converters.Add(jsonConverter);
       // serializer.Converters.Add(new StringEnumConverter());
       Type rType;
 
       using (NewIsLoadingBlock()) {
-        var jt = JToken.Parse(result);
+        StringReader re = new StringReader(result);
+        JsonTextReader reader = new JsonTextReader(re) { MaxDepth = 128};
+        var jt = JToken.Load(reader);
         jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
         if (result.IndexOf("\"InlineCount\":", StringComparison.OrdinalIgnoreCase) > 0) {
           rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
