@@ -41,7 +41,7 @@ Please post your [**feature suggestions** to our User Voice site](https://breeze
 
 ---
 
-If you have discovered a bug or missing feature, please create an issue in the [breeze.server.net github repo](https://github.com/Breeze/breeze.server.net).
+If you have discovered a bug or missing feature, please create an issue in the [breeze.sharp github repo](https://github.com/Breeze/breeze.sharp).
 
 If you have questions about using Breeze, please ask on [Stack Overflow](https://stackoverflow.com/questions/tagged/breeze).
 

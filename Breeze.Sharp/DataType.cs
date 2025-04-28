@@ -90,11 +90,20 @@ namespace Breeze.Sharp {
       FmtOData = FmtDateTime,
       DataTypeInfo = DataTypeInfo.IsDate
     };
-
+#if NET6_0_OR_GREATER
+    public static DataType TimeOnly = new DataType(typeof(TimeOnly)) {
+      DefaultValue = new TimeOnly(0),
+      FmtOData = FmtTimeOnly,
+    };
+    public static DataType DateOnly = new DataType(typeof(DateOnly)) {
+      DefaultValue = new DateOnly(1900, 1, 1),
+      FmtOData = FmtDateOnly,
+    };
+#endif
     public static DataType Time = new DataType(typeof(TimeSpan)) {
       Name = "Time",
       DefaultValue = new TimeSpan(0),
-      FmtOData = FmtTime,
+      FmtOData = FmtTimeSpan,
     };
 
     public static DataType Boolean = new DataType(typeof(Boolean)) {
@@ -202,13 +211,27 @@ namespace Breeze.Sharp {
       return "datetimeoffset'" + tmp + "'";
     }
 
-    protected static String FmtTime(Object val) {
+    protected static String FmtTimeSpan(Object val) {
       if (val == null) return null;
       var timeSpan = (TimeSpan)val;
       var tmp = XmlConvert.ToString(timeSpan);
       return "time'" + tmp + "'";
     }
+#if NET6_0_OR_GREATER
+    protected static String FmtDateOnly(Object val) {
+      if (val == null) return null;
+      var date = (DateOnly)val;
+      var tmp = date.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+      return "date'" + tmp + "'";
+    }
 
+    protected static String FmtTimeOnly(Object val) {
+      if (val == null) return null;
+      var time = (TimeOnly)val;
+      var tmp = time.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+      return "time'" + tmp + "'";
+    }
+#endif
     protected static String FmtGuid(Object val) {
       if (val == null) return null;
       var guid = (Guid)val;
@@ -233,6 +256,8 @@ namespace Breeze.Sharp {
       return val.ToString();
     }
 
-
+    public override string ToString() {
+      return $"{nameof(DataType)}: {Name}";
+    }
   }
 }

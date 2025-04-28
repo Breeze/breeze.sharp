@@ -28,8 +28,6 @@ manages the entity graph of application data, tracks changes, and performs updat
 
 **For technical questions, please go to [StackOverflow with the tag "breeze"](http://stackoverflow.com/questions/tagged/breeze?sort=newest "Breeze.Sharp on StackOverflow").**
 
-<p><a title="Breeze# on StackOverflow" href="http://stackoverflow.com/questions/tagged/breeze?sort=newest"><img src="http://www.breezejs.com/sites/all/themes/breeze/images/BreezeSharpLovesStackOverflow.png" alt="BreezeJS loves StackOverflow"></a></p>
-
 StackOverflow is a fantastic site where tons of developers help each other with their technical questions.
 
 [http://stackoverflow.com/questions/tagged/breeze](http://stackoverflow.com/questions/tagged/breeze?sort=newest)
@@ -53,7 +51,7 @@ The sources for this package are in the [breeze.sharp](https://github.com/Breeze
 
 ---
 
-If you have discovered a bug or missing feature, please create an issue in the [breeze.server.net github repo](https://github.com/Breeze/breeze.server.net).
+If you have discovered a bug or missing feature, please create an issue in the [breeze.sharp github repo](https://github.com/Breeze/breeze.sharp).
 
 If you have questions about using Breeze, please ask on [Stack Overflow](https://stackoverflow.com/questions/tagged/breeze).
 

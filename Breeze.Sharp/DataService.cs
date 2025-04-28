@@ -171,6 +171,10 @@ namespace Breeze.Sharp {
 
       var result = await response.Content.ReadAsStringAsync();
       if (!response.IsSuccessStatusCode) {
+        try {
+          var json = JNode.DeserializeFrom(result);
+          response.ReasonPhrase = response.ReasonPhrase + ": " + json.Get<string>("Message");
+        } catch (Exception) { }
         throw new DataServiceRequestException(response, result);
       }
       return result;

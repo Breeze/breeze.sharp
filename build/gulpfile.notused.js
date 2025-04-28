@@ -1,4 +1,4 @@
-// Build for breeze.server.net
+// NOT USED - see build scripts in package.json
 
 // include gulp
 var gulp = require('gulp');
