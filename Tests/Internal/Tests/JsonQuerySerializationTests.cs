@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Foo;
 using Breeze.Sharp.Json;
+using Breeze.Sharp.Core;
 
 namespace Breeze.Sharp.Tests {
 
@@ -65,7 +66,7 @@ namespace Breeze.Sharp.Tests {
       Check(q, "{\"orderBy\":[\"ShipCountry desc\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).OrderBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":[\"ShipCity\",\"ShipCountry\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenBy(o => o.ShipCity);
       Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
@@ -81,6 +82,15 @@ namespace Breeze.Sharp.Tests {
 
       q = ord.OrderBy(o => o.Customer.CompanyName);
       Check(q, "{\"orderBy\":[\"Customer.CompanyName\"]}");
+
+      q = ord.OrderBy(o => o.Employee.Manager.Manager.FirstName);
+      Check(q, "{\"orderBy\":[\"Employee.Manager.Manager.FirstName\"]}");
+
+      q = ord.OrderByDescending(o => o.Employee.Manager.Manager.FirstName);
+      Check(q, "{\"orderBy\":[\"Employee.Manager.Manager.FirstName desc\"]}");
+
+      //q = ord.OrderBy(o => o.Customer.CompanyName.Substring(1));
+      //Check(q, "{\"orderBy\":[\"Not yet supported\"]}");
     }
 
     [TestMethod]
@@ -130,8 +140,10 @@ namespace Breeze.Sharp.Tests {
       var q = ord.Where(o => o.ShipCountry == "England");
       Check(q, "{\"where\":{\"ShipCountry\":\"England\"}}");
 
-      q = ord.Where(o => o.Freight > 100M);
-      Check(q, "{\"where\":{\"Freight\":{\"gt\": 100}}}");
+      var p1 = PredicateBuilder.Create<Order>(o => o.Freight > 100);
+      var pred = p1.Not();
+      q = ord.Where(pred);
+      Check(q, "{\"where\":{\"not\":{\"Freight\":{\"gt\": 100}}}}");
     }
 
     [TestMethod]

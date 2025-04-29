@@ -14,13 +14,13 @@ namespace Breeze.Sharp.Json {
     public int? Skip { get; private set; } = null;
     public int? Take { get; private set; } = null;
     public bool? InlineCount { get; private set; } = null;
-    public List<string> OrderBy { get; private set; } = null;
+    //public List<string> OrderBy { get; private set; } = null;
     [JsonConverter(typeof(PlainJsonStringConverter))]
     public string Where { get; private set; } = null;
 
     public List<string> Select { get; private set; } = null;
     public List<string> Expand { get; private set; } = null;
-    //public Stack<string> OrderBy { get; private set; } = null;
+    public Stack<string> OrderBy { get; private set; } = null;
     public Dictionary<string, object> Parameters { get; private set; } = null;
 
     /// <summary> for building Where clause </summary>
@@ -28,7 +28,7 @@ namespace Breeze.Sharp.Json {
 
     private ListExpressionVisitor selectVisitor;
     private ListExpressionVisitor expandVisitor;
-    //private ListExpressionVisitor orderByVisitor;
+    private ListExpressionVisitor orderByVisitor;
 
     /// <summary> Translate the EntityQuery expression into a JSON string </summary>
     public static string Translate(Expression expression, out string parameters) {
@@ -62,7 +62,7 @@ namespace Breeze.Sharp.Json {
       this.sb = new StringBuilder();
       this.selectVisitor = new ListExpressionVisitor();
       this.expandVisitor = new ListExpressionVisitor();
-      //this.orderByVisitor = new ListExpressionVisitor();
+      this.orderByVisitor = new ListExpressionVisitor();
 
       this.Visit(expression);
       if (sb.Length > 2) {
@@ -74,9 +74,9 @@ namespace Breeze.Sharp.Json {
       if (this.expandVisitor.list.Count > 0) {
         this.Expand = this.expandVisitor.list;
       }
-      //if (this.orderByVisitor.list.Count > 0) {
-      //  this.OrderBy = new List<string>(this.orderByVisitor.list);
-      //}
+      if (this.orderByVisitor.list.Count > 0) {
+        this.OrderBy = new Stack<string>(this.orderByVisitor.list);
+      }
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression m) {
@@ -124,11 +124,11 @@ namespace Breeze.Sharp.Json {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "OrderByDescending") {
-        if (this.ParseOrderByExpression(m, " desc")) {
+        if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "ThenByDescending") {
-        if (this.ParseOrderByExpression(m, " desc")) {
+        if (this.ParseOrderByExpression(m, "desc")) {
           return this.Visit(m.Arguments[0]);
         }
       } else if (methodName == "Contains") {
@@ -174,8 +174,9 @@ namespace Breeze.Sharp.Json {
     protected override Expression VisitUnary(UnaryExpression u) {
       switch (u.NodeType) {
         case ExpressionType.Not:
-          sb.Append(" NOT ");
+          sb.Append("{\"not\":");
           this.Visit(u.Operand);
+          sb.Append("}");
           break;
 
         case ExpressionType.Convert:
@@ -342,23 +343,12 @@ namespace Breeze.Sharp.Json {
         (MemberExpression)lambdaExpression.Body : ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
 
       if (body != null) {
-        // if (string.IsNullOrEmpty(order)) {
-        //   orderByVisitor.Visit(body);
-        // } else {
-        //   orderByVisitor.list.Add(string.Format("{0} {1}", body.Member.Name, order.Trim()));
-        var exp = new List<string>();
-        exp.Add(body.Member.Name);
-
-        while (body.Expression is MemberExpression) {
-          body = (MemberExpression)body.Expression;
-          exp.Insert(0, body.Member.Name);
+        // resolve expression into string and add to list
+        orderByVisitor.Visit(body);
+        // if order specified, update the newly-added string to include it
+        if (!string.IsNullOrEmpty(order)) {
+          orderByVisitor.list[orderByVisitor.list.Count - 1] += $" {order.Trim()}";
         }
-
-        if (OrderBy == null)
-          OrderBy = new List<string>();
-
-        OrderBy.Add(string.Format("{0}{1}", string.Join(".", exp), order));
-
         return true;
       }
 

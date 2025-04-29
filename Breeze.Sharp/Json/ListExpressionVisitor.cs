@@ -12,7 +12,12 @@ namespace Breeze.Sharp.Json {
         list.Add(m.Member.Name);
         return m;
       } else if (m.Expression != null && m.Expression is MemberExpression mex) {
-        list.Add(mex.Member.Name + '.' + m.Member.Name);
+        var exp = new List<string> { m.Member.Name };
+        while (m.Expression is MemberExpression) {
+          m = (MemberExpression)m.Expression;
+          exp.Insert(0, m.Member.Name);
+        }
+        list.Add(string.Join(".", exp));
         return m;
       }
 

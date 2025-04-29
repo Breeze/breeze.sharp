@@ -214,8 +214,14 @@ namespace Breeze.Sharp {
           }
           T cachedInternable;
           if (JNodeMap.TryGetValue(jNode, out cachedInternable)) {
-            if (cachedInternable != null) { cachedInternable.IsInterned = true; }
-            return (T)cachedInternable;
+            if (cachedInternable != null) {
+              cachedInternable.IsInterned = true;
+              return (T)cachedInternable;
+            } else {
+              JNodeMap[jNode] = internable;
+              internable.IsInterned = true;
+              return internable;
+            }
           } else {
             JNodeMap[jNode] = internable;
             internable.IsInterned = true;

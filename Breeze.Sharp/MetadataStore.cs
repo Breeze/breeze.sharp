@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -198,8 +199,9 @@ namespace Breeze.Sharp {
         AddDataService(dataService);
         return dataService;
       } catch (Exception e) {
-        if (!(e is DomainException))
+        if (e is HttpRequestException) {
           throw new Exception("Unable to locate metadata resource for: " + dataService.ServiceName, e);
+        }
         throw;
       } finally {
         _asyncSemaphore.Release();

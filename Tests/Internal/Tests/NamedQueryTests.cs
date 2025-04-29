@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -291,7 +291,11 @@ namespace Breeze.Sharp.Tests {
       }
       catch (DataServiceRequestException e) {
         Assert.IsTrue(e.ResponseContent.Contains("Custom error message"));
-        Assert.IsTrue(e.Message.ToLower().Contains("custom reason"));
+        if (TestFns.queryUriStyle == QueryUriStyle.JSON) {
+          Assert.IsTrue(e.Message.ToLower().Contains("not found"));
+        } else {
+          Assert.IsTrue(e.Message.ToLower().Contains("custom reason"));
+        }
       } 
       catch (HttpRequestException) {
         Assert.Fail("should not get here");
