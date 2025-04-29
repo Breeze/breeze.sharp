@@ -26,7 +26,7 @@ namespace Breeze.Sharp.Tests {
 
     // TODO somehow compare JSON by structure instead of string, so whitespace changes won't matter
     private void Check(EntityQuery query, string expectedJson) {
-      var json = JsonQueryExpressionVisitor.Translate(query.Expression);
+      var json = JsonQueryExpressionVisitor.Translate(query.Expression, out string parameters);
       Assert.AreEqual(expectedJson, json);
     }
 
@@ -62,22 +62,22 @@ namespace Breeze.Sharp.Tests {
       Check(q, "{\"orderBy\":[\"ShipCountry\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry);
-      Check(q, "{\"orderBy\":[\"ShipCountry DESC\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCountry desc\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).OrderBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCity\",\"ShipCountry\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenBy(o => o.ShipCity);
       Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenBy(o => o.ShipCity);
-      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCountry desc\",\"ShipCity\"]}");
 
       q = ord.OrderBy(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity DESC\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCountry\",\"ShipCity desc\"]}");
 
       q = ord.OrderByDescending(o => o.ShipCountry).ThenByDescending(o => o.ShipCity);
-      Check(q, "{\"orderBy\":[\"ShipCountry DESC\",\"ShipCity DESC\"]}");
+      Check(q, "{\"orderBy\":[\"ShipCountry desc\",\"ShipCity desc\"]}");
 
       q = ord.OrderBy(o => o.Customer.CompanyName);
       Check(q, "{\"orderBy\":[\"Customer.CompanyName\"]}");

@@ -100,11 +100,12 @@ namespace Breeze.Sharp {
       FmtOData = FmtDateOnly,
     };
 #endif
-    public static DataType Time = new DataType(typeof(TimeSpan)) {
-      Name = "Time",
+    public static DataType TimeSpan = new DataType(typeof(TimeSpan)) {
+      Name = "TimeSpan",
       DefaultValue = new TimeSpan(0),
       FmtOData = FmtTimeSpan,
     };
+    public static DataType Time = TimeSpan;
 
     public static DataType Boolean = new DataType(typeof(Boolean)) {
       DefaultValue = false,

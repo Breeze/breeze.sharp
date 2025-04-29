@@ -931,12 +931,13 @@ namespace Breeze.Sharp {
         var npEntity = GetValue<IEntity>(np);
         // property is already linked up
         if (npEntity != null) {
-          if (npEntity.EntityAspect.IsDetached) {
+          if (npEntity.EntityAspect.IsDetached && np.ForeignKeyProperties.Any()) {
             // need to insure that fk props match
             var fkProps = np.ForeignKeyProperties;
             npEntity.EntityAspect.EntityType = np.EntityType;
             // Set this Entity's fk to match np EntityKey
             // Order.CustomerID = aCustomer.CustomerID
+            // TODO - does this set multipart key values in the correct order?
             npEntity.EntityAspect.EntityKey.Values.ForEach((v, i) => SetDpValue(fkProps[i], v));
           }
           return false;
@@ -1001,7 +1002,16 @@ namespace Breeze.Sharp {
         //    ==> (see set navProp above)
 
         if (newValue != null) {
-          var key = new EntityKey(relatedNavProp.EntityType, newValue);
+          var newValues = new List<object>();
+
+          foreach (var fKey in relatedNavProp.ForeignKeyProperties) {
+            if (fKey == property)
+              newValues.Add(newValue);
+            else
+              newValues.Add(GetValue(fKey));
+          }
+
+          var key = new EntityKey(relatedNavProp.EntityType, newValues.ToArray());
           var relatedEntity = EntityManager.GetEntityByKey(key);
 
           if (relatedEntity != null) {

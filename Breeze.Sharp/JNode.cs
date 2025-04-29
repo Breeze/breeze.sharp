@@ -143,7 +143,9 @@ namespace Breeze.Sharp {
         // Parse ISO 8601 Duration (e.g. "PT0S") to TimeSpan
         val = System.Xml.XmlConvert.ToTimeSpan(prop.Value.ToString());
       } else {
-        val = prop.Value.ToObject(objectType);
+        var serializer = new JsonSerializer();
+        serializer.Converters.Add(new TimeSpanConverter());
+        val = prop.Value.ToObject(objectType, serializer);
       }
       return val;
     }
@@ -321,6 +323,7 @@ namespace Breeze.Sharp {
     public TextWriter SerializeTo(TextWriter textWriter) {
       var serializer = new JsonSerializer() { MaxDepth = 128 };
       serializer.Converters.Add(new StringEnumConverter());
+      serializer.Converters.Add(new TimeSpanConverter());
 
 #if DEBUG
       serializer.Formatting = Formatting.Indented;
