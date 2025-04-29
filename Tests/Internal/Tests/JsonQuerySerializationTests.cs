@@ -226,7 +226,6 @@ namespace Breeze.Sharp.Tests {
       Check(q, "{\"where\":{\"City\":{\"EndsWith\":\"C\"}}}");
     }
 
-
     [TestMethod]
     public void WhereAny() {
       var q = EntityQuery.From<Customer>();
@@ -240,5 +239,16 @@ namespace Breeze.Sharp.Tests {
       q = q.Where(o => o.OrderDetails.All(d => d.Discount == 0));
       Check(q, "{\"where\":{\"OrderDetails\":{\"All\":{\"Discount\":0}}}}");
     }
+
+    [TestMethod]
+    public void WithParameters() {
+      var q = EntityQuery.From<Employee>("SearchEmployees")
+        .WithParameter("employeeIds", new int[] { 1, 4 });
+
+      //Check(q, "{\"from\":\"SearchEmployees\",\"parameters\":{\"employeeIds\":[1,4]}}");
+      Check(q, "{\"parameters\":{\"employeeIds\":[1,4]}}");
+    }
+
+
   }
 }

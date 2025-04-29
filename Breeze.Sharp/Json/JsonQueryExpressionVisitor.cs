@@ -150,12 +150,12 @@ namespace Breeze.Sharp.Json {
       } else if (m.Object is MemberExpression) {
         object result = Expression.Lambda(m).Compile().DynamicInvoke();
         return this.VisitConstant(Expression.Constant(result));
-      } else if (methodName == "AddQueryOption") {
-        if (this.ParseAddQueryOptionExpression(m)) {
-          var operand = ((UnaryExpression)m.Object).Operand;
-          this.Visit(operand);
-          return m;
-        }
+        //} else if (methodName == "AddQueryOption") {
+        //  if (this.ParseAddQueryOptionExpression(m)) {
+        //    var operand = ((UnaryExpression)m.Object).Operand;
+        //    this.Visit(operand);
+        //    return m;
+        //  }
       }
 
       throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodName));
@@ -359,14 +359,14 @@ namespace Breeze.Sharp.Json {
       return false;
     }
 
-    private bool ParseAddQueryOptionExpression(MethodCallExpression expression) {
-      if (Parameters == null)
-        Parameters = new Dictionary<string, object>();
+    //private bool ParseAddQueryOptionExpression(MethodCallExpression expression) {
+    //  if (Parameters == null)
+    //    Parameters = new Dictionary<string, object>();
 
-      Parameters.Add(((ConstantExpression)expression.Arguments[0]).Value.ToString(), ((ConstantExpression)expression.Arguments[1]).Value.ToString());
+    //  Parameters.Add(((ConstantExpression)expression.Arguments[0]).Value.ToString(), ((ConstantExpression)expression.Arguments[1]).Value.ToString());
 
-      return true;
-    }
+    //  return true;
+    //}
 
     private bool ParseTakeExpression(MethodCallExpression expression) {
       return ParseIntExpression(expression, i => Take = i);
