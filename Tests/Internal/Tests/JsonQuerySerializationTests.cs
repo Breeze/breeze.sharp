@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Foo;
 using Breeze.Sharp.Json;
 using Breeze.Sharp.Core;
+using System.Linq;
 
 namespace Breeze.Sharp.Tests {
 
@@ -223,6 +224,21 @@ namespace Breeze.Sharp.Tests {
       var q = EntityQuery.From<Customer>();
       q = q.Where(o => o.City.EndsWith("C"));
       Check(q, "{\"where\":{\"City\":{\"EndsWith\":\"C\"}}}");
+    }
+
+
+    [TestMethod]
+    public void WhereAny() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(c => c.Orders.Any(o => o.Freight > 100));
+      Check(q, "{\"where\":{\"Orders\":{\"Any\":{\"Freight\":{\"gt\": 100}}}}}");
+    }
+
+    [TestMethod]
+    public void WhereAll() {
+      var q = EntityQuery.From<Order>();
+      q = q.Where(o => o.OrderDetails.All(d => d.Discount == 0));
+      Check(q, "{\"where\":{\"OrderDetails\":{\"All\":{\"Discount\":0}}}}");
     }
   }
 }

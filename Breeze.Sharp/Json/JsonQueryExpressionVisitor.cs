@@ -137,6 +137,10 @@ namespace Breeze.Sharp.Json {
         return this.VisitStringMethod(m, methodName);
       } else if (methodName == "EndsWith") {
         return this.VisitStringMethod(m, methodName);
+      } else if (methodName == "Any") {
+        return this.VisitAnyAll(m, methodName);
+      } else if (methodName == "All") {
+        return this.VisitAnyAll(m, methodName);
       } else if (methodName == "AddQueryOption") {
         if (this.Parameters == null) {
           this.Parameters = new Dictionary<string, object>();
@@ -397,6 +401,23 @@ namespace Breeze.Sharp.Json {
       sb.Append("}}");
       return m;
     }
+
+    /// <summary>
+    /// Handles Any/All
+    /// {"orders":{"any":{"ShipCity":{"startswith":"F"}}}}
+    /// </summary>
+    /// <param name="m">Current Expression</param>
+    /// <param name="methodName">Method Name</param>
+    /// <returns>Passes through the MethodCallExpression</returns>
+    private MethodCallExpression VisitAnyAll(MethodCallExpression m, string methodName) {
+      sb.Append("{");
+      this.Visit(m.Arguments[0]);
+      sb.Append(":{\"").Append(methodName).Append("\":");
+      this.Visit(m.Arguments[1]);
+      sb.Append("}}");
+      return m;
+    }
+
   }
 
   /// <summary> Convert strings to JSON without quotes </summary>
