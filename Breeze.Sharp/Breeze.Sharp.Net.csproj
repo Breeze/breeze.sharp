@@ -7,14 +7,14 @@
     <Authors>Jay Traband</Authors>
     <Company>IdeaBlade</Company>
     <Description>Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.</Description>
-    <Copyright>IdeaBlade, 2014 - 2023</Copyright>
+    <Copyright>IdeaBlade, 2014 - 2025</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>http://breeze.github.io/doc-cs/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Breeze/breeze.sharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>0.8.2</Version>
-		<AssemblyVersion>0.8.2</AssemblyVersion>
-		<FileVersion>0.8.2</FileVersion>
+    <Version>0.9.0</Version>
+		<AssemblyVersion>0.9.0</AssemblyVersion>
+		<FileVersion>0.9.0</FileVersion>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReleaseNotes>Please review the Breeze release notes at https://breeze.github.io/doc-cs/release-notes.html</PackageReleaseNotes>

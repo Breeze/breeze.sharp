@@ -6,7 +6,7 @@ var del = require('del');
 const bu = require('.\\build-utils');
 
 const localNugetCacheDir = process.env.LOCALAPPDATA + '\\NuGet\\Test';
-const version = '0.8.2';
+const version = '0.9.0';
 const debugOrRelease = 'Release';
 
 var baseNames = [
