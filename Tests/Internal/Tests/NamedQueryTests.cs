@@ -205,7 +205,9 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SearchEmployees() {
-      Assert.Inconclusive("Known failure - MS OData lib doesn't serialize arrays properly for WebApi");
+      if (TestFns.queryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("Known failure - MS OData lib doesn't serialize arrays properly for WebApi");
+      }
       var em1 = await TestFns.NewEm(_serviceName);
 
 
@@ -213,7 +215,7 @@ namespace Breeze.Sharp.Tests {
         .WithParameter("employeeIds", new int[] {1, 4});
         // .WithParameter("employeeIds", 1)
         // .WithParameter("employeeIds", 4);
-      var rp = q.GetResourcePath(em1.MetadataStore);
+      //var rp = q.GetResourcePath(em1.MetadataStore);
       var results = await q.Execute(em1);
       Assert.IsTrue(results.Any());
       Assert.IsTrue(results.All(r => r.EmployeeID == 1 || r.EmployeeID == 4));
