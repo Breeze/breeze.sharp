@@ -249,6 +249,13 @@ namespace Breeze.Sharp.Tests {
       Check(q, "{\"parameters\":{\"employeeIds\":[1,4]}}");
     }
 
+    [TestMethod]
+    public void WhereChainedQueries() {
+      var q = EntityQuery.From<Customer>();
+      q = q.Where(o => o.City == ("New York"));
+      q = q.Where(o => o.Country == "USA");
+      Check(q, "{\"where\":{\"and\":[{\"City\":\"New York\"},{\"Country\":\"USA\"}]}}");
+    }
 
   }
 }

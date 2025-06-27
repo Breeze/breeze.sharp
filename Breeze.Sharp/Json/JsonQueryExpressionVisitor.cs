@@ -85,7 +85,19 @@ namespace Breeze.Sharp.Json {
         if (!IsResourceSetExpression(m.Arguments[0])) {
           this.Visit(m.Arguments[0]);
           LambdaExpression lambda = (LambdaExpression)StripQuotes(m.Arguments[1]);
+          var savedSb = sb;
+          sb = new StringBuilder();
+
           this.Visit(lambda.Body);
+          var clause = sb.ToString();
+          if (!string.IsNullOrWhiteSpace(clause)) {
+            if (this.Where == null) {
+              this.Where = clause;
+            } else {
+              this.Where = $"{{\"and\":[{this.Where},{clause}]}}";
+            }
+          }
+          this.sb = savedSb;
         }
         return m;
       } else if (methodName == "Select") {
