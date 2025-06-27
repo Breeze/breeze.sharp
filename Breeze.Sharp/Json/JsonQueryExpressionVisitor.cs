@@ -274,14 +274,29 @@ namespace Breeze.Sharp.Json {
     }
 
     protected override Expression VisitMember(MemberExpression m) {
-      if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter) {
+      if (m.Expression != null && (m.Expression.NodeType == ExpressionType.Parameter || m.Expression.NodeType == ExpressionType.Convert)) {
+        //Base case: simple property like o.City
         sb.Append('"').Append(m.Member.Name).Append('"');
         return m;
       } else if (m.Expression != null) {
         if (m.Expression is MemberExpression me && me.Expression.NodeType == ExpressionType.Parameter) {
+          //1-level nested property like o.Location.City
           sb.Append('"').Append(me.Member.Name).Append('.').Append(m.Member.Name).Append('"');
           return m;
+        } else if (m.Expression is MemberExpression mme) {
+          //NEW: Handles deeper nesting like o.Supplier.Location.City
+          var parts = new Stack<string>();
+          Expression current = m;
+          while (current is MemberExpression mm) {
+            parts.Push(mm.Member.Name);
+            current = mm.Expression;
+          }
+          if (current is ParameterExpression || current is UnaryExpression) {
+            sb.Append('"').Append(string.Join(".", parts)).Append('"');
+            return m;
+          }
         }
+
         var ne = Visit(m.Expression);
         if (ne is ConstantExpression ce) {
           return VisitMemberInfo(m.Member, ce.Value);
@@ -290,7 +305,7 @@ namespace Breeze.Sharp.Json {
         return VisitMemberInfo(m.Member, null);
       }
 
-      throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
+      throw new NotSupportedException($"The member '{m}' is not supported");
     }
 
     private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
