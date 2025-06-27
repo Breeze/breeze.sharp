@@ -262,5 +262,20 @@ namespace Breeze.Sharp.Tests {
       q = q.Where(o => o.Supplier.Location.City == "New York");
       Check(q, "{\"where\":{\"Supplier.Location.City\":\"New York\"}}");
     }
+
+    [TestMethod]
+    public void WherePropertyPathLevel2Customer() {
+      var q = EntityQuery.From<OrderDetail>();
+      q = q.Where(o => o.Order.Customer.City == "New York");
+      Check(q, "{\"where\":{\"Order.Customer.City\":\"New York\"}}");
+    }
+
+    [TestMethod]
+    public void WherePropertyPathLevel3() {
+      var q = EntityQuery.From<OrderDetail>();
+      q = q.Where(o => o.Product.Supplier.Location.City == "New York");
+      Check(q, "{\"where\":{\"Product.Supplier.Location.City\":\"New York\"}}");
+    }
+
   }
 }
