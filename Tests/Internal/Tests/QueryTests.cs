@@ -102,6 +102,21 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task WherePropertyPath2() {
+      var em = await TestFns.NewEm(_serviceName);
+
+      var query1 = EntityQuery.From<Product>()
+        .Where(product => product.Supplier.Location.City == "Berlin");
+      var r1 = await em.ExecuteQuery(query1);
+      Assert.IsTrue(r1.Any());
+
+      var query2 = new EntityQuery<Product>()
+        .Where(product => product.Supplier.Location.City.StartsWith("B"));
+      var r2 = await em.ExecuteQuery(query2);
+      Assert.IsTrue(r2.Any());
+    }
+
+    [TestMethod]
     public async Task RequerySameEntity() {
       var entityManager = await TestFns.NewEm(_serviceName);
 
@@ -189,7 +204,9 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SelectScalarNpNoAnon() {
-      Assert.Inconclusive("Known issue with OData - use an anon projection instead");
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("Known issue with OData - use an anon projection instead");
+      }
       var em1 = await TestFns.NewEm(_serviceName);
       
       var q1 = new EntityQuery<Order>().Where(o => true).Select(o => o.Customer).Take(5);
@@ -399,7 +416,9 @@ namespace Breeze.Sharp.Tests {
 
     [TestMethod]
     public async Task SelectAnonWithOrderBy() {
-      Assert.Inconclusive("doesn't yet work properly because of MS OData bug");
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("doesn't yet work properly because of MS OData bug");
+      }
       // The current code runs but returns a collection of anon objects 
       // each with an empty "CompanyName"
       var em1 = await TestFns.NewEm(_serviceName);
