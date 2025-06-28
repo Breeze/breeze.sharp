@@ -1,4 +1,4 @@
-﻿using Breeze.Sharp.Core;
+using Breeze.Sharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +19,7 @@ namespace Breeze.Sharp {
     
     internal SaveException(EntityManager em, JNode jn) 
       : base() {
-      _message = jn.Get<String>("ExceptionMessage") ?? "see EntityErrors";
+      _message = jn.Get<String>("ExceptionMessage") ?? jn.Get<String>("Message") ?? "see EntityErrors";
       var entityErrors = jn.GetArray<EntityError>("Errors", "errors", "EntityErrors", "entityErrors");
       entityErrors = entityErrors.Select(ee => ee.Resolve(em));
       _entityErrors = new SafeList<EntityError>(entityErrors);

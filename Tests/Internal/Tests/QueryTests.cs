@@ -117,6 +117,23 @@ namespace Breeze.Sharp.Tests {
     }
 
     [TestMethod]
+    public async Task WhereChainedQueries() {
+      var em = await TestFns.NewEm(_serviceName);
+
+      var query1 = EntityQuery.From<Customer>()
+        .Where(cust => cust.City == "Berlin");
+      query1 = query1.Where(cust => cust.Country == "Germany");
+      var r1 = await em.ExecuteQuery(query1);
+      Assert.IsTrue(r1.Any());
+
+      var query2 = new EntityQuery<Product>()
+        .Where(product => product.Supplier.Location.City == "Berlin");
+      query2 = query2.Where(product => product.UnitsInStock > 5);
+      var r2 = await em.ExecuteQuery(query2);
+      Assert.IsTrue(r2.Any());
+    }
+
+    [TestMethod]
     public async Task RequerySameEntity() {
       var entityManager = await TestFns.NewEm(_serviceName);
 

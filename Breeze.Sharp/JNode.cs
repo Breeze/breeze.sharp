@@ -160,7 +160,7 @@ namespace Breeze.Sharp {
     public T GetToken<T>(String propName) where T : JToken {
       var prop = _jo.Property(propName);
       if (prop == null) return null;
-      return (T)prop.Value;
+      return prop.Value as T;
 
     }
 
