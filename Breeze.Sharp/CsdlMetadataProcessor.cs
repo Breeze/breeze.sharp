@@ -362,7 +362,7 @@ namespace Breeze.Sharp {
 
     private void AddValidators(DataProperty dp) {
       if (!dp.IsNullable) {
-        dp._validators.Add(new RequiredValidator());
+        dp._validators.Add(new RequiredValidator(MetadataStore.TreatEmptyStringAsNullForRequiredFields));
       }
       if (dp.DataType == DataType.String && dp.MaxLength.HasValue) {
         var vr = new MaxLengthValidator((Int32)dp.MaxLength.Value);

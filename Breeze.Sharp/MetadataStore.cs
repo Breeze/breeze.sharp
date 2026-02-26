@@ -86,6 +86,19 @@ namespace Breeze.Sharp {
     }
 
     /// <summary>
+    /// Determines whether empty strings are treated as null values when validating required fields.
+    /// </summary>
+    /// <remarks>
+    /// The default value is <c>true</c>, which preserves the existing Breeze behavior.
+    /// Set this to <c>false</c> to allow empty strings to satisfy required field validation.
+    /// </remarks>
+
+    public bool TreatEmptyStringAsNullForRequiredFields {
+      get { return _treatEmptyStringAsNullForRequiredFields; }
+      set { _treatEmptyStringAsNullForRequiredFields = value; }
+    }
+
+    /// <summary>
     /// Fired whenever an entity's state is changing in any significant manner.
     /// </summary>
     public event EventHandler<MetadataMismatchEventArgs> MetadataMismatch;
@@ -703,7 +716,7 @@ namespace Breeze.Sharp {
     // Note: the two lines above need to appear before this next one 
     private static MetadataStore __detached = new MetadataStore();
 
-
+    private bool _treatEmptyStringAsNullForRequiredFields = true;
     private NamingConvention _namingConvention = new NamingConvention();
 
     private readonly AsyncSemaphore _asyncSemaphore = new AsyncSemaphore(1);
