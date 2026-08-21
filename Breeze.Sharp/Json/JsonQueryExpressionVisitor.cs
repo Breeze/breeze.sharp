@@ -23,6 +23,8 @@ namespace Breeze.Sharp.Json {
     public Stack<string> OrderBy { get; private set; } = null;
     public Dictionary<string, object> Parameters { get; private set; } = null;
 
+    /// <summary> Holds the place of an ordering by the projected value until the Select is known. </summary>
+    private const string IdentityOrderBy = "\0identity";
     /// <summary> for building Where clause </summary>
     private StringBuilder sb;
 
@@ -74,6 +76,7 @@ namespace Breeze.Sharp.Json {
       if (this.expandVisitor.list.Count > 0) {
         this.Expand = this.expandVisitor.list;
       }
+      ResolveIdentityOrderBy();
       if (this.orderByVisitor.list.Count > 0) {
         this.OrderBy = new Stack<string>(this.orderByVisitor.list);
       }
@@ -88,7 +91,7 @@ namespace Breeze.Sharp.Json {
           var savedSb = sb;
           sb = new StringBuilder();
 
-          this.Visit(lambda.Body);
+          this.VisitPredicate(lambda.Body);
           var clause = sb.ToString();
           if (!string.IsNullOrWhiteSpace(clause)) {
             if (this.Where == null) {
@@ -174,7 +177,6 @@ namespace Breeze.Sharp.Json {
     }
 
     protected object GetValue(Expression node) {
-      object value;
       if (node.NodeType == ExpressionType.Constant) {
         return ((ConstantExpression)node).Value;
       } else {
@@ -191,7 +193,7 @@ namespace Breeze.Sharp.Json {
       switch (u.NodeType) {
         case ExpressionType.Not:
           sb.Append("{\"not\":");
-          this.Visit(u.Operand);
+          this.VisitPredicate(u.Operand);
           sb.Append("}");
           break;
 
@@ -243,7 +245,7 @@ namespace Breeze.Sharp.Json {
         sb.Append("null");
       } else {
         Type type = c.Value.GetType();
-#if NETSTANDARD || NETCOREAPP
+
         switch (Type.GetTypeCode(type)) {
           case TypeCode.Boolean:
             sb.Append(((bool)c.Value) ? "true" : "false");
@@ -273,9 +275,7 @@ namespace Breeze.Sharp.Json {
             }
             break;
         }
-#else
-        // reimplement for .NET Framework?
-#endif
+
       }
 
       return c;
@@ -322,9 +322,9 @@ namespace Breeze.Sharp.Json {
 
     private Expression VisitBinaryAndOr(BinaryExpression b, string op) {
       sb.Append("{\"").Append(op).Append("\":[");
-      this.Visit(b.Left);
+      this.VisitPredicate(b.Left);
       sb.Append(",");
-      this.Visit(b.Right);
+      this.VisitPredicate(b.Right);
       sb.Append("]}");
       return b;
     }
@@ -355,6 +355,49 @@ namespace Breeze.Sharp.Json {
       throw new NotSupportedException(string.Format("The MemberInfo '{0}' is not supported", memberInfo));
     }
 
+    /// <summary>
+    /// Visits an expression sitting where the query expects a predicate: the body of a Where or
+    /// Any/All lambda, either side of an and/or, or the operand of a not.
+    /// </summary>
+    /// <remarks>
+    /// A boolean property used on its own is already a complete predicate - Where(o => o.Discontinued)
+    /// means o.Discontinued == true - but VisitMember writes only the property name, leaving the
+    /// clause as the JSON string "Discontinued" where the server expects an object. Writing it as
+    /// {"Discontinued":true} is the same query in the form the server understands.
+    /// </remarks>
+    private Expression VisitPredicate(Expression node) {
+      if (StripConverts(node) is MemberExpression member && IsBooleanPropertyPath(member)) {
+        sb.Append('{');
+        this.Visit(member);
+        sb.Append(":true}");
+        return node;
+      }
+      return this.Visit(node);
+    }
+
+    /// <summary>
+    /// True when the member names a boolean property reached from the query's parameter, as
+    /// opposed to a captured variable whose value is resolved while translating.
+    /// </summary>
+    private static bool IsBooleanPropertyPath(MemberExpression member) {
+      if (member.Type != typeof(bool)) {
+        return false;
+      }
+      Expression current = member;
+      while (current is MemberExpression m) {
+        current = StripConverts(m.Expression);
+      }
+      return current is ParameterExpression;
+    }
+
+    private static Expression StripConverts(Expression e) {
+      while (e is UnaryExpression u &&
+             (u.NodeType == ExpressionType.Convert || u.NodeType == ExpressionType.ConvertChecked)) {
+        e = u.Operand;
+      }
+      return e;
+    }
+
     private static Expression StripQuotes(Expression e) {
       while (e.NodeType == ExpressionType.Quote) {
         e = ((UnaryExpression)e).Operand;
@@ -367,23 +410,67 @@ namespace Breeze.Sharp.Json {
     }
 
     private bool ParseOrderByExpression(MethodCallExpression expression, string order = null) {
+      if (expression.Arguments.Count < 2) {
+        return false;
+      }
       UnaryExpression unary = (UnaryExpression)expression.Arguments[1];
       LambdaExpression lambdaExpression = (LambdaExpression)unary.Operand;
 
-      MemberExpression body = lambdaExpression.Body is MemberExpression ?
-        (MemberExpression)lambdaExpression.Body : ((UnaryExpression)lambdaExpression.Body).Operand as MemberExpression;
+      Expression body = lambdaExpression.Body is MemberExpression mex ? mex :
+        lambdaExpression.Body is UnaryExpression uex ? uex.Operand :
+        lambdaExpression.Body;
+
+      if (body is ParameterExpression) {
+        // Ordering by the value itself, as in Select(o => o.OrderDate).OrderByDescending(d => d).
+        // What that value is only becomes known once the Select has been visited, which happens
+        // later - the tree is walked from the outermost call inwards - so hold a place in the
+        // list and fill it in at the end.
+        orderByVisitor.list.Add(IdentityOrderBy + OrderSuffix(order));
+        return true;
+      }
 
       if (body != null) {
         // resolve expression into string and add to list
+        var len = orderByVisitor.list.Count;
         orderByVisitor.Visit(body);
         // if order specified, update the newly-added string to include it
-        if (!string.IsNullOrEmpty(order)) {
-          orderByVisitor.list[orderByVisitor.list.Count - 1] += $" {order.Trim()}";
+        if (!string.IsNullOrEmpty(order) && orderByVisitor.list.Count > len) {
+          orderByVisitor.list[len] += OrderSuffix(order);
         }
         return true;
       }
 
       return false;
+    }
+
+    private static string OrderSuffix(string order) {
+      return string.IsNullOrEmpty(order) ? string.Empty : $" {order.Trim()}";
+    }
+
+    /// <summary>
+    /// Replaces each held place from an ordering by the projected value with the member that was
+    /// projected, dropping it when there is no single member to name.
+    /// </summary>
+    /// <remarks>
+    /// Ordering a projection by its own value is ordering the source by the member the projection
+    /// selected, so Select(o => o.OrderDate).OrderByDescending(d => d) is "OrderDate desc". A
+    /// projection to several members, or an ordering of entities by themselves, names nothing the
+    /// server can sort on, so the clause is dropped rather than guessed at.
+    /// </remarks>
+    private void ResolveIdentityOrderBy() {
+      var list = orderByVisitor.list;
+      var projected = selectVisitor.list.Count == 1 ? selectVisitor.list[0] : null;
+
+      for (var i = list.Count - 1; i >= 0; i--) {
+        if (!list[i].StartsWith(IdentityOrderBy, StringComparison.Ordinal)) {
+          continue;
+        }
+        if (projected == null) {
+          list.RemoveAt(i);
+        } else {
+          list[i] = projected + list[i].Substring(IdentityOrderBy.Length);
+        }
+      }
     }
 
     //private bool ParseAddQueryOptionExpression(MethodCallExpression expression) {
@@ -440,7 +527,12 @@ namespace Breeze.Sharp.Json {
       sb.Append("{");
       this.Visit(m.Arguments[0]);
       sb.Append(":{\"").Append(methodName).Append("\":");
-      this.Visit(m.Arguments[1]);
+      var inner = StripQuotes(m.Arguments[1]);
+      if (inner is LambdaExpression lambda) {
+        this.VisitPredicate(lambda.Body);
+      } else {
+        this.Visit(inner);
+      }
       sb.Append("}}");
       return m;
     }

@@ -298,6 +298,7 @@ namespace Breeze.Sharp {
           JsonTextReader reader = new JsonTextReader(re) { MaxDepth = 128};
           var jt = JToken.Load(reader);
           jt = mappingContext.JsonResultsAdapter.ExtractResults(jt);
+          jt = UnwrapScalarProjection(jt, query.ElementType);
           if (result.IndexOf("\"InlineCount\":", StringComparison.OrdinalIgnoreCase) > 0) {
             rType = typeof(QueryResult<>).MakeGenericType(query.ElementType);
             return (IEnumerable)serializer.Deserialize(new JTokenReader(jt), rType);
@@ -313,6 +314,57 @@ namespace Breeze.Sharp {
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Lifts the value out of each row of a projection that selects a single member.
+    /// </summary>
+    /// <remarks>
+    /// A Breeze server answers a select with objects carrying the selected members, so
+    /// Select(o => o.OrderDate) comes back as [{"OrderDate":"..."}] rather than as a list of dates.
+    /// Deserializing that straight into the query's element type fails with "Unexpected token:
+    /// StartObject", so unwrap the rows first when the element type is a single value.
+    /// Rows are left alone when the element type is an entity or an anonymous type, when the
+    /// server already sent bare values, and when a row carries more than one member.
+    /// </remarks>
+    private static JToken UnwrapScalarProjection(JToken node, Type elementType) {
+      if (node == null || !IsScalarType(elementType)) {
+        return node;
+      }
+
+      if (node is JObject obj && obj["Results"] is JArray inlineCountResults) {
+        obj["Results"] = UnwrapRows(inlineCountResults);
+        return obj;
+      }
+      if (node is JArray rows) {
+        return UnwrapRows(rows);
+      }
+      return UnwrapRow(node);
+    }
+
+    private static JArray UnwrapRows(JArray rows) {
+      return new JArray(rows.Select(UnwrapRow));
+    }
+
+    private static JToken UnwrapRow(JToken row) {
+      if (!(row is JObject obj)) {
+        return row;
+      }
+      // $id and $type are Breeze's own bookkeeping, not selected members.
+      var members = obj.Properties().Where(p => !p.Name.StartsWith("$")).ToList();
+      return members.Count == 1 ? members[0].Value : row;
+    }
+
+    /// <summary>
+    /// True for the types a query can project to as a single value: the types Breeze maps to a
+    /// data type, plus enumerations, including their nullable forms.
+    /// </summary>
+    private static bool IsScalarType(Type type) {
+      if (type == null) {
+        return false;
+      }
+      type = Nullable.GetUnderlyingType(type) ?? type;
+      return type.GetTypeInfo().IsEnum || DataType.FromClrType(type) != DataType.Undefined;
     }
 
     /// <summary>

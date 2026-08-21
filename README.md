@@ -7,15 +7,15 @@ manages the entity graph of application data, tracks changes, and performs updat
 
 This repository holds the Breeze assets **for .NET and Xamarin client development**.  
 
-`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects, and `Breeze.Sharp.6.sln` holds the .NET 6 projects.
+`Breeze.Sharp.Net.sln` holds all the projects (.NET Framework 4.5 & 4.8, .NET Standard 2.0, and .NET 5 through 10) and builds the NuGet packages.  The other solution files are obsolete.
+
+~~`Breeze.Sharp.sln` holds the .NET Framework 4.x projects, `Breeze.Sharp.Standard.sln` holds the .NET Standard 2.0 projects, and `Breeze.Sharp.6.sln` holds the .NET 6 projects.~~
 
 Please see the [Breeze.Sharp documentation](http://breeze.github.io/doc-cs/introduction.html) to get started.
 
 ## Support
 
 **For technical questions, please go to [StackOverflow with the tag "breeze"](http://stackoverflow.com/questions/tagged/breeze?sort=newest "Breeze.Sharp on StackOverflow").**
-
-<p><a title="Breeze# on StackOverflow" href="http://stackoverflow.com/questions/tagged/breeze?sort=newest"><img src="http://www.breezejs.com/sites/all/themes/breeze/images/BreezeSharpLovesStackOverflow.png" alt="BreezeJS loves StackOverflow"></a></p>
 
 StackOverflow is a fantastic site where tons of developers help each other with their technical questions.
 

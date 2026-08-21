@@ -30,23 +30,28 @@ namespace Breeze.Sharp.Tests {
 
   public static void RunInWpfSyncContext(Func<Task> function) {
 #if NETFRAMEWORK
-      if (function == null) throw new ArgumentNullException("function");
-      var prevCtx = SynchronizationContext.Current;
-      try {
-        var syncCtx = new DispatcherSynchronizationContext();
-        SynchronizationContext.SetSynchronizationContext(syncCtx);
+      // Need to run the async function in a WPF SynchronizationContext so that the async code can use Dispatcher.Invoke() to marshal back to the UI thread.  This is needed for some tests that use WPF controls.
+      // Need to install System.Windows.Extensions NuGet package to get access to DispatcherSynchronizationContext and DispatcherFrame classes.
 
-        var task = function();
-        if (task == null) throw new InvalidOperationException();
+      //if (function == null) throw new ArgumentNullException("function");
+      //var prevCtx = SynchronizationContext.Current;
+      //try {
+      //  var syncCtx = new DispatcherSynchronizationContext();
+      //  SynchronizationContext.SetSynchronizationContext(syncCtx);
 
-        var frame = new DispatcherFrame();
-        var t2 = task.ContinueWith(x => { frame.Continue = false; }, TaskScheduler.Default);
-        Dispatcher.PushFrame(frame);   // execute all tasks until frame.Continue == false
+      //  var task = function();
+      //  if (task == null) throw new InvalidOperationException();
 
-        task.GetAwaiter().GetResult(); // rethrow exception when task has failed 
-      } finally {
-        SynchronizationContext.SetSynchronizationContext(prevCtx);
-      }
+      //  var frame = new DispatcherFrame();
+      //  var t2 = task.ContinueWith(x => { frame.Continue = false; }, TaskScheduler.Default);
+      //  Dispatcher.PushFrame(frame);   // execute all tasks until frame.Continue == false
+
+      //  task.GetAwaiter().GetResult(); // rethrow exception when task has failed 
+      //} finally {
+      //  SynchronizationContext.SetSynchronizationContext(prevCtx);
+      //}
+      var task = function();
+      if (task == null) throw new InvalidOperationException();
 #else
       var task = function();
       if (task == null) throw new InvalidOperationException();

@@ -430,6 +430,125 @@ namespace Breeze.Sharp.Tests {
       Assert.IsTrue(results.Any());
 
     }
+    /// <summary>
+    /// A projection to a single value rather than to an object.
+    /// </summary>
+    /// <remarks>
+    /// The server answers a select with objects carrying the selected members, so a one-member
+    /// projection arrives as [{"CompanyName":"..."}]. Those rows have to be unwrapped before they
+    /// can be deserialized as strings; without that this fails with "Unexpected token: StartObject".
+    /// </remarks>
+    [TestMethod]
+    public async Task SelectSingleValue() {
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("the OData client cannot express a projection to a single value");
+      }
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q = new EntityQuery<Customer>("Customers")
+        .Where(c => c.CompanyName.StartsWith("C"))
+        .Select(c => c.CompanyName);
+
+      var results = (await ((EntityQuery<String>)q).Execute(em1)).ToList();
+
+      Assert.IsTrue(results.Any(), "should have returned some company names");
+      Assert.IsTrue(results.All(name => name != null && name.StartsWith("C")),
+        "each result should be the company name itself, not an object wrapping it");
+    }
+
+    /// <summary>
+    /// A projection to a single value that is not a string, so the deserializer has real work to do.
+    /// </summary>
+    [TestMethod]
+    public async Task SelectSingleValueDate() {
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("the OData client cannot express a projection to a single value");
+      }
+      var em1 = await TestFns.NewEm(_serviceName);
+      var q = new EntityQuery<Order>()
+        .Where(o => o.OrderDate != null)
+        .Take(5)
+        .Select(o => o.OrderDate);
+
+      var results = (await ((EntityQuery<DateTime?>)q).Execute(em1)).ToList();
+
+      Assert.IsTrue(results.Any(), "should have returned some order dates");
+      Assert.IsTrue(results.All(date => date.HasValue), "each result should be a date");
+    }
+
+    /// <summary>
+    /// Ordering a single-value projection by the value itself.
+    /// </summary>
+    /// <remarks>
+    /// Nothing sorts these client side, so they arrive in whatever order the server sent them.
+    /// If the ordering never reaches the server the rows come back in table order instead.
+    /// </remarks>
+    [TestMethod]
+    public async Task SelectSingleValueOrdered() {
+      if (Configuration.Instance.QueryUriStyle == QueryUriStyle.OData) {
+        Assert.Inconclusive("the OData client cannot express a projection to a single value");
+      }
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var newestFirst = (await ((EntityQuery<DateTime?>)new EntityQuery<Order>()
+        .Where(o => o.OrderDate != null)
+        .Select(o => o.OrderDate)
+        .OrderByDescending(d => d))
+        .Execute(em1)).ToList();
+
+      var oldestFirst = (await ((EntityQuery<DateTime?>)new EntityQuery<Order>()
+        .Where(o => o.OrderDate != null)
+        .Select(o => o.OrderDate)
+        .OrderBy(d => d))
+        .Execute(em1)).ToList();
+
+      Assert.IsTrue(newestFirst.Any(), "should have returned some order dates");
+
+      CollectionAssert.AreEqual(newestFirst.OrderByDescending(d => d).ToList(), newestFirst,
+        "the server should have sent them newest first");
+      CollectionAssert.AreEqual(oldestFirst.OrderBy(d => d).ToList(), oldestFirst,
+        "the server should have sent them oldest first");
+
+      if (newestFirst.Distinct().Count() > 1) {
+        Assert.AreNotEqual(oldestFirst.First(), newestFirst.First(),
+          "the two orderings should not begin at the same date");
+      }
+    }
+
+    /// <summary>
+    /// A boolean property used as a predicate on its own, which means the property is true.
+    /// </summary>
+    [TestMethod]
+    public async Task WhereBooleanProperty() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var all = (await new EntityQuery<Product>().Execute(em1)).ToList();
+      if (!all.Any(p => p.Discontinued)) {
+        Assert.Inconclusive("no discontinued products, so the filter proves nothing");
+      }
+
+      var results = (await new EntityQuery<Product>().Where(p => p.Discontinued).Execute(em1)).ToList();
+
+      Assert.IsTrue(results.All(p => p.Discontinued), "every result should be discontinued");
+      Assert.AreEqual(all.Count(p => p.Discontinued), results.Count,
+        "should have returned every discontinued product");
+    }
+
+    /// <summary>
+    /// The same boolean property negated, and combined with another clause.
+    /// </summary>
+    [TestMethod]
+    public async Task WhereBooleanPropertyCombined() {
+      var em1 = await TestFns.NewEm(_serviceName);
+
+      var results = (await new EntityQuery<Product>()
+        .Where(p => !p.Discontinued && p.UnitPrice > 10)
+        .Execute(em1)).ToList();
+
+      Assert.IsTrue(results.Any(), "should have returned some products");
+      Assert.IsTrue(results.All(p => !p.Discontinued && p.UnitPrice > 10),
+        "every result should match both clauses");
+    }
+
 
     [TestMethod]
     public async Task SelectAnonWithOrderBy() {
@@ -581,7 +700,8 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task WhereGuid() {
       var em1 = await TestFns.NewEm(_serviceName);
-      var q = new EntityQuery<Customer>().Where(c => c.CustomerID.Equals(Guid.NewGuid())); // && true);
+      var guid = Guid.NewGuid();
+      var q = new EntityQuery<Customer>().Where(c => c.CustomerID.Equals(guid)); // && true);
       var rp = q.GetResourcePath(em1.MetadataStore);
       var r = await em1.ExecuteQuery(q);
       Assert.IsTrue(r.Count() == 0, "should be no results");
@@ -591,7 +711,8 @@ namespace Breeze.Sharp.Tests {
     [TestMethod]
     public async Task WhereGuid2() {
       var em1 = await TestFns.NewEm(_serviceName);
-      var q = new EntityQuery<Order>().Where(o => o.CustomerID == Guid.NewGuid()); // && true);
+      var guid = Guid.NewGuid();
+      var q = new EntityQuery<Order>().Where(o => o.CustomerID == guid); // && true);
       var rp = q.GetResourcePath(em1.MetadataStore);
       var r = await em1.ExecuteQuery(q);
       Assert.IsTrue(r.Count() == 0, "should be no results");

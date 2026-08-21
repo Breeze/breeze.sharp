@@ -90,8 +90,49 @@ namespace Breeze.Sharp.Tests {
       q = ord.OrderByDescending(o => o.Employee.Manager.Manager.FirstName);
       Check(q, "{\"orderBy\":[\"Employee.Manager.Manager.FirstName desc\"]}");
 
+      q = ord.OrderBy(o => o.Employee.HireDate);
+      Check(q, "{\"orderBy\":[\"Employee.HireDate\"]}");
+
+      q = ord.OrderByDescending(o => o.Employee.HireDate);
+      Check(q, "{\"orderBy\":[\"Employee.HireDate desc\"]}");
+
+
       //q = ord.OrderBy(o => o.Customer.CompanyName.Substring(1));
       //Check(q, "{\"orderBy\":[\"Not yet supported\"]}");
+    }
+
+    /// <summary>
+    /// Ordering by the value itself rather than by a named member.
+    /// </summary>
+    /// <remarks>
+    /// Over a projection to a single member this is ordering the source by that member, so it can
+    /// be translated. Ordering entities by themselves, or a projection to several members, names
+    /// nothing the server can sort on, and the clause is dropped.
+    /// </remarks>
+    [TestMethod]
+    public void OrderBy2() {
+      var ord = EntityQuery.From<Order>();
+
+      var q = ord.OrderBy(o => o);
+      Check(q, "{}");
+
+      var q2 = ord.Select(o => o.Employee.HireDate);
+      q2 = q2.OrderBy(y => y);
+      Check(q2, "{\"select\":[\"Employee.HireDate\"],\"orderBy\":[\"Employee.HireDate\"]}");
+
+      var q3 = ord.Select(o => o.Employee.HireDate);
+      q3 = q3.OrderByDescending(y => y);
+      Check(q3, "{\"select\":[\"Employee.HireDate\"],\"orderBy\":[\"Employee.HireDate desc\"]}");
+
+      // The projected value still orders the source, so a Where alongside it is unaffected.
+      var q4 = ord.Where(o => o.Freight > 100).Select(o => o.OrderDate);
+      q4 = q4.OrderByDescending(y => y);
+      Check(q4, "{\"where\":{\"Freight\":{\"gt\": 100}},\"select\":[\"OrderDate\"],\"orderBy\":[\"OrderDate desc\"]}");
+
+      // Several members leave nothing to name, so the ordering goes rather than being guessed at.
+      var q5 = ord.Select(o => new { o.Freight, o.ShipCity });
+      q5 = q5.OrderBy(y => y.Freight).ThenBy(y => y.ShipCity);
+      Check(q5, "{\"select\":[\"Freight\",\"ShipCity\"],\"orderBy\":[\"Freight\",\"ShipCity\"]}");
     }
 
     [TestMethod]
@@ -238,6 +279,53 @@ namespace Breeze.Sharp.Tests {
       var q = EntityQuery.From<Order>();
       q = q.Where(o => o.OrderDetails.All(d => d.Discount == 0));
       Check(q, "{\"where\":{\"OrderDetails\":{\"All\":{\"Discount\":0}}}}");
+    }
+
+    /// <summary>
+    /// A boolean property used on its own is a complete predicate. It has to be written as
+    /// {"Discontinued":true}; a bare "Discontinued" is a JSON string, which the server rejects.
+    /// </summary>
+    [TestMethod]
+    public void WhereBoolean() {
+      var prod = EntityQuery.From<Product>();
+
+      var q = prod.Where(p => p.Discontinued);
+      Check(q, "{\"where\":{\"Discontinued\":true}}");
+
+      // The explicit comparison must keep producing the same thing.
+      q = prod.Where(p => p.Discontinued == true);
+      Check(q, "{\"where\":{\"Discontinued\":true}}");
+
+      q = prod.Where(p => !p.Discontinued);
+      Check(q, "{\"where\":{\"not\":{\"Discontinued\":true}}}");
+
+      q = prod.Where(p => p.Discontinued == false);
+      Check(q, "{\"where\":{\"Discontinued\":false}}");
+    }
+
+    [TestMethod]
+    public void WhereBooleanCombined() {
+      var prod = EntityQuery.From<Product>();
+
+      var q = prod.Where(p => p.Discontinued && p.ProductName == "Chai");
+      Check(q, "{\"where\":{\"and\":[{\"Discontinued\":true},{\"ProductName\":\"Chai\"}]}}");
+
+      q = prod.Where(p => p.ProductName == "Chai" || p.Discontinued);
+      Check(q, "{\"where\":{\"or\":[{\"ProductName\":\"Chai\"},{\"Discontinued\":true}]}}");
+
+      q = prod.Where(p => p.Discontinued && p.Category.CategoryName == "Beverages");
+      Check(q, "{\"where\":{\"and\":[{\"Discontinued\":true},{\"Category.CategoryName\":\"Beverages\"}]}}");
+    }
+
+    [TestMethod]
+    public void WhereBooleanInAnyAll() {
+      var cat = EntityQuery.From<Category>();
+
+      var q = cat.Where(c => c.Products.Any(p => p.Discontinued));
+      Check(q, "{\"where\":{\"Products\":{\"Any\":{\"Discontinued\":true}}}}");
+
+      q = cat.Where(c => c.Products.All(p => p.Discontinued));
+      Check(q, "{\"where\":{\"Products\":{\"All\":{\"Discontinued\":true}}}}");
     }
 
     [TestMethod]
