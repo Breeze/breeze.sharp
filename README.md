@@ -2,6 +2,8 @@
 
 ## Welcome to **Breeze.Sharp** by [**IdeaBlade**](http://www.ideablade.com "IdeaBlade website"), the data management library for developers of rich client applications written in  **C#, F#, and VB.NET**.
 
+> **Taking a .NET desktop application to the web?** IdeaBlade, the team behind Breeze, modernizes WPF, WinForms, Silverlight and .NET Framework applications into web applications on Angular or React and ASP.NET Core. [Application modernization](https://www.ideablade.com/modernization/).
+
 Breeze.Sharp is a data management tool for smart client apps.  It retrieves data from the server using a rich query language, 
 manages the entity graph of application data, tracks changes, and performs updates of changed data to the server.
 
